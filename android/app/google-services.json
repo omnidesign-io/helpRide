@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "879652794722",
+    "project_id": "helpride-omni",
+    "storage_bucket": "helpride-omni.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:879652794722:android:5d0d3fcb2a73dab46a3c3b",
+        "android_client_info": {
+          "package_name": "com.helpride.helpride"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzh6-9x3WfAeIK44hz3vmWmhR27xCTAu0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

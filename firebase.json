@@ -1,0 +1,28 @@
+{
+  "firestore": {
+    "database": "(default)",
+    "location": "nam5",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "helpride-omni",
+          "appId": "1:879652794722:android:5d0d3fcb2a73dab46a3c3b",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "helpride-omni",
+          "configurations": {
+            "android": "1:879652794722:android:5d0d3fcb2a73dab46a3c3b",
+            "web": "1:879652794722:web:326f323e0038a4da6a3c3b"
+          }
+        }
+      }
+    }
+  }
+}

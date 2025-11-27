@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is a superadmin defined in the DB
+    function isSuperAdmin(email) {
+      return exists(/databases/$(database)/documents/super_admins/$(email));
+    }
+
+    // Users Collection
+    match /users/{phoneNumber} {
+      // Allow create (Sign Up)
+      allow create: if request.auth != null && !exists(/databases/$(database)/documents/users/$(phoneNumber));
+      
+      // Allow read (Authenticated users)
+      allow read: if request.auth != null; 
+      
+      allow update: if request.auth != null && (
+        // Self-update session
+        (resource.data.sessionToken == request.resource.data.sessionToken) ||
+        
+        // Self-update Profile & Location (Allowed fields only)
+        (
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['username', 'telegramHandle', 'location', 'lastLocationUpdate', 'updatedAt']) &&
+          resource.data.sessionToken == request.resource.data.sessionToken
+        ) ||
+
+        // Superadmin claiming their role (checking email against super_admins collection)
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role', 'googleEmail']) &&
+          request.resource.data.role == 'superadmin' &&
+          request.auth.token.email_verified == true &&
+          isSuperAdmin(request.auth.token.email)
+        )
+      );
+    }
+    
+    // Super Admins Collection (Read-only for rules, Write only by manual console or other superadmins)
+    match /super_admins/{email} {
+      allow read: if false; // Private, only accessible via rules 'exists' check
+      allow write: if false; // Managed manually for now
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "appTitle": "HelpRide",
+  "loginButton": "Login / Sign Up",
+  "updateLocationButton": "Update Location",
+  "welcomeMessage": "Connecting communities in times of need.",
+  "phoneNumberLabel": "Phone Number",
+  "captchaLabel": "Verify you are human",
+  "submitButton": "Submit"
+}

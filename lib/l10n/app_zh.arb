@@ -1,0 +1,9 @@
+{
+  "appTitle": "HelpRide",
+  "loginButton": "登入 / 註冊",
+  "updateLocationButton": "更新位置",
+  "welcomeMessage": "危難時刻，連結社區。",
+  "phoneNumberLabel": "電話號碼",
+  "captchaLabel": "驗證",
+  "submitButton": "提交"
+}
