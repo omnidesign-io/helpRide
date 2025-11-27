@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:helpride/l10n/generated/app_localizations.dart';
 import '../repository/user_repository.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -53,7 +53,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile Updated')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.profileUpdatedMessage)),
         );
         context.go('/'); // Go back home
       }
@@ -75,24 +75,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final l10n = AppLocalizations.of(context)!;
     
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profile')),
+      appBar: AppBar(title: Text(l10n.editProfileTitle)),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
             TextField(
               controller: _usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Username (Required)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.usernameLabel,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _telegramController,
-              decoration: const InputDecoration(
-                labelText: 'Telegram Handle (Optional)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.telegramHandleLabel,
+                border: const OutlineInputBorder(),
                 prefixText: '@',
               ),
             ),
@@ -103,7 +103,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 onPressed: _isLoading ? null : _saveProfile,
                 child: _isLoading 
                     ? const CircularProgressIndicator() 
-                    : const Text('Save Profile'),
+                    : Text(l10n.saveProfileButton),
               ),
             ),
           ],

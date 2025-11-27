@@ -18,7 +18,7 @@ import 'app_localizations_zh.dart';
 /// `supportedLocales` list. For example:
 ///
 /// ```dart
-/// import 'l10n/app_localizations.dart';
+/// import 'generated/app_localizations.dart';
 ///
 /// return MaterialApp(
 ///   localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -139,6 +139,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Submit'**
   String get submitButton;
+
+  /// No description provided for @usernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username (Required)'**
+  String get usernameLabel;
+
+  /// No description provided for @telegramHandleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Telegram Handle (Optional)'**
+  String get telegramHandleLabel;
+
+  /// No description provided for @signUpButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get signUpButton;
+
+  /// No description provided for @welcomeBackMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back!'**
+  String get welcomeBackMessage;
+
+  /// No description provided for @accountCreatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Created!'**
+  String get accountCreatedMessage;
+
+  /// No description provided for @enterPhoneFirstError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter phone number first'**
+  String get enterPhoneFirstError;
+
+  /// No description provided for @adminLoginButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Login (Google)'**
+  String get adminLoginButton;
+
+  /// No description provided for @adminAccessGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Access Granted!'**
+  String get adminAccessGranted;
+
+  /// No description provided for @adminClaimFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Claim Failed (Are you a Superadmin?)'**
+  String get adminClaimFailed;
+
+  /// No description provided for @editProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get editProfileTitle;
+
+  /// No description provided for @saveProfileButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Profile'**
+  String get saveProfileButton;
+
+  /// No description provided for @profileUpdatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Updated'**
+  String get profileUpdatedMessage;
 }
 
 class _AppLocalizationsDelegate

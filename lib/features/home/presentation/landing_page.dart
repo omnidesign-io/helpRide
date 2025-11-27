@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../repository/user_repository.dart';
+
+import 'package:helpride/core/providers/locale_provider.dart';
 
 class LandingPage extends ConsumerWidget {
   const LandingPage({super.key});
@@ -22,6 +24,12 @@ class LandingPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.appTitle),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: () {
+              ref.read(localeProvider.notifier).toggleLocale();
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () {

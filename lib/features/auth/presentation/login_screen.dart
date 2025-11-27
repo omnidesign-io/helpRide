@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../repository/auth_repository.dart';
@@ -13,43 +13,95 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _phoneController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _telegramController = TextEditingController();
+  
   bool _isCaptchaVerified = false;
   bool _isLoading = false;
+  bool _isNewUser = false;
+  bool _hasCheckedUser = false;
 
   @override
   void dispose() {
     _phoneController.dispose();
+    _usernameController.dispose();
+    _telegramController.dispose();
     super.dispose();
   }
 
-  Future<void> _submit() async {
-    if (!_phoneController.text.isNotEmpty || !_isCaptchaVerified) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
+  Future<void> _checkUser() async {
+    if (_phoneController.text.isEmpty) return;
+    
+    setState(() => _isLoading = true);
+    
     try {
       final authRepo = ref.read(authRepositoryProvider);
-      await authRepo.verifyPhoneAndLogin(_phoneController.text);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login Successful!')),
-        );
-        context.go('/'); 
+      final exists = await authRepo.checkUserExists(_phoneController.text);
+      
+      setState(() {
+        _hasCheckedUser = true;
+        _isNewUser = !exists;
+      });
+      
+      if (exists) {
+        // If user exists, just log them in (MVP flow)
+        await authRepo.login(_phoneController.text);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context)!.welcomeBackMessage)),
+          );
+          context.go('/');
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login Failed: $e')),
+          SnackBar(content: Text('Error: $e')),
         );
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _completeSignUp() async {
+    final l10n = AppLocalizations.of(context)!;
+    if (_usernameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.usernameLabel)), // Reusing label as error for now or add specific error
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final authRepo = ref.read(authRepositoryProvider);
+      await authRepo.signUp(
+        phoneNumber: _phoneController.text,
+        username: _usernameController.text,
+        telegramHandle: _telegramController.text.isNotEmpty 
+            ? _telegramController.text 
+            : null,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.accountCreatedMessage)),
+        );
+        context.go('/');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sign Up Failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -68,39 +120,69 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             TextField(
               controller: _phoneController,
               keyboardType: TextInputType.phone,
+              enabled: !_hasCheckedUser, // Lock phone after check
               decoration: InputDecoration(
                 labelText: l10n.phoneNumberLabel,
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.phone),
               ),
             ),
+            
+            if (_isNewUser && _hasCheckedUser) ...[
+              const SizedBox(height: 16),
+              TextField(
+                controller: _usernameController,
+                decoration: InputDecoration(
+                  labelText: l10n.usernameLabel,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.person),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _telegramController,
+                decoration: InputDecoration(
+                  labelText: l10n.telegramHandleLabel,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.send), // Telegram-ish icon
+                  prefixText: '@',
+                ),
+              ),
+            ],
+
             const SizedBox(height: 24),
             // Placeholder for Captcha Widget
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
+            if (!_hasCheckedUser)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: _isCaptchaVerified,
+                      onChanged: (value) {
+                        setState(() {
+                          _isCaptchaVerified = value ?? false;
+                        });
+                      },
+                    ),
+                    Text(l10n.captchaLabel),
+                  ],
+                ),
               ),
-              child: Row(
-                children: [
-                  Checkbox(
-                    value: _isCaptchaVerified,
-                    onChanged: (value) {
-                      setState(() {
-                        _isCaptchaVerified = value ?? false;
-                      });
-                    },
-                  ),
-                  Text(l10n.captchaLabel),
-                ],
-              ),
-            ),
             const SizedBox(height: 24),
+            
             ElevatedButton(
-              onPressed: (_isCaptchaVerified && _phoneController.text.isNotEmpty && !_isLoading)
-                  ? _submit
-                  : null,
+              onPressed: _isLoading 
+                  ? null 
+                  : (_hasCheckedUser && _isNewUser) 
+                      ? _completeSignUp 
+                      : (_isCaptchaVerified && _phoneController.text.isNotEmpty) 
+                          ? _checkUser 
+                          : null,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
@@ -110,37 +192,40 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       width: 20, 
                       child: CircularProgressIndicator(strokeWidth: 2)
                     )
-                  : Text(l10n.submitButton),
+                  : Text(_hasCheckedUser ? l10n.signUpButton : l10n.submitButton),
             ),
-            const SizedBox(height: 16),
-            TextButton.icon(
-              onPressed: () async {
-                if (_phoneController.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter phone number first')),
-                  );
-                  return;
-                }
-                try {
-                  final authRepo = ref.read(authRepositoryProvider);
-                  await authRepo.signInWithGoogleAndClaimAdmin(_phoneController.text);
-                  if (context.mounted) {
+            
+            if (!_hasCheckedUser) ...[
+              const SizedBox(height: 16),
+              TextButton.icon(
+                onPressed: () async {
+                  if (_phoneController.text.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Admin Access Granted!')),
+                      SnackBar(content: Text(l10n.enterPhoneFirstError)),
                     );
-                    context.go('/');
+                    return;
                   }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Admin Claim Failed (Are you a Superadmin?)')),
-                    );
+                  try {
+                    final authRepo = ref.read(authRepositoryProvider);
+                    await authRepo.signInWithGoogleAndClaimAdmin(_phoneController.text);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.adminAccessGranted)),
+                      );
+                      context.go('/');
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.adminClaimFailed)),
+                      );
+                    }
                   }
-                }
-              },
-              icon: const Icon(Icons.security),
-              label: const Text('Admin Login (Google)'),
-            ),
+                },
+                icon: const Icon(Icons.security),
+                label: Text(l10n.adminLoginButton),
+              ),
+            ],
           ],
         ),
       ),

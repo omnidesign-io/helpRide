@@ -11,7 +11,9 @@ service cloud.firestore {
     // Users Collection
     match /users/{phoneNumber} {
       // Allow create (Sign Up)
-      allow create: if request.auth != null && !exists(/databases/$(database)/documents/users/$(phoneNumber));
+      // Must allow writing initial profile data
+      allow create: if request.auth != null && 
+                    !exists(/databases/$(database)/documents/users/$(phoneNumber));
       
       // Allow read (Authenticated users)
       allow read: if request.auth != null; 

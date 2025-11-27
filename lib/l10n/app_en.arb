@@ -5,5 +5,17 @@
   "welcomeMessage": "Connecting communities in times of need.",
   "phoneNumberLabel": "Phone Number",
   "captchaLabel": "Verify you are human",
-  "submitButton": "Submit"
+  "submitButton": "Submit",
+  "usernameLabel": "Username (Required)",
+  "telegramHandleLabel": "Telegram Handle (Optional)",
+  "signUpButton": "Sign Up",
+  "welcomeBackMessage": "Welcome back!",
+  "accountCreatedMessage": "Account Created!",
+  "enterPhoneFirstError": "Please enter phone number first",
+  "adminLoginButton": "Admin Login (Google)",
+  "adminAccessGranted": "Admin Access Granted!",
+  "adminClaimFailed": "Admin Claim Failed (Are you a Superadmin?)",
+  "editProfileTitle": "Edit Profile",
+  "saveProfileButton": "Save Profile",
+  "profileUpdatedMessage": "Profile Updated"
 }

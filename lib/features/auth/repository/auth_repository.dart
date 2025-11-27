@@ -25,30 +25,43 @@ class AuthRepository {
     }
   }
 
-  // Check if user exists and handle login/signup
-  Future<String> verifyPhoneAndLogin(String phoneNumber) async {
+  // Check if user exists
+  Future<bool> checkUserExists(String phoneNumber) async {
+    await signInAnonymously();
+    final userDoc = await _firestore.collection('users').doc(phoneNumber).get();
+    return userDoc.exists;
+  }
+
+  // Login (Existing User)
+  Future<void> login(String phoneNumber) async {
+    await signInAnonymously();
+    // In a real app, we'd trigger the approval flow here.
+    // For MVP, we just ensure they are connected.
+  }
+
+  // Sign Up (New User)
+  Future<String> signUp({
+    required String phoneNumber,
+    required String username,
+    String? telegramHandle,
+  }) async {
     await signInAnonymously();
     
     final userDocRef = _firestore.collection('users').doc(phoneNumber);
-    final userDoc = await userDocRef.get();
-
-    if (!userDoc.exists) {
-      // Sign Up: Create new user
-      final sessionToken = _uuid.v4();
-      await userDocRef.set({
-        'uid': _auth.currentUser?.uid,
-        'phoneNumber': phoneNumber,
-        'sessionToken': sessionToken,
-        'createdAt': FieldValue.serverTimestamp(),
-        'role': 'rider', // Default
-        'isOnline': true,
-      });
-      return sessionToken;
-    } else {
-      // Login: Request access (Simplified for MVP)
-      // In a real flow, we would trigger the approval process here.
-      return "existing_session"; 
-    }
+    final sessionToken = _uuid.v4();
+    
+    await userDocRef.set({
+      'uid': _auth.currentUser?.uid,
+      'phoneNumber': phoneNumber,
+      'sessionToken': sessionToken,
+      'username': username,
+      'telegramHandle': telegramHandle,
+      'createdAt': FieldValue.serverTimestamp(),
+      'role': 'rider', // Default
+      'isOnline': true,
+    });
+    
+    return sessionToken;
   }
 
   // Sign in with Google and attempt to claim Superadmin role

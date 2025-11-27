@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +8,7 @@ import 'firebase_options.dart';
 import 'features/home/presentation/landing_page.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/home/presentation/profile_screen.dart';
+import 'core/providers/locale_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,16 +38,29 @@ final _router = GoRouter(
   ],
 );
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
+    
     return MaterialApp.router(
       title: 'HelpRide',
+      locale: locale, // Dynamic Locale
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber), // Warm color
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.teal,
+          brightness: Brightness.light,
+        ),
+        // Remove default elevation for a flatter, modern look
+        appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            elevation: 0, // Flat buttons
+          ),
+        ),
       ),
       routerConfig: _router,
       localizationsDelegates: const [

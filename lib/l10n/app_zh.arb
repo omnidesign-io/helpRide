@@ -5,5 +5,17 @@
   "welcomeMessage": "危難時刻，連結社區。",
   "phoneNumberLabel": "電話號碼",
   "captchaLabel": "驗證",
-  "submitButton": "提交"
+  "submitButton": "提交",
+  "usernameLabel": "用戶名稱 (必填)",
+  "telegramHandleLabel": "Telegram 用戶名 (選填)",
+  "signUpButton": "註冊",
+  "welcomeBackMessage": "歡迎回來！",
+  "accountCreatedMessage": "帳戶已建立！",
+  "enterPhoneFirstError": "請先輸入電話號碼",
+  "adminLoginButton": "管理員登入 (Google)",
+  "adminAccessGranted": "已獲得管理員權限！",
+  "adminClaimFailed": "無法獲得管理員權限 (您是超級管理員嗎？)",
+  "editProfileTitle": "編輯個人資料",
+  "saveProfileButton": "儲存個人資料",
+  "profileUpdatedMessage": "個人資料已更新"
 }
