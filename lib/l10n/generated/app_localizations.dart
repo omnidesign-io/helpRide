@@ -329,7 +329,7 @@ abstract class AppLocalizations {
   /// No description provided for @passengerCountLabel.
   ///
   /// In en, this message translates to:
-  /// **'Number of People'**
+  /// **'Passengers'**
   String get passengerCountLabel;
 
   /// No description provided for @youAreOnlineMessage.
@@ -613,6 +613,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wheelchair Accessible Van'**
   String get vehicleTypeAccessibleVan;
+
+  /// No description provided for @rideOptionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride Options'**
+  String get rideOptionsTitle;
+
+  /// No description provided for @conditionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Conditions'**
+  String get conditionsLabel;
+
+  /// No description provided for @conditionPets.
+  ///
+  /// In en, this message translates to:
+  /// **'Pets'**
+  String get conditionPets;
+
+  /// No description provided for @conditionWheelchair.
+  ///
+  /// In en, this message translates to:
+  /// **'Wheelchair'**
+  String get conditionWheelchair;
+
+  /// No description provided for @conditionCargo.
+  ///
+  /// In en, this message translates to:
+  /// **'Cargo / Luggage'**
+  String get conditionCargo;
+
+  /// No description provided for @selectRideOptionsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Options'**
+  String get selectRideOptionsButton;
+
+  /// No description provided for @saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get saveButton;
 }
 
 class _AppLocalizationsDelegate

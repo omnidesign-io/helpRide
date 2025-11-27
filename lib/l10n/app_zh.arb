@@ -84,5 +84,13 @@
   "vehicleTypeVan": "客貨車",
   "vehicleTypeSUV": "SUV",
   "vehicleTypeMotorcycle": "電單車",
-  "vehicleTypeAccessibleVan": "輪椅的士"
+  "vehicleTypeAccessibleVan": "輪椅的士",
+  "rideOptionsTitle": "行程選項",
+  "passengerCountLabel": "乘客人數",
+  "conditionsLabel": "特別需求",
+  "conditionPets": "寵物",
+  "conditionWheelchair": "輪椅",
+  "conditionCargo": "貨物 / 行李",
+  "selectRideOptionsButton": "選擇選項",
+  "saveButton": "確認"
 }

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/ride_model.dart';
-import '../domain/vehicle_type.dart';
+import '../domain/ride_options.dart';
 
 import 'dart:math';
 
@@ -24,8 +24,7 @@ class RideRepository {
   Future<String> createRideRequest({
     required String riderPhone,
     required GeoPoint pickupLocation,
-    int passengerCount = 1,
-    VehicleType vehicleType = VehicleType.sedan,
+    required RideOptions options,
   }) async {
     // Check for existing active ride for this rider
     final activeRidesSnapshot = await _firestore
@@ -49,8 +48,11 @@ class RideRepository {
       pickupLocation: pickupLocation,
       status: RideStatus.pending,
       createdAt: DateTime.now(),
-      passengerCount: passengerCount,
-      vehicleType: vehicleType,
+      passengerCount: options.passengerCount,
+      vehicleType: options.vehicleType,
+      acceptPets: options.acceptPets,
+      acceptWheelchair: options.acceptWheelchair,
+      acceptCargo: options.acceptCargo,
     );
 
     final docRef = await _firestore.collection('rides').add(ride.toMap());

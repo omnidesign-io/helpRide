@@ -7,9 +7,9 @@ import 'package:helpride/core/providers/role_provider.dart';
 import 'package:helpride/features/rides/repository/ride_repository.dart';
 import 'package:helpride/features/rides/domain/ride_model.dart';
 import 'package:helpride/features/rides/domain/vehicle_type.dart';
+import 'package:helpride/features/rides/domain/ride_options.dart';
 import 'package:helpride/features/home/presentation/map_placeholder_widget.dart';
 import 'package:helpride/features/rides/presentation/active_ride_screen.dart';
-import 'package:helpride/core/presentation/counter_input_widget.dart';
 
 typedef CloudFirestoreGeoPoint = GeoPoint;
 
@@ -24,8 +24,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
   // Rider State
   final TextEditingController _fromController = TextEditingController();
   final TextEditingController _toController = TextEditingController();
-  VehicleType? _selectedVehicle;
-  int _passengerCount = 1;
+  RideOptions? _rideOptions;
 
   // Driver State
   bool _isDriverOnline = false;
@@ -182,41 +181,69 @@ class _LandingPageState extends ConsumerState<LandingPage> {
         ),
         const SizedBox(height: 16),
 
-        // Vehicle Type Selector
+        // Ride Options Selector (Custom Container)
         InkWell(
           onTap: () async {
-            final result = await context.push('/vehicle-selection', extra: _selectedVehicle);
-            if (result != null && result is VehicleType) {
+            final result = await context.push('/vehicle-selection', extra: _rideOptions);
+            if (result != null && result is RideOptions) {
               setState(() {
-                _selectedVehicle = result;
+                _rideOptions = result;
               });
             }
           },
-          child: InputDecorator(
-            decoration: InputDecoration(
-              labelText: l10n.vehicleTypeLabel,
-              prefixIcon: Icon(Icons.directions_car),
-              border: OutlineInputBorder(),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(4),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_selectedVehicle?.localized(context) ?? l10n.selectVehicleLabel),
-                const Icon(Icons.arrow_drop_down),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      l10n.rideOptionsTitle,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey[700]),
+                    ),
+                    const Icon(Icons.arrow_drop_down),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                if (_rideOptions == null)
+                  Text(l10n.selectRideOptionsButton, style: const TextStyle(fontSize: 16))
+                else ...[
+                  Row(
+                    children: [
+                      Icon(_rideOptions!.vehicleType.icon, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        _rideOptions!.vehicleType.localized(context),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${l10n.passengerCountLabel}: ${_rideOptions!.passengerCount}',
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                  if (_rideOptions!.acceptPets || _rideOptions!.acceptWheelchair || _rideOptions!.acceptCargo) ...[
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        if (_rideOptions!.acceptPets) _buildConditionChip(l10n.conditionPets, Icons.pets),
+                        if (_rideOptions!.acceptWheelchair) _buildConditionChip(l10n.conditionWheelchair, Icons.accessible),
+                        if (_rideOptions!.acceptCargo) _buildConditionChip(l10n.conditionCargo, Icons.luggage),
+                      ],
+                    ),
+                  ],
+                ],
               ],
             ),
           ),
-        ),
-        
-        const SizedBox(height: 16),
-          
-        // Passenger Count
-        CounterInputWidget(
-          label: l10n.passengerCountLabel,
-          value: _passengerCount,
-          onChanged: (val) => setState(() => _passengerCount = val),
-          min: 1,
-          max: 10,
         ),
         const SizedBox(height: 24),
 
@@ -226,15 +253,14 @@ class _LandingPageState extends ConsumerState<LandingPage> {
         ElevatedButton(
           onPressed: (_fromController.text.isNotEmpty && 
                       _toController.text.isNotEmpty && 
-                      _selectedVehicle != null) 
+                      _rideOptions != null) 
               ? () async {
                   // Create Ride Request
                   try {
                     await ref.read(rideRepositoryProvider).createRideRequest(
                       riderPhone: phone,
                       pickupLocation: const CloudFirestoreGeoPoint(22.3193, 114.1694), // Mong Kok
-                      passengerCount: _passengerCount,
-                      vehicleType: _selectedVehicle!,
+                      options: _rideOptions!,
                       // dropoffLocation: ... 
                     );
                     // UI will auto-update due to stream
@@ -356,6 +382,16 @@ class _LandingPageState extends ConsumerState<LandingPage> {
           ),
         ),
       ],
+    );
+  }
+
+
+  Widget _buildConditionChip(String label, IconData icon) {
+    return Chip(
+      avatar: Icon(icon, size: 16),
+      label: Text(label, style: const TextStyle(fontSize: 12)),
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
     );
   }
 }

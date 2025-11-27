@@ -123,7 +123,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectVehicleLabel => 'Select Vehicle';
 
   @override
-  String get passengerCountLabel => 'Number of People';
+  String get passengerCountLabel => 'Passengers';
 
   @override
   String get youAreOnlineMessage => 'You are ONLINE';
@@ -272,4 +272,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vehicleTypeAccessibleVan => 'Wheelchair Accessible Van';
+
+  @override
+  String get rideOptionsTitle => 'Ride Options';
+
+  @override
+  String get conditionsLabel => 'Conditions';
+
+  @override
+  String get conditionPets => 'Pets';
+
+  @override
+  String get conditionWheelchair => 'Wheelchair';
+
+  @override
+  String get conditionCargo => 'Cargo / Luggage';
+
+  @override
+  String get selectRideOptionsButton => 'Select Options';
+
+  @override
+  String get saveButton => 'Confirm';
 }

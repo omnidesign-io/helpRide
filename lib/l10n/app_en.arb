@@ -84,5 +84,13 @@
   "vehicleTypeVan": "Van",
   "vehicleTypeSUV": "SUV",
   "vehicleTypeMotorcycle": "Motorcycle",
-  "vehicleTypeAccessibleVan": "Wheelchair Accessible Van"
+  "vehicleTypeAccessibleVan": "Wheelchair Accessible Van",
+  "rideOptionsTitle": "Ride Options",
+  "passengerCountLabel": "Passengers",
+  "conditionsLabel": "Conditions",
+  "conditionPets": "Pets",
+  "conditionWheelchair": "Wheelchair",
+  "conditionCargo": "Cargo / Luggage",
+  "selectRideOptionsButton": "Select Options",
+  "saveButton": "Confirm"
 }

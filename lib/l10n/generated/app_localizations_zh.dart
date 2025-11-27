@@ -267,4 +267,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get vehicleTypeAccessibleVan => '輪椅的士';
+
+  @override
+  String get rideOptionsTitle => '行程選項';
+
+  @override
+  String get conditionsLabel => '特別需求';
+
+  @override
+  String get conditionPets => '寵物';
+
+  @override
+  String get conditionWheelchair => '輪椅';
+
+  @override
+  String get conditionCargo => '貨物 / 行李';
+
+  @override
+  String get selectRideOptionsButton => '選擇選項';
+
+  @override
+  String get saveButton => '確認';
 }

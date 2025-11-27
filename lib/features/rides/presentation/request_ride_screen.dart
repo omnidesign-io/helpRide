@@ -6,6 +6,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
 
 import '../repository/ride_repository.dart';
+import '../domain/ride_options.dart';
+import '../domain/vehicle_type.dart';
 
 class RequestRideScreen extends ConsumerStatefulWidget {
   final String phoneNumber;
@@ -60,6 +62,7 @@ class _RequestRideScreenState extends ConsumerState<RequestRideScreen> {
       await rideRepo.createRideRequest(
         riderPhone: widget.phoneNumber,
         pickupLocation: GeoPoint(_currentPosition!.latitude, _currentPosition!.longitude),
+        options: const RideOptions(vehicleType: VehicleType.sedan),
         // Dropoff is optional for now
       );
 

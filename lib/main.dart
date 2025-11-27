@@ -17,7 +17,7 @@ import 'features/home/presentation/main_screen.dart';
 import 'features/home/presentation/settings_screen.dart';
 import 'features/rides/presentation/orders_screen.dart';
 import 'package:helpride/features/rides/presentation/vehicle_selection_screen.dart';
-import 'package:helpride/features/rides/domain/vehicle_type.dart';
+import 'package:helpride/features/rides/domain/ride_options.dart';
 import 'features/home/presentation/vehicle_settings_screen.dart';
 
 void main() async {
@@ -57,8 +57,8 @@ final _router = GoRouter(
         GoRoute(
           path: '/vehicle-selection',
           builder: (context, state) {
-            final currentSelection = state.extra as VehicleType?;
-            return VehicleSelectionScreen(currentSelection: currentSelection);
+            final currentOptions = state.extra as RideOptions?;
+            return VehicleSelectionScreen(currentOptions: currentOptions);
           },
         ),
       ],

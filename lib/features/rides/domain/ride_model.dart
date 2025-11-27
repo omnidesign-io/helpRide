@@ -13,6 +13,9 @@ class RideModel {
   final DateTime createdAt;
   final int passengerCount;
   final VehicleType vehicleType;
+  final bool acceptPets;
+  final bool acceptWheelchair;
+  final bool acceptCargo;
 
   RideModel({
     required this.id,
@@ -24,6 +27,9 @@ class RideModel {
     required this.createdAt,
     this.passengerCount = 1,
     this.vehicleType = VehicleType.sedan,
+    this.acceptPets = false,
+    this.acceptWheelchair = false,
+    this.acceptCargo = false,
   });
 
   // From Firestore
@@ -45,6 +51,9 @@ class RideModel {
         (e) => e.toString().split('.').last == data['vehicleType'],
         orElse: () => VehicleType.sedan,
       ),
+      acceptPets: data['acceptPets'] ?? false,
+      acceptWheelchair: data['acceptWheelchair'] ?? false,
+      acceptCargo: data['acceptCargo'] ?? false,
     );
   }
 
@@ -59,6 +68,9 @@ class RideModel {
       'createdAt': Timestamp.fromDate(createdAt),
       'passengerCount': passengerCount,
       'vehicleType': vehicleType.toString().split('.').last,
+      'acceptPets': acceptPets,
+      'acceptWheelchair': acceptWheelchair,
+      'acceptCargo': acceptCargo,
     };
   }
 

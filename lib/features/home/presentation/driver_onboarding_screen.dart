@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:helpride/features/home/repository/user_repository.dart';
 import 'package:helpride/core/presentation/counter_input_widget.dart';
 import 'package:helpride/features/rides/presentation/vehicle_selection_screen.dart';
+import 'package:helpride/features/rides/domain/ride_options.dart';
 import 'package:helpride/features/rides/domain/vehicle_type.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
 
@@ -107,13 +108,14 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
               subtitle: Text(_vehicleType?.localized(context) ?? l10n.selectVehicleLabel),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () async {
-                final result = await Navigator.of(context).push<VehicleType>(
+                final currentOptions = _vehicleType != null ? RideOptions(vehicleType: _vehicleType!) : null;
+                final result = await Navigator.of(context).push<RideOptions>(
                   MaterialPageRoute(
-                    builder: (_) => VehicleSelectionScreen(currentSelection: _vehicleType),
+                    builder: (_) => VehicleSelectionScreen(currentOptions: currentOptions),
                   ),
                 );
                 if (result != null) {
-                  setState(() => _vehicleType = result);
+                  setState(() => _vehicleType = result.vehicleType);
                 }
               },
               shape: RoundedRectangleBorder(
