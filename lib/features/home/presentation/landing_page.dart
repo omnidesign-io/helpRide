@@ -3,6 +3,9 @@ import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../repository/user_repository.dart';
+import '../../rides/repository/ride_repository.dart';
+import '../../rides/domain/ride_model.dart';
+import '../../rides/presentation/ride_status_widget.dart';
 
 import 'package:helpride/core/providers/locale_provider.dart';
 
@@ -63,6 +66,44 @@ class LandingPage extends ConsumerWidget {
                 // TODO: Implement Location Update
               },
               child: Text(AppLocalizations.of(context)!.updateLocationButton),
+            ),
+            const SizedBox(height: 16),
+            // Ride Status Section
+            StreamBuilder<List<Ride>>(
+              stream: ref.watch(rideRepositoryProvider).streamRiderRides('+85212345678'), // Demo Phone
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                
+                final rides = snapshot.data ?? [];
+                // Filter for active rides (pending, accepted, arrived, in_progress, completed)
+                // We show 'completed' so the user can see the final status and close it.
+                final activeRide = rides.isNotEmpty && 
+                                  ['pending', 'accepted', 'arrived', 'in_progress', 'completed'].contains(rides.first.status)
+                                  ? rides.first 
+                                  : null;
+
+                if (activeRide != null) {
+                  return RideStatusWidget(ride: activeRide);
+                }
+
+                return ElevatedButton.icon(
+                  onPressed: () {
+                    context.push('/request-ride/+85212345678');
+                  },
+                  icon: const Icon(Icons.local_taxi),
+                  label: const Text('Request Ride (Demo)'),
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                context.push('/driver-dashboard/+85212345678');
+              },
+              icon: const Icon(Icons.drive_eta),
+              label: const Text('Driver Dashboard (Demo)'),
             ),
           ],
         ),

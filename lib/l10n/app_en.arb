@@ -17,5 +17,20 @@
   "adminClaimFailed": "Admin Claim Failed (Are you a Superadmin?)",
   "editProfileTitle": "Edit Profile",
   "saveProfileButton": "Save Profile",
-  "profileUpdatedMessage": "Profile Updated"
+  "profileUpdatedMessage": "Profile Updated",
+  "requestRideTitle": "Request a Ride",
+  "pickupLocationLabel": "Pickup Location",
+  "gettingLocationMessage": "Getting location...",
+  "requestNowButton": "Request Now",
+  "rideRequestedMessage": "Ride Requested!",
+  "locationNeededError": "Location needed to request ride",
+  "driverDashboardTitle": "Driver Dashboard",
+  "noRidesAvailableMessage": "No rides available",
+  "riderLabel": "Rider",
+  "acceptRideButton": "Accept Ride",
+  "rideAcceptedMessage": "Ride Accepted!",
+  "searchingForDriverMessage": "Searching for driver...",
+  "driverFoundMessage": "Driver Found!",
+  "driverLabel": "Driver",
+  "cancelRideButton": "Cancel Ride"
 }

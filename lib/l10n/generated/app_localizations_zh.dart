@@ -64,4 +64,49 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get profileUpdatedMessage => '個人資料已更新';
+
+  @override
+  String get requestRideTitle => '預約車輛';
+
+  @override
+  String get pickupLocationLabel => '上車地點';
+
+  @override
+  String get gettingLocationMessage => '正在獲取位置...';
+
+  @override
+  String get requestNowButton => '立即預約';
+
+  @override
+  String get rideRequestedMessage => '已發送預約請求！';
+
+  @override
+  String get locationNeededError => '需要位置信息才能預約';
+
+  @override
+  String get driverDashboardTitle => '司機儀表板';
+
+  @override
+  String get noRidesAvailableMessage => '暫無可用預約';
+
+  @override
+  String get riderLabel => '乘客';
+
+  @override
+  String get acceptRideButton => '接單';
+
+  @override
+  String get rideAcceptedMessage => '已接單！';
+
+  @override
+  String get searchingForDriverMessage => '正在尋找司機...';
+
+  @override
+  String get driverFoundMessage => '已找到司機！';
+
+  @override
+  String get driverLabel => '司機';
+
+  @override
+  String get cancelRideButton => '取消預約';
 }

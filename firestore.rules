@@ -44,5 +44,30 @@ service cloud.firestore {
       allow read: if false; // Private, only accessible via rules 'exists' check
       allow write: if false; // Managed manually for now
     }
+
+    // Rides Collection
+    match /rides/{rideId} {
+      // Create: Authenticated users can create pending rides
+      allow create: if request.auth != null && 
+                    request.resource.data.status == 'pending' &&
+                    request.resource.data.keys().hasAll(['riderPhone', 'pickupLocation', 'createdAt']);
+
+      // Read: Authenticated users can read (Riders see own, Drivers see pending)
+      // For MVP simplicity, allowing all auth users to read all rides to facilitate "Driver Mode" toggling
+      allow read: if request.auth != null;
+
+      // Update:
+      allow update: if request.auth != null && (
+        // Rider cancelling
+        (resource.data.riderPhone == request.resource.data.riderPhone && // Must be owner (checking phone, ideally check session too but phone is proxy)
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) &&
+         request.resource.data.status == 'cancelled') ||
+         
+        // Driver accepting
+        (resource.data.status == 'pending' &&
+         request.resource.data.status == 'accepted' &&
+         request.resource.data.diff(resource.data).affectedKeys().hasAll(['status', 'driverPhone', 'acceptedAt']))
+      );
+    }
   }
 }

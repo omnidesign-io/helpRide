@@ -64,4 +64,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileUpdatedMessage => 'Profile Updated';
+
+  @override
+  String get requestRideTitle => 'Request a Ride';
+
+  @override
+  String get pickupLocationLabel => 'Pickup Location';
+
+  @override
+  String get gettingLocationMessage => 'Getting location...';
+
+  @override
+  String get requestNowButton => 'Request Now';
+
+  @override
+  String get rideRequestedMessage => 'Ride Requested!';
+
+  @override
+  String get locationNeededError => 'Location needed to request ride';
+
+  @override
+  String get driverDashboardTitle => 'Driver Dashboard';
+
+  @override
+  String get noRidesAvailableMessage => 'No rides available';
+
+  @override
+  String get riderLabel => 'Rider';
+
+  @override
+  String get acceptRideButton => 'Accept Ride';
+
+  @override
+  String get rideAcceptedMessage => 'Ride Accepted!';
+
+  @override
+  String get searchingForDriverMessage => 'Searching for driver...';
+
+  @override
+  String get driverFoundMessage => 'Driver Found!';
+
+  @override
+  String get driverLabel => 'Driver';
+
+  @override
+  String get cancelRideButton => 'Cancel Ride';
 }

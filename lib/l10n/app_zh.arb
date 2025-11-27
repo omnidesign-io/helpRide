@@ -17,5 +17,20 @@
   "adminClaimFailed": "無法獲得管理員權限 (您是超級管理員嗎？)",
   "editProfileTitle": "編輯個人資料",
   "saveProfileButton": "儲存個人資料",
-  "profileUpdatedMessage": "個人資料已更新"
+  "profileUpdatedMessage": "個人資料已更新",
+  "requestRideTitle": "預約車輛",
+  "pickupLocationLabel": "上車地點",
+  "gettingLocationMessage": "正在獲取位置...",
+  "requestNowButton": "立即預約",
+  "rideRequestedMessage": "已發送預約請求！",
+  "locationNeededError": "需要位置信息才能預約",
+  "driverDashboardTitle": "司機儀表板",
+  "noRidesAvailableMessage": "暫無可用預約",
+  "riderLabel": "乘客",
+  "acceptRideButton": "接單",
+  "rideAcceptedMessage": "已接單！",
+  "searchingForDriverMessage": "正在尋找司機...",
+  "driverFoundMessage": "已找到司機！",
+  "driverLabel": "司機",
+  "cancelRideButton": "取消預約"
 }

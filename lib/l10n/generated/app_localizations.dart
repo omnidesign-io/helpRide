@@ -211,6 +211,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile Updated'**
   String get profileUpdatedMessage;
+
+  /// No description provided for @requestRideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request a Ride'**
+  String get requestRideTitle;
+
+  /// No description provided for @pickupLocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup Location'**
+  String get pickupLocationLabel;
+
+  /// No description provided for @gettingLocationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting location...'**
+  String get gettingLocationMessage;
+
+  /// No description provided for @requestNowButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Now'**
+  String get requestNowButton;
+
+  /// No description provided for @rideRequestedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride Requested!'**
+  String get rideRequestedMessage;
+
+  /// No description provided for @locationNeededError.
+  ///
+  /// In en, this message translates to:
+  /// **'Location needed to request ride'**
+  String get locationNeededError;
+
+  /// No description provided for @driverDashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver Dashboard'**
+  String get driverDashboardTitle;
+
+  /// No description provided for @noRidesAvailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No rides available'**
+  String get noRidesAvailableMessage;
+
+  /// No description provided for @riderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider'**
+  String get riderLabel;
+
+  /// No description provided for @acceptRideButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept Ride'**
+  String get acceptRideButton;
+
+  /// No description provided for @rideAcceptedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride Accepted!'**
+  String get rideAcceptedMessage;
+
+  /// No description provided for @searchingForDriverMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching for driver...'**
+  String get searchingForDriverMessage;
+
+  /// No description provided for @driverFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver Found!'**
+  String get driverFoundMessage;
+
+  /// No description provided for @driverLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get driverLabel;
+
+  /// No description provided for @cancelRideButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Ride'**
+  String get cancelRideButton;
 }
 
 class _AppLocalizationsDelegate
