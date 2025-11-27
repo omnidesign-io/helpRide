@@ -8,7 +8,8 @@ class RideModel {
   final String shortId; // 8-digit unique ID
   final String riderPhone;
   final String? driverPhone;
-  final GeoPoint pickupLocation;
+  final String pickupAddress;
+  final String destinationAddress;
   final RideStatus status;
   final DateTime createdAt;
   final int passengerCount;
@@ -22,7 +23,8 @@ class RideModel {
     required this.shortId,
     required this.riderPhone,
     this.driverPhone,
-    required this.pickupLocation,
+    required this.pickupAddress,
+    required this.destinationAddress,
     required this.status,
     required this.createdAt,
     this.passengerCount = 1,
@@ -40,7 +42,8 @@ class RideModel {
       shortId: data['shortId'] ?? '00000000',
       riderPhone: data['riderPhone'] ?? '',
       driverPhone: data['driverPhone'],
-      pickupLocation: data['pickupLocation'] as GeoPoint,
+      pickupAddress: data['pickupAddress'] ?? '',
+      destinationAddress: data['destinationAddress'] ?? '',
       status: RideStatus.values.firstWhere(
         (e) => e.toString().split('.').last == data['status'],
         orElse: () => RideStatus.pending,
@@ -63,7 +66,8 @@ class RideModel {
       'shortId': shortId,
       'riderPhone': riderPhone,
       'driverPhone': driverPhone,
-      'pickupLocation': pickupLocation,
+      'pickupAddress': pickupAddress,
+      'destinationAddress': destinationAddress,
       'status': status.toString().split('.').last,
       'createdAt': Timestamp.fromDate(createdAt),
       'passengerCount': passengerCount,

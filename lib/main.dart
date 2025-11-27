@@ -17,6 +17,8 @@ import 'core/providers/locale_provider.dart';
 import 'features/home/presentation/main_screen.dart';
 import 'features/home/presentation/settings_screen.dart';
 import 'features/rides/presentation/orders_screen.dart';
+import 'package:helpride/features/rides/presentation/ride_details_screen.dart';
+
 import 'package:helpride/features/rides/presentation/vehicle_selection_screen.dart';
 import 'package:helpride/features/rides/domain/ride_options.dart';
 import 'features/home/presentation/vehicle_settings_screen.dart';
@@ -50,7 +52,7 @@ final _router = GoRouter(
   routes: [
     ShellRoute(
       builder: (context, state, child) {
-        return SelectionArea(child: MainScreen(child: child));
+        return MainScreen(child: child);
       },
       routes: [
         GoRoute(
@@ -97,6 +99,12 @@ final _router = GoRouter(
       ),
     ),
     GoRoute(
+      path: '/ride-details/:id',
+      builder: (context, state) => RideDetailsScreen(
+        rideId: state.pathParameters['id']!,
+      ),
+    ),
+    GoRoute(
       path: '/driver-dashboard/:phone',
       builder: (context, state) => DriverDashboardScreen(
         phoneNumber: state.pathParameters['phone']!,
@@ -126,12 +134,43 @@ class MyApp extends ConsumerWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.teal,
           brightness: Brightness.light,
+          surface: const Color(0xFFFDFDFD), // Almost white background
+          surfaceContainer: const Color(0xFFF2F2F2), // Light grey containers
+          surfaceContainerHigh: const Color(0xFFF2F2F2), // Same for consistency
+        ),
+        scaffoldBackgroundColor: const Color(0xFFFDFDFD),
+        cardTheme: CardThemeData(
+          elevation: 0,
+          color: const Color(0xFFF2F2F2),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          margin: EdgeInsets.zero,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFFE6E6E6), // Slightly darker grey for inputs
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),
         // Remove default elevation for a flatter, modern look
-        appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
+        appBarTheme: const AppBarTheme(
+          scrolledUnderElevation: 0,
+          backgroundColor: Color(0xFFFDFDFD),
+        ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             elevation: 0, // Flat buttons
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
       ),

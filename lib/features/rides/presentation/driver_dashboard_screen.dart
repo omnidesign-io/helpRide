@@ -76,7 +76,7 @@ class DriverDashboardScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${l10n.pickupLocationLabel}: ${ride.pickupLocation.latitude.toStringAsFixed(4)}, ${ride.pickupLocation.longitude.toStringAsFixed(4)}'),
+                      Text('${l10n.pickupLocationLabel}: ${ride.pickupAddress}'),
                       const SizedBox(height: 8),
                       Row(
                         children: [

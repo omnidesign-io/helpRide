@@ -123,9 +123,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectVehicleLabel => 'Select Vehicle';
 
   @override
-  String get passengerCountLabel => 'Passengers';
-
-  @override
   String get youAreOnlineMessage => 'You are ONLINE';
 
   @override
@@ -277,6 +274,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rideOptionsTitle => 'Ride Options';
 
   @override
+  String get passengerCountLabel => 'Passengers';
+
+  @override
   String get conditionsLabel => 'Conditions';
 
   @override
@@ -293,4 +293,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get saveButton => 'Confirm';
+
+  @override
+  String get loginRequiredMessage => 'Please log in to continue.';
+
+  @override
+  String get goToLoginButton => 'Go to Login';
+
+  @override
+  String get locationPermissionDenied =>
+      'Location permission is required to request rides. Please enable it in settings.';
+
+  @override
+  String get locationFetchError =>
+      'Unable to fetch your location. Please try again.';
+
+  @override
+  String get noHistoryMessage => 'No ride history yet';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get languageLabel => 'Language';
+
+  @override
+  String get searchingLocations => 'Searching locations...';
+
+  @override
+  String get noSuggestionsFound => 'No suggestions. You can keep your input.';
+
+  @override
+  String get aboutTitle => 'About';
+
+  @override
+  String get languageTitle => 'Language / 語言';
+
+  @override
+  String get rideDetailsTitle => 'Ride Details';
+
+  @override
+  String get confirmCancelMessage =>
+      'Are you sure you want to cancel this ride?';
+
+  @override
+  String get yesButton => 'Yes';
+
+  @override
+  String get noButton => 'No';
+
+  @override
+  String get dateLabel => 'Date';
+
+  @override
+  String get findingDriverMessage => 'Finding...';
+
+  @override
+  String get completeRideButton => 'Complete Ride';
+
+  @override
+  String get originLabel => 'Origin';
 }

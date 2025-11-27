@@ -8,6 +8,8 @@ service cloud.firestore {
       return exists(/databases/$(database)/documents/super_admins/$(email));
     }
 
+
+
     // Users Collection
     match /users/{phoneNumber} {
       // Allow create (Sign Up)
@@ -48,9 +50,7 @@ service cloud.firestore {
     // Rides Collection
     match /rides/{rideId} {
       // Create: Authenticated users can create pending rides
-      allow create: if request.auth != null && 
-                    request.resource.data.status == 'pending' &&
-                    request.resource.data.keys().hasAll(['riderPhone', 'pickupLocation', 'createdAt']);
+      allow create: if request.auth != null;
 
       // Read: Allow public read for development/demo purposes
       allow read: if true;

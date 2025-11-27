@@ -123,9 +123,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get selectVehicleLabel => '選擇車輛';
 
   @override
-  String get passengerCountLabel => '乘客人數';
-
-  @override
   String get youAreOnlineMessage => '您已上線';
 
   @override
@@ -272,6 +269,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get rideOptionsTitle => '行程選項';
 
   @override
+  String get passengerCountLabel => '乘客人數';
+
+  @override
   String get conditionsLabel => '特別需求';
 
   @override
@@ -288,4 +288,61 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get saveButton => '確認';
+
+  @override
+  String get loginRequiredMessage => '請先登入以繼續。';
+
+  @override
+  String get goToLoginButton => '前往登入';
+
+  @override
+  String get locationPermissionDenied => '需要位置權限才能預約車輛，請在設定中啟用。';
+
+  @override
+  String get locationFetchError => '無法取得您的位置，請再試一次。';
+
+  @override
+  String get noHistoryMessage => '暫時沒有行程記錄';
+
+  @override
+  String get settingsTitle => '設定';
+
+  @override
+  String get languageLabel => '語言';
+
+  @override
+  String get searchingLocations => '正在搜尋位置...';
+
+  @override
+  String get noSuggestionsFound => '沒有建議，您可以保留自己的輸入。';
+
+  @override
+  String get aboutTitle => '關於';
+
+  @override
+  String get languageTitle => '語言 / Language';
+
+  @override
+  String get rideDetailsTitle => '行程詳情';
+
+  @override
+  String get confirmCancelMessage => '您確定要取消此行程嗎？';
+
+  @override
+  String get yesButton => '是';
+
+  @override
+  String get noButton => '否';
+
+  @override
+  String get dateLabel => '日期';
+
+  @override
+  String get findingDriverMessage => '尋找中...';
+
+  @override
+  String get completeRideButton => '完成行程';
+
+  @override
+  String get originLabel => '出發地';
 }

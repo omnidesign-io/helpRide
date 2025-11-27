@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
 
 final userRepositoryProvider = Provider((ref) => UserRepository(
       FirebaseFirestore.instance,
@@ -44,30 +43,8 @@ class UserRepository {
     await _firestore.collection('users').doc(phoneNumber).update(data);
   }
 
-  // Update Location
-  Future<void> updateLocation(String phoneNumber) async {
-    // 1. Request Permission
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        throw Exception('Location permissions are denied');
-      }
-    }
-    
-    if (permission == LocationPermission.deniedForever) {
-      throw Exception('Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    // 2. Get Position
-    final position = await Geolocator.getCurrentPosition();
-
-    // 3. Update Firestore
-    await _firestore.collection('users').doc(phoneNumber).update({
-      'location': GeoPoint(position.latitude, position.longitude),
-      'lastLocationUpdate': FieldValue.serverTimestamp(),
-    });
-  }
+  // Update Location - Removed as we are no longer tracking location
+  // Future<void> updateLocation(String phoneNumber) async { ... }
   
   // Stream User Data
   Stream<DocumentSnapshot<Map<String, dynamic>>> getUserStream(String phoneNumber) {

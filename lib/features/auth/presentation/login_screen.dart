@@ -138,60 +138,65 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              enabled: !_hasCheckedUser, // Lock phone after check
-              decoration: InputDecoration(
-                labelText: l10n.phoneNumberLabel,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.phone),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      enabled: !_hasCheckedUser, // Lock phone after check
+                      decoration: InputDecoration(
+                        labelText: l10n.phoneNumberLabel,
+                        prefixIcon: const Icon(Icons.phone),
+                      ),
+                    ),
+                    
+                    if (_isNewUser && _hasCheckedUser) ...[
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _usernameController,
+                        decoration: InputDecoration(
+                          labelText: l10n.usernameLabel,
+                          prefixIcon: const Icon(Icons.person),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _telegramController,
+                        decoration: InputDecoration(
+                          labelText: l10n.telegramHandleLabel,
+                          prefixIcon: const Icon(Icons.send), // Telegram-ish icon
+                          prefixText: '@',
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
-            
-            if (_isNewUser && _hasCheckedUser) ...[
-              const SizedBox(height: 16),
-              TextField(
-                controller: _usernameController,
-                decoration: InputDecoration(
-                  labelText: l10n.usernameLabel,
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.person),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _telegramController,
-                decoration: InputDecoration(
-                  labelText: l10n.telegramHandleLabel,
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.send), // Telegram-ish icon
-                  prefixText: '@',
-                ),
-              ),
-            ],
 
             const SizedBox(height: 24),
             // Placeholder for Captcha Widget
+            // Placeholder for Captcha Widget
             if (!_hasCheckedUser)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: _isCaptchaVerified,
-                      onChanged: (value) {
-                        setState(() {
-                          _isCaptchaVerified = value ?? false;
-                        });
-                      },
-                    ),
-                    Text(l10n.captchaLabel),
-                  ],
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: _isCaptchaVerified,
+                        onChanged: (value) {
+                          setState(() {
+                            _isCaptchaVerified = value ?? false;
+                          });
+                        },
+                      ),
+                      Text(l10n.captchaLabel),
+                    ],
+                  ),
                 ),
               ),
             const SizedBox(height: 24),

@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/ride_model.dart';
 import '../domain/ride_options.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:math';
 
 final rideRepositoryProvider = Provider((ref) => RideRepository(FirebaseFirestore.instance));
@@ -20,21 +20,28 @@ class RideRepository {
     return (10000000 + random.nextInt(90000000)).toString();
   }
 
-  // Create a new ride request
+
+
+  // ... inside createRideRequest
   Future<String> createRideRequest({
     required String riderPhone,
-    required GeoPoint pickupLocation,
+    required String pickupAddress,
+    required String destinationAddress,
     required RideOptions options,
   }) async {
-    // Check for existing active ride for this rider
-    final activeRidesSnapshot = await _firestore
-        .collection('rides')
-        .where('riderPhone', isEqualTo: riderPhone)
-        .where('status', whereIn: ['pending', 'accepted', 'arrived', 'riding'])
-        .get();
-
-    if (activeRidesSnapshot.docs.isNotEmpty) {
-      throw Exception('You already have an active ride.');
+    final user = FirebaseAuth.instance.currentUser;
+    try {
+      final activeRidesSnapshot = await _firestore
+          .collection('rides')
+          .where('riderPhone', isEqualTo: riderPhone)
+          .where('status', whereIn: ['pending', 'accepted', 'arrived', 'riding'])
+          .get();
+      
+      if (activeRidesSnapshot.docs.isNotEmpty) {
+        throw Exception('You already have an active ride.');
+      }
+    } catch (e) {
+      rethrow;
     }
 
     String shortId = _generateShortId();
@@ -45,7 +52,8 @@ class RideRepository {
       shortId: DateTime.now().millisecondsSinceEpoch.toString().substring(5), // Simple unique ID
       riderPhone: riderPhone,
       driverPhone: null,
-      pickupLocation: pickupLocation,
+      pickupAddress: pickupAddress,
+      destinationAddress: destinationAddress,
       status: RideStatus.pending,
       createdAt: DateTime.now(),
       passengerCount: options.passengerCount,
@@ -55,8 +63,12 @@ class RideRepository {
       acceptCargo: options.acceptCargo,
     );
 
-    final docRef = await _firestore.collection('rides').add(ride.toMap());
-    return docRef.id;
+    try {
+      final docRef = await _firestore.collection('rides').add(ride.toMap());
+      return docRef.id;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   // Cancel a ride request
@@ -129,5 +141,25 @@ class RideRepository {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) => RideModel.fromFirestore(doc)).toList());
+  }
+  // Get a single ride by ID
+  Future<RideModel> getRide(String rideId) async {
+    final doc = await _firestore.collection('rides').doc(rideId).get();
+    if (!doc.exists) {
+      throw Exception('Ride not found');
+    }
+    return RideModel.fromFirestore(doc);
+  }
+
+  // Stream a single ride
+  Stream<RideModel> streamRide(String rideId) {
+    return _firestore
+        .collection('rides')
+        .doc(rideId)
+        .snapshots()
+        .map((doc) {
+          if (!doc.exists) throw Exception('Ride not found');
+          return RideModel.fromFirestore(doc);
+        });
   }
 }

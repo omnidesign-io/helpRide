@@ -62,62 +62,94 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           // Vehicle Type Section
-          Text(
-            l10n.vehicleTypeLabel,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 300, // Fixed height for the list
-            child: VehicleTypeListView(
-              selectedType: _selectedType,
-              onSelected: (type) {
-                setState(() {
-                  _selectedType = type;
-                });
-              },
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.vehicleTypeLabel,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 300, // Fixed height for the list
+                    child: VehicleTypeListView(
+                      selectedType: _selectedType,
+                      onSelected: (type) {
+                        setState(() {
+                          _selectedType = type;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          const Divider(height: 32),
+          const SizedBox(height: 16),
 
           // Passenger Count Section
-          Text(
-            l10n.passengerCountLabel,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.passengerCountLabel,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  CounterInputWidget(
+                    label: l10n.passengerCountLabel,
+                    value: _passengerCount,
+                    onChanged: (val) => setState(() => _passengerCount = val),
+                    min: 0, // Allow 0 for goods-only
+                    max: 10,
+                  ),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: 8),
-          CounterInputWidget(
-            label: l10n.passengerCountLabel,
-            value: _passengerCount,
-            onChanged: (val) => setState(() => _passengerCount = val),
-            min: 0, // Allow 0 for goods-only
-            max: 10,
-          ),
-          const Divider(height: 32),
+          const SizedBox(height: 16),
 
           // Conditions Section
-          Text(
-            l10n.conditionsLabel,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          SwitchListTile(
-            title: Text(l10n.conditionPets),
-            secondary: const Icon(Icons.pets),
-            value: _acceptPets,
-            onChanged: (val) => setState(() => _acceptPets = val),
-          ),
-          SwitchListTile(
-            title: Text(l10n.conditionWheelchair),
-            secondary: const Icon(Icons.accessible),
-            value: _acceptWheelchair,
-            onChanged: (val) => setState(() => _acceptWheelchair = val),
-          ),
-          SwitchListTile(
-            title: Text(l10n.conditionCargo),
-            secondary: const Icon(Icons.luggage),
-            value: _acceptCargo,
-            onChanged: (val) => setState(() => _acceptCargo = val),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Text(
+                      l10n.conditionsLabel,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  SwitchListTile(
+                    title: Text(l10n.conditionPets),
+                    secondary: const Icon(Icons.pets),
+                    value: _acceptPets,
+                    onChanged: (val) => setState(() => _acceptPets = val),
+                  ),
+                  SwitchListTile(
+                    title: Text(l10n.conditionWheelchair),
+                    secondary: const Icon(Icons.accessible),
+                    value: _acceptWheelchair,
+                    onChanged: (val) => setState(() => _acceptWheelchair = val),
+                  ),
+                  SwitchListTile(
+                    title: Text(l10n.conditionCargo),
+                    secondary: const Icon(Icons.luggage),
+                    value: _acceptCargo,
+                    onChanged: (val) => setState(() => _acceptCargo = val),
+                  ),
+                ],
+              ),
+            ),
           ),
           
           const SizedBox(height: 32),

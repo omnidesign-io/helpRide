@@ -103,62 +103,68 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
             const SizedBox(height: 24),
 
             // Vehicle Type
-            ListTile(
-              title: Text(l10n.vehicleTypeLabel),
-              subtitle: Text(_vehicleType?.localized(context) ?? l10n.selectVehicleLabel),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () async {
-                final currentOptions = _vehicleType != null ? RideOptions(vehicleType: _vehicleType!) : null;
-                final result = await Navigator.of(context).push<RideOptions>(
-                  MaterialPageRoute(
-                    builder: (_) => VehicleSelectionScreen(currentOptions: currentOptions),
-                  ),
-                );
-                if (result != null) {
-                  setState(() => _vehicleType = result.vehicleType);
-                }
-              },
-              shape: RoundedRectangleBorder(
-                side: const BorderSide(color: Colors.grey),
-                borderRadius: BorderRadius.circular(4),
+            Card(
+              child: ListTile(
+                title: Text(l10n.vehicleTypeLabel),
+                subtitle: Text(_vehicleType?.localized(context) ?? l10n.selectVehicleLabel),
+                trailing: const Icon(Icons.arrow_forward_ios),
+                onTap: () async {
+                  final currentOptions = _vehicleType != null ? RideOptions(vehicleType: _vehicleType!) : null;
+                  final result = await Navigator.of(context).push<RideOptions>(
+                    MaterialPageRoute(
+                      builder: (_) => VehicleSelectionScreen(currentOptions: currentOptions),
+                    ),
+                  );
+                  if (result != null) {
+                    setState(() => _vehicleType = result.vehicleType);
+                  }
+                },
               ),
             ),
             const SizedBox(height: 16),
 
-            // Vehicle Color
-            TextFormField(
-              controller: _vehicleColorController,
-              decoration: InputDecoration(
-                labelText: l10n.vehicleColorLabel,
-                hintText: l10n.vehicleColorHint,
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.color_lens),
-              ),
-              validator: (val) => val == null || val.isEmpty ? l10n.enterColorError : null,
-            ),
-            const SizedBox(height: 16),
+            // Vehicle Details
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    // Vehicle Color
+                    TextFormField(
+                      controller: _vehicleColorController,
+                      decoration: InputDecoration(
+                        labelText: l10n.vehicleColorLabel,
+                        hintText: l10n.vehicleColorHint,
+                        prefixIcon: Icon(Icons.color_lens),
+                      ),
+                      validator: (val) => val == null || val.isEmpty ? l10n.enterColorError : null,
+                    ),
+                    const SizedBox(height: 16),
 
-            // License Plate
-            TextFormField(
-              controller: _licensePlateController,
-              maxLength: 20,
-              decoration: InputDecoration(
-                labelText: l10n.licensePlateLabel,
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.confirmation_number),
-                helperText: l10n.licensePlateHelper,
-                helperMaxLines: 2,
-              ),
-            ),
-            const SizedBox(height: 16),
+                    // License Plate
+                    TextFormField(
+                      controller: _licensePlateController,
+                      maxLength: 20,
+                      decoration: InputDecoration(
+                        labelText: l10n.licensePlateLabel,
+                        prefixIcon: Icon(Icons.confirmation_number),
+                        helperText: l10n.licensePlateHelper,
+                        helperMaxLines: 2,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
 
-            // Capacity
-            CounterInputWidget(
-              label: l10n.capacityLabel,
-              value: _capacity,
-              onChanged: (val) => setState(() => _capacity = val),
-              min: 1,
-              max: 20,
+                    // Capacity
+                    CounterInputWidget(
+                      label: l10n.capacityLabel,
+                      value: _capacity,
+                      onChanged: (val) => setState(() => _capacity = val),
+                      min: 1,
+                      max: 20,
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 24),
 
@@ -166,23 +172,30 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
               l10n.conditionsTitle,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SwitchListTile(
-              title: Text(l10n.acceptPetsLabel),
-              secondary: const Icon(Icons.pets),
-              value: _acceptPets,
-              onChanged: (val) => setState(() => _acceptPets = val),
-            ),
-            SwitchListTile(
-              title: Text(l10n.acceptWheelchairsLabel),
-              secondary: const Icon(Icons.accessible),
-              value: _acceptWheelchair,
-              onChanged: (val) => setState(() => _acceptWheelchair = val),
-            ),
-            SwitchListTile(
-              title: Text(l10n.acceptCargoLabel),
-              secondary: const Icon(Icons.luggage),
-              value: _acceptCargo,
-              onChanged: (val) => setState(() => _acceptCargo = val),
+            const SizedBox(height: 8),
+            Card(
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    title: Text(l10n.acceptPetsLabel),
+                    secondary: const Icon(Icons.pets),
+                    value: _acceptPets,
+                    onChanged: (val) => setState(() => _acceptPets = val),
+                  ),
+                  SwitchListTile(
+                    title: Text(l10n.acceptWheelchairsLabel),
+                    secondary: const Icon(Icons.accessible),
+                    value: _acceptWheelchair,
+                    onChanged: (val) => setState(() => _acceptWheelchair = val),
+                  ),
+                  SwitchListTile(
+                    title: Text(l10n.acceptCargoLabel),
+                    secondary: const Icon(Icons.luggage),
+                    value: _acceptCargo,
+                    onChanged: (val) => setState(() => _acceptCargo = val),
+                  ),
+                ],
+              ),
             ),
 
             const SizedBox(height: 32),

@@ -57,16 +57,22 @@ class OrdersScreen extends ConsumerWidget {
           if (rides.isEmpty) return Center(child: Text(l10n.noHistoryMessage));
 
           return ListView.builder(
+            padding: const EdgeInsets.all(16),
             itemCount: rides.length,
             itemBuilder: (context, index) {
               final ride = rides[index];
               return Semantics(
                 label: 'Ride ${ride.shortId}, Status: ${ride.status.localized(context)}',
-                child: ListTile(
-                  key: Key('order_tile_${ride.shortId}'),
-                  title: Text('Ride #${ride.shortId}'),
-                subtitle: Text('${ride.status.localized(context)} - ${ride.createdAt}'),
-                  trailing: Text(ride.status.localized(context)),
+                child: Card(
+                  child: ListTile(
+                    key: Key('order_tile_${ride.shortId}'),
+                    title: Text('Ride #${ride.shortId}'),
+                    subtitle: Text('${ride.status.localized(context)} - ${ride.createdAt}'),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () {
+                      context.push('/ride-details/${ride.id}');
+                    },
+                  ),
                 ),
               );
             },

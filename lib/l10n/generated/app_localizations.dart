@@ -326,12 +326,6 @@ abstract class AppLocalizations {
   /// **'Select Vehicle'**
   String get selectVehicleLabel;
 
-  /// No description provided for @passengerCountLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Passengers'**
-  String get passengerCountLabel;
-
   /// No description provided for @youAreOnlineMessage.
   ///
   /// In en, this message translates to:
@@ -620,6 +614,12 @@ abstract class AppLocalizations {
   /// **'Ride Options'**
   String get rideOptionsTitle;
 
+  /// No description provided for @passengerCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Passengers'**
+  String get passengerCountLabel;
+
   /// No description provided for @conditionsLabel.
   ///
   /// In en, this message translates to:
@@ -655,6 +655,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm'**
   String get saveButton;
+
+  /// No description provided for @loginRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please log in to continue.'**
+  String get loginRequiredMessage;
+
+  /// No description provided for @goToLoginButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Login'**
+  String get goToLoginButton;
+
+  /// No description provided for @locationPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is required to request rides. Please enable it in settings.'**
+  String get locationPermissionDenied;
+
+  /// No description provided for @locationFetchError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to fetch your location. Please try again.'**
+  String get locationFetchError;
+
+  /// No description provided for @noHistoryMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No ride history yet'**
+  String get noHistoryMessage;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @languageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageLabel;
+
+  /// No description provided for @searchingLocations.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching locations...'**
+  String get searchingLocations;
+
+  /// No description provided for @noSuggestionsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No suggestions. You can keep your input.'**
+  String get noSuggestionsFound;
+
+  /// No description provided for @aboutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get aboutTitle;
+
+  /// No description provided for @languageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Language / 語言'**
+  String get languageTitle;
+
+  /// No description provided for @rideDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride Details'**
+  String get rideDetailsTitle;
+
+  /// No description provided for @confirmCancelMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to cancel this ride?'**
+  String get confirmCancelMessage;
+
+  /// No description provided for @yesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yesButton;
+
+  /// No description provided for @noButton.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get noButton;
+
+  /// No description provided for @dateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get dateLabel;
+
+  /// No description provided for @findingDriverMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding...'**
+  String get findingDriverMessage;
+
+  /// No description provided for @completeRideButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Ride'**
+  String get completeRideButton;
+
+  /// No description provided for @originLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Origin'**
+  String get originLabel;
 }
 
 class _AppLocalizationsDelegate

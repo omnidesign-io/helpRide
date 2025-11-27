@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
 
 import '../repository/ride_repository.dart';
@@ -19,52 +17,28 @@ class RequestRideScreen extends ConsumerStatefulWidget {
 
 class _RequestRideScreenState extends ConsumerState<RequestRideScreen> {
   bool _isLoading = false;
-  Position? _currentPosition;
+  final TextEditingController _pickupController = TextEditingController();
+  final TextEditingController _destinationController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _getCurrentLocation();
-  }
-
-  Future<void> _getCurrentLocation() async {
-    setState(() => _isLoading = true);
-    try {
-      // Check permissions (Assuming already handled in Phase 2, but good to be safe)
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      
-      if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-        final position = await Geolocator.getCurrentPosition();
-        setState(() => _currentPosition = position);
-      }
-    } catch (e) {
-      debugPrint("Error getting location: $e");
-    } finally {
-      setState(() => _isLoading = false);
-    }
+  void dispose() {
+    _pickupController.dispose();
+    _destinationController.dispose();
+    super.dispose();
   }
 
   Future<void> _requestRide() async {
     final l10n = AppLocalizations.of(context)!;
-    if (_currentPosition == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.locationNeededError)),
-      );
-      return;
-    }
-
+    
     setState(() => _isLoading = true);
 
     try {
       final rideRepo = ref.read(rideRepositoryProvider);
       await rideRepo.createRideRequest(
         riderPhone: widget.phoneNumber,
-        pickupLocation: GeoPoint(_currentPosition!.latitude, _currentPosition!.longitude),
+        pickupAddress: _pickupController.text,
+        destinationAddress: _destinationController.text,
         options: const RideOptions(vehicleType: VehicleType.sedan),
-        // Dropoff is optional for now
       );
 
       if (mounted) {
@@ -96,17 +70,28 @@ class _RequestRideScreenState extends ConsumerState<RequestRideScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (_currentPosition != null)
-              Text('${l10n.pickupLocationLabel}: ${_currentPosition!.latitude.toStringAsFixed(4)}, ${_currentPosition!.longitude.toStringAsFixed(4)}')
-            else
-              Text(l10n.gettingLocationMessage),
+            TextField(
+              controller: _pickupController,
+              decoration: InputDecoration(
+                labelText: l10n.pickupLocationLabel,
+                prefixIcon: const Icon(Icons.my_location),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _destinationController,
+              decoration: InputDecoration(
+                labelText: l10n.destinationLabel,
+                prefixIcon: const Icon(Icons.location_on),
+              ),
+            ),
             
             const SizedBox(height: 32),
             
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: (_currentPosition != null && !_isLoading) ? _requestRide : null,
+                onPressed: (_pickupController.text.isNotEmpty && _destinationController.text.isNotEmpty && !_isLoading) ? _requestRide : null,
                 icon: const Icon(Icons.hail),
                 label: _isLoading 
                     ? const CircularProgressIndicator() 

@@ -153,62 +153,68 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 // Vehicle Type
-                ListTile(
-                  title: const Text('Vehicle Type'),
-                  subtitle: Text(_vehicleType?.localized(context) ?? 'Select Type'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () async {
-                    final currentOptions = _vehicleType != null ? RideOptions(vehicleType: _vehicleType!) : null;
-                    final result = await Navigator.of(context).push<RideOptions>(
-                      MaterialPageRoute(
-                        builder: (_) => VehicleSelectionScreen(currentOptions: currentOptions),
-                      ),
-                    );
-                    if (result != null) {
-                      setState(() => _vehicleType = result.vehicleType);
-                    }
-                  },
-                  shape: RoundedRectangleBorder(
-                    side: const BorderSide(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(4),
+                Card(
+                  child: ListTile(
+                    title: const Text('Vehicle Type'),
+                    subtitle: Text(_vehicleType?.localized(context) ?? 'Select Type'),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                    onTap: () async {
+                      final currentOptions = _vehicleType != null ? RideOptions(vehicleType: _vehicleType!) : null;
+                      final result = await Navigator.of(context).push<RideOptions>(
+                        MaterialPageRoute(
+                          builder: (_) => VehicleSelectionScreen(currentOptions: currentOptions),
+                        ),
+                      );
+                      if (result != null) {
+                        setState(() => _vehicleType = result.vehicleType);
+                      }
+                    },
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // Vehicle Color
-                TextFormField(
-                  controller: _vehicleColorController,
-                  decoration: const InputDecoration(
-                    labelText: 'Vehicle Color',
-                    hintText: 'e.g. White',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.color_lens),
-                  ),
-                  validator: (val) => val == null || val.isEmpty ? 'Please enter a color' : null,
-                ),
-                const SizedBox(height: 16),
+                // Vehicle Details
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        // Vehicle Color
+                        TextFormField(
+                          controller: _vehicleColorController,
+                          decoration: const InputDecoration(
+                            labelText: 'Vehicle Color',
+                            hintText: 'e.g. White',
+                            prefixIcon: Icon(Icons.color_lens),
+                          ),
+                          validator: (val) => val == null || val.isEmpty ? 'Please enter a color' : null,
+                        ),
+                        const SizedBox(height: 16),
 
-                // License Plate
-                TextFormField(
-                  controller: _licensePlateController,
-                  maxLength: 20,
-                  decoration: const InputDecoration(
-                    labelText: 'License Plate (Optional)',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.confirmation_number),
-                    helperText: 'For privacy, you may enter only part of the plate (e.g., numbers only).',
-                    helperMaxLines: 2,
-                  ),
-                ),
-                const SizedBox(height: 16),
+                        // License Plate
+                        TextFormField(
+                          controller: _licensePlateController,
+                          maxLength: 20,
+                          decoration: const InputDecoration(
+                            labelText: 'License Plate (Optional)',
+                            prefixIcon: Icon(Icons.confirmation_number),
+                            helperText: 'For privacy, you may enter only part of the plate (e.g., numbers only).',
+                            helperMaxLines: 2,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
 
-                // Capacity
-                CounterInputWidget(
-                  label: 'Capacity (excluding driver)',
-                  value: _capacity,
-                  onChanged: (val) => setState(() => _capacity = val),
-                  min: 1,
-                  max: 20,
+                        // Capacity
+                        CounterInputWidget(
+                          label: 'Capacity (excluding driver)',
+                          value: _capacity,
+                          onChanged: (val) => setState(() => _capacity = val),
+                          min: 1,
+                          max: 20,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 24),
 
@@ -216,23 +222,30 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
                   'Conditions',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                SwitchListTile(
-                  title: const Text('Accept Pets?'),
-                  secondary: const Icon(Icons.pets),
-                  value: _acceptPets,
-                  onChanged: (val) => setState(() => _acceptPets = val),
-                ),
-                SwitchListTile(
-                  title: const Text('Accept Wheelchairs?'),
-                  secondary: const Icon(Icons.accessible),
-                  value: _acceptWheelchair,
-                  onChanged: (val) => setState(() => _acceptWheelchair = val),
-                ),
-                SwitchListTile(
-                  title: const Text('Accept Cargo/Luggage?'),
-                  secondary: const Icon(Icons.luggage),
-                  value: _acceptCargo,
-                  onChanged: (val) => setState(() => _acceptCargo = val),
+                const SizedBox(height: 8),
+                Card(
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        title: const Text('Accept Pets?'),
+                        secondary: const Icon(Icons.pets),
+                        value: _acceptPets,
+                        onChanged: (val) => setState(() => _acceptPets = val),
+                      ),
+                      SwitchListTile(
+                        title: const Text('Accept Wheelchairs?'),
+                        secondary: const Icon(Icons.accessible),
+                        value: _acceptWheelchair,
+                        onChanged: (val) => setState(() => _acceptWheelchair = val),
+                      ),
+                      SwitchListTile(
+                        title: const Text('Accept Cargo/Luggage?'),
+                        secondary: const Icon(Icons.luggage),
+                        value: _acceptCargo,
+                        onChanged: (val) => setState(() => _acceptCargo = val),
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 32),
