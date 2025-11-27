@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:helpride/features/rides/repository/ride_repository.dart';
 import 'package:helpride/features/rides/domain/ride_model.dart';
 import 'package:helpride/features/rides/domain/ride_status_extension.dart';
+import 'package:helpride/core/providers/session_provider.dart';
 
 class OrdersScreen extends ConsumerWidget {
   const OrdersScreen({super.key});
@@ -11,7 +13,32 @@ class OrdersScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    const String currentUserPhone = '+85212345678';
+    final session = ref.watch(sessionProvider);
+
+    if (session == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.orderHistoryTitle)),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  l10n.loginRequiredMessage,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () => context.go('/login'),
+                  child: Text(l10n.goToLoginButton),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.orderHistoryTitle)),
@@ -21,13 +48,13 @@ class OrdersScreen extends ConsumerWidget {
         // or create a new streamHistoryRides method.
         // For now, let's assume we create a new method or modify the existing one.
         // I'll use a new stream method name here and implement it next.
-        stream: ref.watch(rideRepositoryProvider).streamRideHistory(currentUserPhone),
+        stream: ref.watch(rideRepositoryProvider).streamRideHistory(session.phoneNumber),
         builder: (context, snapshot) {
           if (snapshot.hasError) return Center(child: Text('Error: ${snapshot.error}'));
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
 
           final rides = snapshot.data!;
-          if (rides.isEmpty) return const Center(child: Text('No history'));
+          if (rides.isEmpty) return Center(child: Text(l10n.noHistoryMessage));
 
           return ListView.builder(
             itemCount: rides.length,

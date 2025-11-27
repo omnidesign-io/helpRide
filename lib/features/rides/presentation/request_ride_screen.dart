@@ -48,9 +48,10 @@ class _RequestRideScreenState extends ConsumerState<RequestRideScreen> {
   }
 
   Future<void> _requestRide() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_currentPosition == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Location needed to request ride')),
+        SnackBar(content: Text(l10n.locationNeededError)),
       );
       return;
     }
@@ -68,7 +69,7 @@ class _RequestRideScreenState extends ConsumerState<RequestRideScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ride Requested!')),
+          SnackBar(content: Text(l10n.rideRequestedMessage)),
         );
         context.pop(); // Go back to home
       }

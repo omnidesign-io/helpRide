@@ -5,6 +5,7 @@ import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:helpride/features/rides/repository/ride_repository.dart';
 import 'package:helpride/features/rides/domain/ride_model.dart';
 import 'package:helpride/features/rides/presentation/active_ride_screen.dart';
+import 'package:helpride/core/providers/session_provider.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
   final Widget child;
@@ -51,33 +52,32 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
-    // Temporary: Hardcoded phone for MVP
-    const String currentUserPhone = '+85212345678';
+    final session = ref.watch(sessionProvider);
 
     return Scaffold(
       body: Column(
         children: [
           Expanded(child: widget.child),
           // Sticky Active Ride Banner
-          StreamBuilder<List<RideModel>>(
-            stream: ref.watch(rideRepositoryProvider).streamRiderRides(currentUserPhone),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return const SizedBox.shrink();
-              final rides = snapshot.data!;
-              
-              RideModel? activeRide;
-              try {
-                activeRide = rides.firstWhere((r) => r.status != RideStatus.completed && r.status != RideStatus.cancelled);
-              } catch (_) {
-                activeRide = null;
-              }
+          if (session != null)
+            StreamBuilder<List<RideModel>>(
+              stream: ref.watch(rideRepositoryProvider).streamRiderRides(session.phoneNumber),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const SizedBox.shrink();
+                final rides = snapshot.data!;
+                
+                RideModel? activeRide;
+                try {
+                  activeRide = rides.firstWhere((r) => r.status != RideStatus.completed && r.status != RideStatus.cancelled);
+                } catch (_) {
+                  activeRide = null;
+                }
 
-              if (activeRide == null) return const SizedBox.shrink();
+                if (activeRide == null) return const SizedBox.shrink();
 
-              return ActiveRideScreen(ride: activeRide, isDriver: false);
-            },
-          ),
+                return ActiveRideScreen(ride: activeRide, isDriver: false);
+              },
+            ),
         ],
       ),
       bottomNavigationBar: NavigationBar(

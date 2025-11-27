@@ -10,6 +10,10 @@ import 'package:helpride/features/rides/domain/vehicle_type.dart';
 import 'package:helpride/features/rides/domain/ride_options.dart';
 import 'package:helpride/features/home/presentation/map_placeholder_widget.dart';
 import 'package:helpride/features/rides/presentation/active_ride_screen.dart';
+import 'package:helpride/core/providers/session_provider.dart';
+import 'package:helpride/features/home/repository/user_repository.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart' as geocoding;
 
 typedef CloudFirestoreGeoPoint = GeoPoint;
 
@@ -28,16 +32,84 @@ class _LandingPageState extends ConsumerState<LandingPage> {
 
   // Driver State
   bool _isDriverOnline = false;
+  Position? _currentPosition;
+  String? _currentAddress;
+  bool _isLocating = false;
+  String? _locationError;
 
   @override
   void initState() {
     super.initState();
     _fromController.addListener(_onFieldChanged);
     _toController.addListener(_onFieldChanged);
+    _loadCurrentLocation();
   }
 
   void _onFieldChanged() {
     setState(() {});
+  }
+
+  Future<void> _loadCurrentLocation() async {
+    setState(() {
+      _isLocating = true;
+      _locationError = null;
+    });
+
+    try {
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          setState(() {
+            _locationError = AppLocalizations.of(context)!.locationPermissionDenied;
+            _isLocating = false;
+          });
+        }
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition();
+      String? address;
+      try {
+        final placemarks = await geocoding.placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+        if (placemarks.isNotEmpty) {
+          final place = placemarks.first;
+          final parts = [
+            place.name,
+            place.street,
+            place.subLocality,
+            place.locality,
+          ].where((element) => element != null && element!.isNotEmpty).toList();
+          address = parts.join(', ');
+        }
+      } catch (_) {
+        // Ignore geocoding errors; fall back to lat/lng display.
+      }
+
+      if (mounted) {
+        setState(() {
+          _currentPosition = position;
+          _currentAddress = address;
+          _fromController.text = address ??
+              '${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}';
+          _isLocating = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _locationError = AppLocalizations.of(context)!.locationFetchError;
+          _isLocating = false;
+        });
+      }
+    }
   }
 
   @override
@@ -53,8 +125,19 @@ class _LandingPageState extends ConsumerState<LandingPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final currentRole = ref.watch(roleProvider);
-    // Temporary: Hardcoded phone for MVP
-    const String currentUserPhone = '+85212345678';
+    final session = ref.watch(sessionProvider);
+
+    if (session == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.appTitle),
+          centerTitle: true,
+        ),
+        body: _buildLoginPrompt(context, l10n),
+      );
+    }
+
+    final String currentUserPhone = session.phoneNumber;
 
     // Watch for active rides
     final activeRidesAsync = ref.watch(rideRepositoryProvider).streamRiderRides(currentUserPhone);
@@ -82,7 +165,6 @@ class _LandingPageState extends ConsumerState<LandingPage> {
           }
 
           // 2. MAIN SPLIT VIEW (Map + Controls)
-          // 2. MAIN SPLIT VIEW (Map + Draggable Sheet)
           return Stack(
             children: [
               // Map (Full Screen Background)
@@ -134,6 +216,29 @@ class _LandingPageState extends ConsumerState<LandingPage> {
     );
   }
 
+  Widget _buildLoginPrompt(BuildContext context, AppLocalizations l10n) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.loginRequiredMessage,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => context.go('/login'),
+              child: Text(l10n.goToLoginButton),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildRiderControls(BuildContext context, WidgetRef ref, AppLocalizations l10n, String phone) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -154,20 +259,27 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                   labelText: l10n.pickupLocationLabel,
                   prefixIcon: const Icon(Icons.my_location),
                   border: const OutlineInputBorder(),
+                  helperText: _isLocating
+                      ? l10n.gettingLocationMessage
+                      : _currentAddress,
                 ),
               ),
             ),
             const SizedBox(width: 8),
             IconButton.filledTonal(
-              onPressed: () {
-                // Mock Location Update
-                _fromController.text = "Current Location (${DateTime.now().second})";
-              },
+              onPressed: _isLocating ? null : _loadCurrentLocation,
               icon: const Icon(Icons.refresh),
               tooltip: l10n.updateLocationButton,
             ),
           ],
         ),
+        if (_locationError != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            _locationError!,
+            style: const TextStyle(color: Colors.red),
+          ),
+        ],
         const SizedBox(height: 16),
 
         // To Field
@@ -259,9 +371,10 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                   try {
                     await ref.read(rideRepositoryProvider).createRideRequest(
                       riderPhone: phone,
-                      pickupLocation: const CloudFirestoreGeoPoint(22.3193, 114.1694), // Mong Kok
+                      pickupLocation: _currentPosition != null
+                          ? CloudFirestoreGeoPoint(_currentPosition!.latitude, _currentPosition!.longitude)
+                          : const CloudFirestoreGeoPoint(22.3193, 114.1694), // Fallback
                       options: _rideOptions!,
-                      // dropoffLocation: ... 
                     );
                     // UI will auto-update due to stream
                   } catch (e) {
@@ -370,10 +483,21 @@ class _LandingPageState extends ConsumerState<LandingPage> {
         
         const SizedBox(height: 16),
         ElevatedButton.icon(
-          onPressed: () {
-             ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.locationUpdatedMessage)),
-              );
+          onPressed: () async {
+             try {
+               await ref.read(userRepositoryProvider).updateLocation(phone);
+               if (context.mounted) {
+                 ScaffoldMessenger.of(context).showSnackBar(
+                   SnackBar(content: Text(l10n.locationUpdatedMessage)),
+                 );
+               }
+             } catch (e) {
+               if (context.mounted) {
+                 ScaffoldMessenger.of(context).showSnackBar(
+                   SnackBar(content: Text(l10n.locationFetchError)),
+                 );
+               }
+             }
           },
           icon: const Icon(Icons.my_location),
           label: Text(l10n.updateMyLocationButton),
@@ -385,7 +509,6 @@ class _LandingPageState extends ConsumerState<LandingPage> {
     );
   }
 
-
   Widget _buildConditionChip(String label, IconData icon) {
     return Chip(
       avatar: Icon(icon, size: 16),
@@ -395,5 +518,3 @@ class _LandingPageState extends ConsumerState<LandingPage> {
     );
   }
 }
-
-

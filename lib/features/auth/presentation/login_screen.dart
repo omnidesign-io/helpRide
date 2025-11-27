@@ -3,6 +3,8 @@ import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../repository/auth_repository.dart';
+import 'package:helpride/features/home/repository/user_repository.dart';
+import 'package:helpride/core/providers/session_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -46,6 +48,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (exists) {
         // If user exists, just log them in (MVP flow)
         await authRepo.login(_phoneController.text);
+        final userDoc = await ref.read(userRepositoryProvider).getUser(_phoneController.text);
+        final data = userDoc.data();
+        if (data != null) {
+          await ref.read(sessionProvider.notifier).setSession(
+                UserSession(
+                  phoneNumber: _phoneController.text,
+                  username: data['username'] as String?,
+                  sessionToken: data['sessionToken'] as String?,
+                ),
+              );
+        }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(AppLocalizations.of(context)!.welcomeBackMessage)),
@@ -79,13 +92,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       final authRepo = ref.read(authRepositoryProvider);
-      await authRepo.signUp(
+      final sessionToken = await authRepo.signUp(
         phoneNumber: _phoneController.text,
         username: _usernameController.text,
         telegramHandle: _telegramController.text.isNotEmpty 
             ? _telegramController.text 
             : null,
       );
+
+      await ref.read(sessionProvider.notifier).setSession(
+            UserSession(
+              phoneNumber: _phoneController.text,
+              username: _usernameController.text,
+              sessionToken: sessionToken,
+            ),
+          );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -208,6 +229,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   try {
                     final authRepo = ref.read(authRepositoryProvider);
                     await authRepo.signInWithGoogleAndClaimAdmin(_phoneController.text);
+                    final userDoc = await ref.read(userRepositoryProvider).getUser(_phoneController.text);
+                    final data = userDoc.data();
+                    if (data != null) {
+                      await ref.read(sessionProvider.notifier).setSession(
+                            UserSession(
+                              phoneNumber: _phoneController.text,
+                              username: data['username'] as String?,
+                              sessionToken: data['sessionToken'] as String?,
+                            ),
+                          );
+                    }
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(l10n.adminAccessGranted)),
