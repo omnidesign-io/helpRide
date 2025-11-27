@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:helpride/features/rides/domain/ride_model.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../repository/ride_repository.dart';
-import '../domain/ride_model.dart';
 
 class RideStatusWidget extends ConsumerWidget {
-  final Ride ride;
+  final RideModel ride;
 
   const RideStatusWidget({super.key, required this.ride});
 

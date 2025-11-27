@@ -21,9 +21,17 @@ class DriverDashboardScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final rideRepo = ref.watch(rideRepositoryProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.driverDashboardTitle)),
-      body: StreamBuilder<List<Ride>>(
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            l10n.driverDashboardTitle,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+        ),
+        Expanded(
+          child: StreamBuilder<List<RideModel>>(
         // TODO: In real app, we need a stream that combines "available rides" AND "my active rides"
         // For MVP, we'll just stream ALL rides and filter client-side or update the repo method
         // to return both. For now, let's assume streamAvailableRides returns everything relevant.
@@ -46,8 +54,8 @@ class DriverDashboardScreen extends ConsumerWidget {
           final allRides = snapshot.data!;
           // Filter: Show Pending OR Rides accepted by ME
           final rides = allRides.where((r) => 
-            r.status == 'pending' || 
-            (r.driverPhone == phoneNumber && ['accepted', 'arrived', 'in_progress'].contains(r.status))
+            r.status == RideStatus.pending || 
+            (r.driverPhone == phoneNumber && [RideStatus.accepted, RideStatus.arrived, RideStatus.riding].contains(r.status))
           ).toList();
 
           if (rides.isEmpty) {
@@ -91,14 +99,16 @@ class DriverDashboardScreen extends ConsumerWidget {
             },
           );
         },
-      ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildActionButtons(
     BuildContext context, 
     RideRepository rideRepo, 
-    Ride ride, 
+    RideModel ride, 
     bool isMyRide, 
     AppLocalizations l10n
   ) {
@@ -132,7 +142,7 @@ class DriverDashboardScreen extends ConsumerWidget {
 
     // My Ride Actions
     switch (ride.status) {
-      case 'accepted':
+      case RideStatus.accepted:
         return SizedBox(
           width: double.infinity,
           child: ElevatedButton(
@@ -141,16 +151,16 @@ class DriverDashboardScreen extends ConsumerWidget {
             child: const Text("I've Arrived"), // TODO: Localize
           ),
         );
-      case 'arrived':
+      case RideStatus.arrived:
         return SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () => rideRepo.updateRideStatus(rideId: ride.id, status: 'in_progress'),
+            onPressed: () => rideRepo.updateRideStatus(rideId: ride.id, status: 'riding'),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
             child: const Text("Start Ride"), // TODO: Localize
           ),
         );
-      case 'in_progress':
+      case RideStatus.riding:
         return SizedBox(
           width: double.infinity,
           child: ElevatedButton(

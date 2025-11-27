@@ -1,49 +1,66 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:helpride/features/rides/domain/vehicle_type.dart';
 
-class Ride {
+enum RideStatus { pending, accepted, arrived, riding, completed, cancelled }
+
+class RideModel {
   final String id;
+  final String shortId; // 8-digit unique ID
   final String riderPhone;
   final String? driverPhone;
-  final String status; // 'pending', 'accepted', 'ongoing', 'completed', 'cancelled'
   final GeoPoint pickupLocation;
-  final GeoPoint? dropoffLocation;
+  final RideStatus status;
   final DateTime createdAt;
-  final DateTime? acceptedAt;
+  final int passengerCount;
+  final VehicleType vehicleType;
 
-  Ride({
+  RideModel({
     required this.id,
+    required this.shortId,
     required this.riderPhone,
     this.driverPhone,
-    required this.status,
     required this.pickupLocation,
-    this.dropoffLocation,
+    required this.status,
     required this.createdAt,
-    this.acceptedAt,
+    this.passengerCount = 1,
+    this.vehicleType = VehicleType.sedan,
   });
 
-  factory Ride.fromFirestore(DocumentSnapshot doc) {
+  // From Firestore
+  factory RideModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    return Ride(
+    return RideModel(
       id: doc.id,
+      shortId: data['shortId'] ?? '00000000',
       riderPhone: data['riderPhone'] ?? '',
       driverPhone: data['driverPhone'],
-      status: data['status'] ?? 'pending',
       pickupLocation: data['pickupLocation'] as GeoPoint,
-      dropoffLocation: data['dropoffLocation'] as GeoPoint?,
+      status: RideStatus.values.firstWhere(
+        (e) => e.toString().split('.').last == data['status'],
+        orElse: () => RideStatus.pending,
+      ),
       createdAt: (data['createdAt'] as Timestamp).toDate(),
-      acceptedAt: (data['acceptedAt'] as Timestamp?)?.toDate(),
+      passengerCount: data['passengerCount'] ?? 1,
+      vehicleType: VehicleType.values.firstWhere(
+        (e) => e.toString().split('.').last == data['vehicleType'],
+        orElse: () => VehicleType.sedan,
+      ),
     );
   }
 
+  // To Map
   Map<String, dynamic> toMap() {
     return {
+      'shortId': shortId,
       'riderPhone': riderPhone,
       'driverPhone': driverPhone,
-      'status': status,
       'pickupLocation': pickupLocation,
-      'dropoffLocation': dropoffLocation,
+      'status': status.toString().split('.').last,
       'createdAt': Timestamp.fromDate(createdAt),
-      'acceptedAt': acceptedAt != null ? Timestamp.fromDate(acceptedAt!) : null,
+      'passengerCount': passengerCount,
+      'vehicleType': vehicleType.toString().split('.').last,
     };
   }
+
+  bool get isActive => status == RideStatus.pending || status == RideStatus.accepted || status == RideStatus.arrived || status == RideStatus.riding;
 }

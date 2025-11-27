@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
 import '../repository/user_repository.dart';
+import 'package:helpride/features/rides/repository/ride_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   final String phoneNumber;
@@ -16,18 +18,51 @@ class ProfileScreen extends ConsumerStatefulWidget {
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final _usernameController = TextEditingController();
   final _telegramController = TextEditingController();
-  bool _isLoading = false;
+  bool _isLoading = true;
+  bool _hasActiveRide = false;
+  DateTime? _lastUsernameChange;
+  String? _originalUsername;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadData();
   }
 
-  Future<void> _loadUserData() async {
-    // In a real app, we might want to fetch this from the provider or pass it in.
-    // For now, let's just listen to the stream in the build or fetch once.
-    // Simplified: relying on user to input or pre-fill if we had state.
+  Future<void> _loadData() async {
+    // 1. Check Active Rides
+    final activeRides = await ref.read(rideRepositoryProvider).streamRiderRides(widget.phoneNumber).first;
+    _hasActiveRide = activeRides.any((r) => r.isActive);
+
+    // 2. Load User Data
+    final userDoc = await ref.read(userRepositoryProvider).getUser(widget.phoneNumber);
+    if (userDoc.exists) {
+      final data = userDoc.data()!;
+      _usernameController.text = data['username'] ?? '';
+      _originalUsername = data['username'];
+      _telegramController.text = data['telegramHandle'] ?? '';
+      
+      if (data['lastUsernameChange'] != null) {
+        _lastUsernameChange = (data['lastUsernameChange'] as Timestamp).toDate();
+      }
+    }
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  bool get _canChangeUsername {
+    if (_lastUsernameChange == null) return true;
+    final timeSinceChange = DateTime.now().difference(_lastUsernameChange!);
+    return timeSinceChange.inHours >= 1;
+  }
+
+  String get _timeRemaining {
+    if (_lastUsernameChange == null) return '';
+    final timeSinceChange = DateTime.now().difference(_lastUsernameChange!);
+    final remaining = const Duration(hours: 1) - timeSinceChange;
+    return '${remaining.inMinutes}m';
   }
 
   @override
@@ -43,19 +78,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     setState(() => _isLoading = true);
 
     try {
+      final isUsernameChanged = _usernameController.text != _originalUsername;
+
       await ref.read(userRepositoryProvider).updateProfile(
             phoneNumber: widget.phoneNumber,
             username: _usernameController.text,
             telegramHandle: _telegramController.text.isNotEmpty 
                 ? _telegramController.text 
                 : null,
+            isUsernameChanged: isUsernameChanged,
           );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(AppLocalizations.of(context)!.profileUpdatedMessage)),
         );
-        context.go('/'); // Go back home
+        context.pop();
       }
     } catch (e) {
       if (mounted) {
@@ -74,41 +112,69 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     
+    if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+
     return Scaffold(
       appBar: AppBar(title: Text(l10n.editProfileTitle)),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(
-                labelText: l10n.usernameLabel,
-                border: const OutlineInputBorder(),
+      body: _hasActiveRide
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Text(
+                  l10n.cannotEditProfileError,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.grey, fontSize: 16),
+                ),
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Semantics(
+                    label: l10n.usernameLabel,
+                    child: TextField(
+                      key: const Key('profile_username_input'),
+                      controller: _usernameController,
+                      enabled: _canChangeUsername,
+                      decoration: InputDecoration(
+                        labelText: l10n.usernameLabel,
+                        border: const OutlineInputBorder(),
+                        helperText: !_canChangeUsername 
+                            ? l10n.usernameChangeCooldownError(_timeRemaining)
+                            : l10n.usernameChangeLimitError,
+                        helperStyle: TextStyle(
+                          color: !_canChangeUsername ? Colors.red : null,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Semantics(
+                    label: l10n.telegramHandleLabel,
+                    child: TextField(
+                      key: const Key('profile_telegram_input'),
+                      controller: _telegramController,
+                      decoration: InputDecoration(
+                        labelText: l10n.telegramHandleLabel,
+                        border: const OutlineInputBorder(),
+                        prefixText: '@',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      key: const Key('profile_save_button'),
+                      onPressed: _saveProfile,
+                      child: Text(l10n.saveProfileButton),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _telegramController,
-              decoration: InputDecoration(
-                labelText: l10n.telegramHandleLabel,
-                border: const OutlineInputBorder(),
-                prefixText: '@',
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _saveProfile,
-                child: _isLoading 
-                    ? const CircularProgressIndicator() 
-                    : Text(l10n.saveProfileButton),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

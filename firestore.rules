@@ -15,8 +15,8 @@ service cloud.firestore {
       allow create: if request.auth != null && 
                     !exists(/databases/$(database)/documents/users/$(phoneNumber));
       
-      // Allow read (Authenticated users)
-      allow read: if request.auth != null; 
+      // Allow read (Public for development)
+      allow read: if true; 
       
       allow update: if request.auth != null && (
         // Self-update session
@@ -25,7 +25,7 @@ service cloud.firestore {
         // Self-update Profile & Location (Allowed fields only)
         (
           request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['username', 'telegramHandle', 'location', 'lastLocationUpdate', 'updatedAt']) &&
+            .hasOnly(['username', 'telegramHandle', 'location', 'lastLocationUpdate', 'updatedAt', 'vehicle']) &&
           resource.data.sessionToken == request.resource.data.sessionToken
         ) ||
 
@@ -52,9 +52,8 @@ service cloud.firestore {
                     request.resource.data.status == 'pending' &&
                     request.resource.data.keys().hasAll(['riderPhone', 'pickupLocation', 'createdAt']);
 
-      // Read: Authenticated users can read (Riders see own, Drivers see pending)
-      // For MVP simplicity, allowing all auth users to read all rides to facilitate "Driver Mode" toggling
-      allow read: if request.auth != null;
+      // Read: Allow public read for development/demo purposes
+      allow read: if true;
 
       // Update:
       allow update: if request.auth != null && (

@@ -13,6 +13,13 @@ import 'features/rides/presentation/request_ride_screen.dart';
 import 'features/rides/presentation/driver_dashboard_screen.dart';
 import 'core/providers/locale_provider.dart';
 
+import 'features/home/presentation/main_screen.dart';
+import 'features/home/presentation/settings_screen.dart';
+import 'features/rides/presentation/orders_screen.dart';
+import 'package:helpride/features/rides/presentation/vehicle_selection_screen.dart';
+import 'package:helpride/features/rides/domain/vehicle_type.dart';
+import 'features/home/presentation/vehicle_settings_screen.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -22,45 +29,67 @@ void main() async {
 }
 
 final _router = GoRouter(
+  initialLocation: '/',
   routes: [
     ShellRoute(
       builder: (context, state, child) {
-        if (kIsWeb) {
-          return SelectionArea(child: child);
-        }
-        return child;
+        return SelectionArea(child: MainScreen(child: child));
       },
       routes: [
         GoRoute(
           path: '/',
-          builder: (context, state) => const LandingPage(),
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: LandingPage(),
+          ),
         ),
         GoRoute(
-          path: '/login',
-          builder: (context, state) => const LoginScreen(),
+          path: '/orders',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: OrdersScreen(),
+          ),
         ),
         GoRoute(
-          path: '/profile/:phone',
+          path: '/settings',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: SettingsScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/vehicle-selection',
           builder: (context, state) {
-            final phone = state.pathParameters['phone']!;
-            return ProfileScreen(phoneNumber: phone);
-          },
-        ),
-        GoRoute(
-          path: '/request-ride/:phone',
-          builder: (context, state) {
-            final phone = state.pathParameters['phone']!;
-            return RequestRideScreen(phoneNumber: phone);
-          },
-        ),
-        GoRoute(
-          path: '/driver-dashboard/:phone',
-          builder: (context, state) {
-            final phone = state.pathParameters['phone']!;
-            return DriverDashboardScreen(phoneNumber: phone);
+            final currentSelection = state.extra as VehicleType?;
+            return VehicleSelectionScreen(currentSelection: currentSelection);
           },
         ),
       ],
+    ),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/profile/:phone',
+      builder: (context, state) => ProfileScreen(
+        phoneNumber: state.pathParameters['phone']!,
+      ),
+    ),
+    GoRoute(
+      path: '/request-ride/:phone',
+      builder: (context, state) => RequestRideScreen(
+        phoneNumber: state.pathParameters['phone']!,
+      ),
+    ),
+    GoRoute(
+      path: '/driver-dashboard/:phone',
+      builder: (context, state) => DriverDashboardScreen(
+        phoneNumber: state.pathParameters['phone']!,
+      ),
+    ),
+    GoRoute(
+      path: '/vehicle-settings/:phone',
+      builder: (context, state) => VehicleSettingsScreen(
+        phoneNumber: state.pathParameters['phone']!,
+      ),
     ),
   ],
 );

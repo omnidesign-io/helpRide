@@ -109,4 +109,167 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cancelRideButton => 'Cancel Ride';
+
+  @override
+  String get requestRideButton => 'Request Ride';
+
+  @override
+  String get destinationLabel => 'Destination';
+
+  @override
+  String get vehicleTypeLabel => 'Vehicle Type';
+
+  @override
+  String get selectVehicleLabel => 'Select Vehicle';
+
+  @override
+  String get passengerCountLabel => 'Number of People';
+
+  @override
+  String get youAreOnlineMessage => 'You are ONLINE';
+
+  @override
+  String get youAreOfflineMessage => 'You are OFFLINE';
+
+  @override
+  String get goOnlineMessage => 'Go online to see requests';
+
+  @override
+  String get noPendingRidesMessage => 'No pending rides nearby';
+
+  @override
+  String get rideIdLabel => 'Ride #';
+
+  @override
+  String get pickupProximityMessage => 'Pickup: 2 mins away';
+
+  @override
+  String get acceptButton => 'Accept';
+
+  @override
+  String get locationUpdatedMessage => 'Location Updated!';
+
+  @override
+  String get updateMyLocationButton => 'Update My Location';
+
+  @override
+  String get homeLabel => 'Home';
+
+  @override
+  String get ordersLabel => 'Orders';
+
+  @override
+  String get settingsLabel => 'Settings';
+
+  @override
+  String get driverSetupTitle => 'Driver Setup';
+
+  @override
+  String get vehicleDetailsTitle => 'Vehicle Details';
+
+  @override
+  String get vehicleDetailsSubtitle =>
+      'Please provide some details about your vehicle to help riders identify you.';
+
+  @override
+  String get vehicleColorLabel => 'Vehicle Color';
+
+  @override
+  String get vehicleColorHint => 'e.g. White';
+
+  @override
+  String get enterColorError => 'Please enter a color';
+
+  @override
+  String get licensePlateLabel => 'License Plate (Optional)';
+
+  @override
+  String get licensePlateHelper =>
+      'For privacy, you may enter only part of the plate (e.g., numbers only).';
+
+  @override
+  String get capacityLabel => 'Capacity (excluding driver)';
+
+  @override
+  String get conditionsTitle => 'Conditions';
+
+  @override
+  String get acceptPetsLabel => 'Accept Pets?';
+
+  @override
+  String get acceptWheelchairsLabel => 'Accept Wheelchairs?';
+
+  @override
+  String get acceptCargoLabel => 'Accept Cargo/Luggage?';
+
+  @override
+  String get cancelButton => 'Cancel';
+
+  @override
+  String get saveAndContinueButton => 'Save & Continue';
+
+  @override
+  String get selectVehicleTypeError => 'Please select a vehicle type';
+
+  @override
+  String get saveError => 'Error saving details: ';
+
+  @override
+  String get selectVehicleTypeTitle => 'Select Vehicle Type';
+
+  @override
+  String get switchRoleLabel => 'Switch Role';
+
+  @override
+  String get cannotSwitchRoleError =>
+      'Cannot switch role while you have an active ride.';
+
+  @override
+  String get orderHistoryTitle => 'Order History';
+
+  @override
+  String get rideStatusPending => 'PENDING';
+
+  @override
+  String get rideStatusAccepted => 'ACCEPTED';
+
+  @override
+  String get rideStatusArrived => 'ARRIVED';
+
+  @override
+  String get rideStatusRiding => 'RIDING';
+
+  @override
+  String get rideStatusCompleted => 'COMPLETED';
+
+  @override
+  String get rideStatusCancelled => 'CANCELLED';
+
+  @override
+  String get usernameChangeLimitError =>
+      'Username can be changed once every hour.';
+
+  @override
+  String usernameChangeCooldownError(Object time) {
+    return 'You can change your username again in $time';
+  }
+
+  @override
+  String get cannotEditProfileError =>
+      'You cannot edit your profile while you have an active ride. Please complete your ride first.';
+
+  @override
+  String get vehicleTypeSedan => 'Sedan';
+
+  @override
+  String get vehicleTypeVan => 'Van';
+
+  @override
+  String get vehicleTypeSUV => 'SUV';
+
+  @override
+  String get vehicleTypeMotorcycle => 'Motorcycle';
+
+  @override
+  String get vehicleTypeAccessibleVan => 'Wheelchair Accessible Van';
 }

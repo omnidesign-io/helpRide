@@ -109,4 +109,162 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cancelRideButton => '取消預約';
+
+  @override
+  String get requestRideButton => '預約車輛';
+
+  @override
+  String get destinationLabel => '目的地';
+
+  @override
+  String get vehicleTypeLabel => '車輛類型';
+
+  @override
+  String get selectVehicleLabel => '選擇車輛';
+
+  @override
+  String get passengerCountLabel => '乘客人數';
+
+  @override
+  String get youAreOnlineMessage => '您已上線';
+
+  @override
+  String get youAreOfflineMessage => '您已離線';
+
+  @override
+  String get goOnlineMessage => '上線以查看預約請求';
+
+  @override
+  String get noPendingRidesMessage => '附近暫無待處理預約';
+
+  @override
+  String get rideIdLabel => '行程 #';
+
+  @override
+  String get pickupProximityMessage => '上車點：2 分鐘路程';
+
+  @override
+  String get acceptButton => '接單';
+
+  @override
+  String get locationUpdatedMessage => '位置已更新！';
+
+  @override
+  String get updateMyLocationButton => '更新我的位置';
+
+  @override
+  String get homeLabel => '主頁';
+
+  @override
+  String get ordersLabel => '訂單';
+
+  @override
+  String get settingsLabel => '設定';
+
+  @override
+  String get driverSetupTitle => '司機設定';
+
+  @override
+  String get vehicleDetailsTitle => '車輛詳情';
+
+  @override
+  String get vehicleDetailsSubtitle => '請提供您的車輛詳情，以便乘客識別。';
+
+  @override
+  String get vehicleColorLabel => '車身顏色';
+
+  @override
+  String get vehicleColorHint => '例如：白色';
+
+  @override
+  String get enterColorError => '請輸入顏色';
+
+  @override
+  String get licensePlateLabel => '車牌號碼 (選填)';
+
+  @override
+  String get licensePlateHelper => '為保障私隱，您可以只輸入部分車牌 (例如：數字部分)。';
+
+  @override
+  String get capacityLabel => '載客量 (不含司機)';
+
+  @override
+  String get conditionsTitle => '服務選項';
+
+  @override
+  String get acceptPetsLabel => '接載寵物？';
+
+  @override
+  String get acceptWheelchairsLabel => '接載輪椅？';
+
+  @override
+  String get acceptCargoLabel => '接載貨物/行李？';
+
+  @override
+  String get cancelButton => '取消';
+
+  @override
+  String get saveAndContinueButton => '儲存並繼續';
+
+  @override
+  String get selectVehicleTypeError => '請選擇車輛類型';
+
+  @override
+  String get saveError => '儲存詳情時發生錯誤：';
+
+  @override
+  String get selectVehicleTypeTitle => '選擇車輛類型';
+
+  @override
+  String get switchRoleLabel => '切換身份';
+
+  @override
+  String get cannotSwitchRoleError => '您有進行中的行程，無法切換身份。';
+
+  @override
+  String get orderHistoryTitle => '訂單記錄';
+
+  @override
+  String get rideStatusPending => '待處理';
+
+  @override
+  String get rideStatusAccepted => '已接單';
+
+  @override
+  String get rideStatusArrived => '司機已到達';
+
+  @override
+  String get rideStatusRiding => '行程中';
+
+  @override
+  String get rideStatusCompleted => '已完成';
+
+  @override
+  String get rideStatusCancelled => '已取消';
+
+  @override
+  String get usernameChangeLimitError => '用戶名稱每小時只能更改一次。';
+
+  @override
+  String usernameChangeCooldownError(Object time) {
+    return '您可以在 $time 後再次更改用戶名稱';
+  }
+
+  @override
+  String get cannotEditProfileError => '您有進行中的行程，無法編輯個人資料。請先完成行程。';
+
+  @override
+  String get vehicleTypeSedan => '轎車';
+
+  @override
+  String get vehicleTypeVan => '客貨車';
+
+  @override
+  String get vehicleTypeSUV => 'SUV';
+
+  @override
+  String get vehicleTypeMotorcycle => '電單車';
+
+  @override
+  String get vehicleTypeAccessibleVan => '輪椅的士';
 }

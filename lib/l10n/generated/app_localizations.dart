@@ -301,6 +301,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel Ride'**
   String get cancelRideButton;
+
+  /// No description provided for @requestRideButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Ride'**
+  String get requestRideButton;
+
+  /// No description provided for @destinationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination'**
+  String get destinationLabel;
+
+  /// No description provided for @vehicleTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle Type'**
+  String get vehicleTypeLabel;
+
+  /// No description provided for @selectVehicleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Vehicle'**
+  String get selectVehicleLabel;
+
+  /// No description provided for @passengerCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of People'**
+  String get passengerCountLabel;
+
+  /// No description provided for @youAreOnlineMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You are ONLINE'**
+  String get youAreOnlineMessage;
+
+  /// No description provided for @youAreOfflineMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You are OFFLINE'**
+  String get youAreOfflineMessage;
+
+  /// No description provided for @goOnlineMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Go online to see requests'**
+  String get goOnlineMessage;
+
+  /// No description provided for @noPendingRidesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending rides nearby'**
+  String get noPendingRidesMessage;
+
+  /// No description provided for @rideIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride #'**
+  String get rideIdLabel;
+
+  /// No description provided for @pickupProximityMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup: 2 mins away'**
+  String get pickupProximityMessage;
+
+  /// No description provided for @acceptButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get acceptButton;
+
+  /// No description provided for @locationUpdatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Updated!'**
+  String get locationUpdatedMessage;
+
+  /// No description provided for @updateMyLocationButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Update My Location'**
+  String get updateMyLocationButton;
+
+  /// No description provided for @homeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get homeLabel;
+
+  /// No description provided for @ordersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get ordersLabel;
+
+  /// No description provided for @settingsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsLabel;
+
+  /// No description provided for @driverSetupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver Setup'**
+  String get driverSetupTitle;
+
+  /// No description provided for @vehicleDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle Details'**
+  String get vehicleDetailsTitle;
+
+  /// No description provided for @vehicleDetailsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please provide some details about your vehicle to help riders identify you.'**
+  String get vehicleDetailsSubtitle;
+
+  /// No description provided for @vehicleColorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle Color'**
+  String get vehicleColorLabel;
+
+  /// No description provided for @vehicleColorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. White'**
+  String get vehicleColorHint;
+
+  /// No description provided for @enterColorError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a color'**
+  String get enterColorError;
+
+  /// No description provided for @licensePlateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'License Plate (Optional)'**
+  String get licensePlateLabel;
+
+  /// No description provided for @licensePlateHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'For privacy, you may enter only part of the plate (e.g., numbers only).'**
+  String get licensePlateHelper;
+
+  /// No description provided for @capacityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity (excluding driver)'**
+  String get capacityLabel;
+
+  /// No description provided for @conditionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Conditions'**
+  String get conditionsTitle;
+
+  /// No description provided for @acceptPetsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept Pets?'**
+  String get acceptPetsLabel;
+
+  /// No description provided for @acceptWheelchairsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept Wheelchairs?'**
+  String get acceptWheelchairsLabel;
+
+  /// No description provided for @acceptCargoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept Cargo/Luggage?'**
+  String get acceptCargoLabel;
+
+  /// No description provided for @cancelButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelButton;
+
+  /// No description provided for @saveAndContinueButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save & Continue'**
+  String get saveAndContinueButton;
+
+  /// No description provided for @selectVehicleTypeError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a vehicle type'**
+  String get selectVehicleTypeError;
+
+  /// No description provided for @saveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error saving details: '**
+  String get saveError;
+
+  /// No description provided for @selectVehicleTypeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Vehicle Type'**
+  String get selectVehicleTypeTitle;
+
+  /// No description provided for @switchRoleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch Role'**
+  String get switchRoleLabel;
+
+  /// No description provided for @cannotSwitchRoleError.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot switch role while you have an active ride.'**
+  String get cannotSwitchRoleError;
+
+  /// No description provided for @orderHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order History'**
+  String get orderHistoryTitle;
+
+  /// No description provided for @rideStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'PENDING'**
+  String get rideStatusPending;
+
+  /// No description provided for @rideStatusAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'ACCEPTED'**
+  String get rideStatusAccepted;
+
+  /// No description provided for @rideStatusArrived.
+  ///
+  /// In en, this message translates to:
+  /// **'ARRIVED'**
+  String get rideStatusArrived;
+
+  /// No description provided for @rideStatusRiding.
+  ///
+  /// In en, this message translates to:
+  /// **'RIDING'**
+  String get rideStatusRiding;
+
+  /// No description provided for @rideStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'COMPLETED'**
+  String get rideStatusCompleted;
+
+  /// No description provided for @rideStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'CANCELLED'**
+  String get rideStatusCancelled;
+
+  /// No description provided for @usernameChangeLimitError.
+  ///
+  /// In en, this message translates to:
+  /// **'Username can be changed once every hour.'**
+  String get usernameChangeLimitError;
+
+  /// No description provided for @usernameChangeCooldownError.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change your username again in {time}'**
+  String usernameChangeCooldownError(Object time);
+
+  /// No description provided for @cannotEditProfileError.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot edit your profile while you have an active ride. Please complete your ride first.'**
+  String get cannotEditProfileError;
+
+  /// No description provided for @vehicleTypeSedan.
+  ///
+  /// In en, this message translates to:
+  /// **'Sedan'**
+  String get vehicleTypeSedan;
+
+  /// No description provided for @vehicleTypeVan.
+  ///
+  /// In en, this message translates to:
+  /// **'Van'**
+  String get vehicleTypeVan;
+
+  /// No description provided for @vehicleTypeSUV.
+  ///
+  /// In en, this message translates to:
+  /// **'SUV'**
+  String get vehicleTypeSUV;
+
+  /// No description provided for @vehicleTypeMotorcycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Motorcycle'**
+  String get vehicleTypeMotorcycle;
+
+  /// No description provided for @vehicleTypeAccessibleVan.
+  ///
+  /// In en, this message translates to:
+  /// **'Wheelchair Accessible Van'**
+  String get vehicleTypeAccessibleVan;
 }
 
 class _AppLocalizationsDelegate

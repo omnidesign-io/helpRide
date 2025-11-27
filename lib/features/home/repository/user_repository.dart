@@ -19,12 +19,29 @@ class UserRepository {
     required String phoneNumber,
     required String username,
     String? telegramHandle,
+    bool isUsernameChanged = false,
   }) async {
-    await _firestore.collection('users').doc(phoneNumber).update({
+    final data = {
       'username': username,
       'telegramHandle': telegramHandle,
       'updatedAt': FieldValue.serverTimestamp(),
+    };
+    
+    if (isUsernameChanged) {
+      data['lastUsernameChange'] = FieldValue.serverTimestamp();
+    }
+
+    await _firestore.collection('users').doc(phoneNumber).update(data);
+  }
+
+  Future<void> updateUserVehicle(String phoneNumber, Map<String, dynamic> vehicleData) async {
+    await _firestore.collection('users').doc(phoneNumber).update({
+      'vehicle': vehicleData,
     });
+  }
+
+  Future<void> updateUserProfile(String phoneNumber, Map<String, dynamic> data) async {
+    await _firestore.collection('users').doc(phoneNumber).update(data);
   }
 
   // Update Location
@@ -55,5 +72,9 @@ class UserRepository {
   // Stream User Data
   Stream<DocumentSnapshot<Map<String, dynamic>>> getUserStream(String phoneNumber) {
     return _firestore.collection('users').doc(phoneNumber).snapshots();
+  }
+
+  Future<DocumentSnapshot<Map<String, dynamic>>> getUser(String phoneNumber) {
+    return _firestore.collection('users').doc(phoneNumber).get();
   }
 }
