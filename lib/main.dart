@@ -23,6 +23,7 @@ import 'package:helpride/features/rides/presentation/vehicle_selection_screen.da
 import 'package:helpride/features/rides/domain/ride_options.dart';
 import 'features/home/presentation/vehicle_settings_screen.dart';
 import 'core/providers/session_provider.dart';
+import 'core/constants/app_constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -141,15 +142,19 @@ class MyApp extends ConsumerWidget {
           filled: true,
           fillColor: const Color(0xFFE6E6E6), // Slightly darker grey for inputs
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(kInputBorderRadius),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(kInputBorderRadius),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(kInputBorderRadius),
+            borderSide: BorderSide.none,
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(kInputBorderRadius),
             borderSide: BorderSide.none,
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -162,7 +167,7 @@ class MyApp extends ConsumerWidget {
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             elevation: 0, // Flat buttons
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kInputBorderRadius)),
           ),
         ),
       ),

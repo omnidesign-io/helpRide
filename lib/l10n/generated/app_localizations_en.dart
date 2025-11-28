@@ -54,7 +54,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminAccessGranted => 'Admin Access Granted!';
 
   @override
-  String get adminClaimFailed => 'Admin Claim Failed (Are you a Superadmin?)';
+  String get adminClaimFailed => 'Failed to claim admin access';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get logoutButton => 'Logout';
+
+  @override
+  String get searchCountry => 'Search country';
+
+  @override
+  String get phoneNumberHint => 'Phone Number';
+
+  @override
+  String get phoneInfoText =>
+      'Your number will be used for WhatsApp and calls from the people you match. It will only be displayed to the other party after matching, for contact purposes.';
+
+  @override
+  String get usernameInfoText =>
+      'Username is another way to quickly identify you inside the app. It can be anything you prefer.';
+
+  @override
+  String get telegramInfoText =>
+      'Your Telegram handle will be an alternative way to contact you after matching you with another party.';
+
+  @override
+  String get privacyInfoText =>
+      'Only your username will be visible on public listings when looking for a ride or looking for passengers. You may delete your account entirely anytime inside profile settings.';
+
+  @override
+  String get backButton => 'Back';
+
+  @override
+  String get usernameValidationError =>
+      'Username must be 1-20 characters long, containing only letters, numbers, Chinese characters, and single spaces.';
+
+  @override
+  String get phoneNumberChangeNotSupported =>
+      'Changing phone number is not supported at the moment.';
+
+  @override
+  String get selectCountry => 'Select Country';
 
   @override
   String get editProfileTitle => 'Edit Profile';

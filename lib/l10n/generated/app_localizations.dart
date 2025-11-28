@@ -191,8 +191,80 @@ abstract class AppLocalizations {
   /// No description provided for @adminClaimFailed.
   ///
   /// In en, this message translates to:
-  /// **'Admin Claim Failed (Are you a Superadmin?)'**
+  /// **'Failed to claim admin access'**
   String get adminClaimFailed;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
+
+  /// No description provided for @logoutButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logoutButton;
+
+  /// No description provided for @searchCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Search country'**
+  String get searchCountry;
+
+  /// No description provided for @phoneNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get phoneNumberHint;
+
+  /// No description provided for @phoneInfoText.
+  ///
+  /// In en, this message translates to:
+  /// **'Your number will be used for WhatsApp and calls from the people you match. It will only be displayed to the other party after matching, for contact purposes.'**
+  String get phoneInfoText;
+
+  /// No description provided for @usernameInfoText.
+  ///
+  /// In en, this message translates to:
+  /// **'Username is another way to quickly identify you inside the app. It can be anything you prefer.'**
+  String get usernameInfoText;
+
+  /// No description provided for @telegramInfoText.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Telegram handle will be an alternative way to contact you after matching you with another party.'**
+  String get telegramInfoText;
+
+  /// No description provided for @privacyInfoText.
+  ///
+  /// In en, this message translates to:
+  /// **'Only your username will be visible on public listings when looking for a ride or looking for passengers. You may delete your account entirely anytime inside profile settings.'**
+  String get privacyInfoText;
+
+  /// No description provided for @backButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get backButton;
+
+  /// No description provided for @usernameValidationError.
+  ///
+  /// In en, this message translates to:
+  /// **'Username must be 1-20 characters long, containing only letters, numbers, Chinese characters, and single spaces.'**
+  String get usernameValidationError;
+
+  /// No description provided for @phoneNumberChangeNotSupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing phone number is not supported at the moment.'**
+  String get phoneNumberChangeNotSupported;
+
+  /// No description provided for @selectCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Country'**
+  String get selectCountry;
 
   /// No description provided for @editProfileTitle.
   ///

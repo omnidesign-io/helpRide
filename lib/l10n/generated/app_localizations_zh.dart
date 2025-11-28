@@ -54,7 +54,43 @@ class AppLocalizationsZh extends AppLocalizations {
   String get adminAccessGranted => '已獲得管理員權限！';
 
   @override
-  String get adminClaimFailed => '無法獲得管理員權限 (您是超級管理員嗎？)';
+  String get adminClaimFailed => '無法獲取管理員權限';
+
+  @override
+  String get profileTitle => '個人資料';
+
+  @override
+  String get logoutButton => '登出';
+
+  @override
+  String get searchCountry => '搜尋國家/地區';
+
+  @override
+  String get phoneNumberHint => '電話號碼';
+
+  @override
+  String get phoneInfoText => '您的電話號碼將用於 WhatsApp 和通話聯繫。配對成功後才會顯示給對方，僅供聯繫使用。';
+
+  @override
+  String get usernameInfoText => '用戶名稱是應用程式中識別您的另一種方式。您可以使用任何喜歡的名稱。';
+
+  @override
+  String get telegramInfoText => '您的 Telegram 用戶名將作為配對後聯繫您的另一種方式。';
+
+  @override
+  String get privacyInfoText => '在尋找行程或乘客時，公開列表中僅顯示您的用戶名稱。您可以隨時在個人資料設定中刪除帳號。';
+
+  @override
+  String get backButton => '返回';
+
+  @override
+  String get usernameValidationError => '用戶名稱長度須為 1-20 個字元，僅包含字母、數字、漢字和單個空格。';
+
+  @override
+  String get phoneNumberChangeNotSupported => '暫時不支援更改電話號碼。';
+
+  @override
+  String get selectCountry => '選擇國家';
 
   @override
   String get editProfileTitle => '編輯個人資料';
