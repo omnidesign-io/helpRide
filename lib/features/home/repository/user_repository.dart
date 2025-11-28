@@ -15,7 +15,7 @@ class UserRepository {
 
   // Update User Profile (Username, Telegram)
   Future<void> updateProfile({
-    required String phoneNumber,
+    required String uid,
     required String username,
     String? telegramHandle,
     bool isUsernameChanged = false,
@@ -30,28 +30,37 @@ class UserRepository {
       data['lastUsernameChange'] = FieldValue.serverTimestamp();
     }
 
-    await _firestore.collection('users').doc(phoneNumber).update(data);
+    await _firestore.collection('users').doc(uid).update(data);
   }
 
-  Future<void> updateUserVehicle(String phoneNumber, Map<String, dynamic> vehicleData) async {
-    await _firestore.collection('users').doc(phoneNumber).update({
+  Future<void> updateUserVehicle(String uid, Map<String, dynamic> vehicleData) async {
+    await _firestore.collection('users').doc(uid).update({
       'vehicle': vehicleData,
     });
   }
 
-  Future<void> updateUserProfile(String phoneNumber, Map<String, dynamic> data) async {
-    await _firestore.collection('users').doc(phoneNumber).update(data);
+  Future<void> updateUserProfile(String uid, Map<String, dynamic> data) async {
+    await _firestore.collection('users').doc(uid).update(data);
   }
 
-  // Update Location - Removed as we are no longer tracking location
-  // Future<void> updateLocation(String phoneNumber) async { ... }
-  
   // Stream User Data
-  Stream<DocumentSnapshot<Map<String, dynamic>>> getUserStream(String phoneNumber) {
-    return _firestore.collection('users').doc(phoneNumber).snapshots();
+  Stream<DocumentSnapshot<Map<String, dynamic>>> getUserStream(String uid) {
+    return _firestore.collection('users').doc(uid).snapshots();
   }
 
-  Future<DocumentSnapshot<Map<String, dynamic>>> getUser(String phoneNumber) {
-    return _firestore.collection('users').doc(phoneNumber).get();
+  Future<DocumentSnapshot<Map<String, dynamic>>> getUser(String uid) {
+    return _firestore.collection('users').doc(uid).get();
+  }
+
+  // Helper to find user by phone (useful for admin or initial checks)
+  Future<DocumentSnapshot<Map<String, dynamic>>?> getUserByPhone(String phoneNumber) async {
+    final query = await _firestore
+        .collection('users')
+        .where('phoneNumber', isEqualTo: phoneNumber)
+        .limit(1)
+        .get();
+    
+    if (query.docs.isEmpty) return null;
+    return query.docs.first;
   }
 }

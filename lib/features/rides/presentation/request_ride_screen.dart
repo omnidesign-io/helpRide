@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
-
+import 'package:helpride/core/providers/session_provider.dart';
 import '../repository/ride_repository.dart';
 import '../domain/ride_options.dart';
 import '../domain/vehicle_type.dart';
 
 class RequestRideScreen extends ConsumerStatefulWidget {
-  final String phoneNumber;
-  const RequestRideScreen({super.key, required this.phoneNumber});
+  const RequestRideScreen({super.key});
 
   @override
   ConsumerState<RequestRideScreen> createState() => _RequestRideScreenState();
@@ -33,19 +32,23 @@ class _RequestRideScreenState extends ConsumerState<RequestRideScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final rideRepo = ref.read(rideRepositoryProvider);
-      await rideRepo.createRideRequest(
-        riderPhone: widget.phoneNumber,
-        pickupAddress: _pickupController.text,
-        destinationAddress: _destinationController.text,
-        options: const RideOptions(vehicleType: VehicleType.sedan),
-      );
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.rideRequestedMessage)),
+      final session = ref.read(sessionProvider);
+      if (session != null) {
+        final rideRepo = ref.read(rideRepositoryProvider);
+        await rideRepo.createRideRequest(
+          riderId: session.uid,
+          riderPhone: session.phoneNumber,
+          pickupAddress: _pickupController.text,
+          destinationAddress: _destinationController.text,
+          options: const RideOptions(vehicleType: VehicleType.sedan),
         );
-        context.pop(); // Go back to home
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.rideRequestedMessage)),
+          );
+          context.pop(); // Go back to home
+        }
       }
     } catch (e) {
       if (mounted) {

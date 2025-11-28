@@ -87,16 +87,12 @@ final _router = GoRouter(
       builder: (context, state) => const LoginScreen(),
     ),
     GoRoute(
-      path: '/profile/:phone',
-      builder: (context, state) => ProfileScreen(
-        phoneNumber: state.pathParameters['phone']!,
-      ),
+      path: '/profile',
+      builder: (context, state) => const ProfileScreen(),
     ),
     GoRoute(
-      path: '/request-ride/:phone',
-      builder: (context, state) => RequestRideScreen(
-        phoneNumber: state.pathParameters['phone']!,
-      ),
+      path: '/request-ride',
+      builder: (context, state) => const RequestRideScreen(),
     ),
     GoRoute(
       path: '/ride-details/:id',
@@ -105,16 +101,12 @@ final _router = GoRouter(
       ),
     ),
     GoRoute(
-      path: '/driver-dashboard/:phone',
-      builder: (context, state) => DriverDashboardScreen(
-        phoneNumber: state.pathParameters['phone']!,
-      ),
+      path: '/driver-dashboard',
+      builder: (context, state) => const DriverDashboardScreen(),
     ),
     GoRoute(
-      path: '/vehicle-settings/:phone',
-      builder: (context, state) => VehicleSettingsScreen(
-        phoneNumber: state.pathParameters['phone']!,
-      ),
+      path: '/vehicle-settings',
+      builder: (context, state) => const VehicleSettingsScreen(),
     ),
   ],
 );

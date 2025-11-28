@@ -5,11 +5,10 @@ import 'package:helpride/l10n/generated/app_localizations.dart';
 import '../repository/user_repository.dart';
 import 'package:helpride/features/rides/repository/ride_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:helpride/core/providers/session_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
-  final String phoneNumber;
-
-  const ProfileScreen({super.key, required this.phoneNumber});
+  const ProfileScreen({super.key});
 
   @override
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
@@ -30,12 +29,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Future<void> _loadData() async {
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    
     // 1. Check Active Rides
-    final activeRides = await ref.read(rideRepositoryProvider).streamRiderRides(widget.phoneNumber).first;
+    final activeRides = await ref.read(rideRepositoryProvider).streamRiderRides(session.uid).first;
     _hasActiveRide = activeRides.any((r) => r.isActive);
 
     // 2. Load User Data
-    final userDoc = await ref.read(userRepositoryProvider).getUser(widget.phoneNumber);
+    final userDoc = await ref.read(userRepositoryProvider).getUser(session.uid);
     if (userDoc.exists) {
       final data = userDoc.data()!;
       _usernameController.text = data['username'] ?? '';
@@ -74,6 +76,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<void> _saveProfile() async {
     if (_usernameController.text.isEmpty) return;
+    
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
 
     setState(() => _isLoading = true);
 
@@ -81,7 +86,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       final isUsernameChanged = _usernameController.text != _originalUsername;
 
       await ref.read(userRepositoryProvider).updateProfile(
-            phoneNumber: widget.phoneNumber,
+            uid: session.uid,
             username: _usernameController.text,
             telegramHandle: _telegramController.text.isNotEmpty 
                 ? _telegramController.text 

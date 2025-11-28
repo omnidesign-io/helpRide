@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:helpride/core/providers/session_provider.dart';
 import '../repository/ride_repository.dart';
 import '../domain/ride_model.dart';
 
 class DriverDashboardScreen extends ConsumerWidget {
-  final String phoneNumber;
-  const DriverDashboardScreen({super.key, required this.phoneNumber});
+  const DriverDashboardScreen({super.key});
 
   Future<void> _launchWhatsApp(String phone) async {
     final url = Uri.parse('https://wa.me/$phone');
@@ -20,6 +20,11 @@ class DriverDashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final rideRepo = ref.watch(rideRepositoryProvider);
+    final session = ref.watch(sessionProvider);
+
+    if (session == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     return Column(
       children: [
@@ -55,7 +60,7 @@ class DriverDashboardScreen extends ConsumerWidget {
           // Filter: Show Pending OR Rides accepted by ME
           final rides = allRides.where((r) => 
             r.status == RideStatus.pending || 
-            (r.driverPhone == phoneNumber && [RideStatus.accepted, RideStatus.arrived, RideStatus.riding].contains(r.status))
+            (r.driverId == session.uid && [RideStatus.accepted, RideStatus.arrived, RideStatus.riding].contains(r.status))
           ).toList();
 
           if (rides.isEmpty) {
@@ -66,7 +71,7 @@ class DriverDashboardScreen extends ConsumerWidget {
             itemCount: rides.length,
             itemBuilder: (context, index) {
               final ride = rides[index];
-              final isMyRide = ride.driverPhone == phoneNumber;
+              final isMyRide = ride.driverId == session.uid;
 
               return Card(
                 margin: const EdgeInsets.all(8.0),
@@ -91,7 +96,7 @@ class DriverDashboardScreen extends ConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      _buildActionButtons(context, rideRepo, ride, isMyRide, l10n),
+                      _buildActionButtons(context, rideRepo, ride, isMyRide, l10n, ref, session.uid, session.phoneNumber),
                     ],
                   ),
                 ),
@@ -110,7 +115,10 @@ class DriverDashboardScreen extends ConsumerWidget {
     RideRepository rideRepo, 
     RideModel ride, 
     bool isMyRide, 
-    AppLocalizations l10n
+    AppLocalizations l10n,
+    WidgetRef ref,
+    String uid,
+    String phoneNumber,
   ) {
     if (!isMyRide) {
       return SizedBox(
@@ -120,13 +128,14 @@ class DriverDashboardScreen extends ConsumerWidget {
             try {
               await rideRepo.acceptRide(
                 rideId: ride.id,
+                driverId: uid,
                 driverPhone: phoneNumber,
               );
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.rideAcceptedMessage)),
-                );
-              }
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.rideAcceptedMessage)),
+                  );
+                }
             } catch (e) {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(

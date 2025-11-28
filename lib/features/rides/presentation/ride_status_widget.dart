@@ -24,23 +24,24 @@ class RideStatusWidget extends ConsumerWidget {
 
     String statusMessage;
     switch (ride.status) {
-      case 'pending':
+      case RideStatus.pending:
         statusMessage = l10n.searchingForDriverMessage;
         break;
-      case 'accepted':
+      case RideStatus.accepted:
         statusMessage = l10n.driverFoundMessage;
         break;
-      case 'arrived':
+      case RideStatus.arrived:
         statusMessage = "Driver has arrived!"; // TODO: Localize
         break;
-      case 'in_progress':
+      case RideStatus.riding:
         statusMessage = "Ride in progress..."; // TODO: Localize
         break;
-      case 'completed':
+      case RideStatus.completed:
         statusMessage = "Ride completed. Thank you!"; // TODO: Localize
         break;
-      default:
-        statusMessage = ride.status;
+      case RideStatus.cancelled:
+        statusMessage = "Ride cancelled.";
+        break;
     }
 
     return Card(
@@ -56,7 +57,7 @@ class RideStatusWidget extends ConsumerWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            if (ride.status != 'pending' && ride.driverPhone != null) ...[
+            if (ride.status != RideStatus.pending && ride.driverPhone != null) ...[
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -70,7 +71,7 @@ class RideStatusWidget extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
             ],
-            if (ride.status == 'pending')
+            if (ride.status == RideStatus.pending)
               ElevatedButton(
                 onPressed: () async {
                   try {
@@ -89,7 +90,7 @@ class RideStatusWidget extends ConsumerWidget {
                 ),
                 child: Text(l10n.cancelRideButton),
               ),
-            if (ride.status == 'completed')
+            if (ride.status == RideStatus.completed)
               ElevatedButton(
                 onPressed: () {
                   // TODO: Reset flow / Rate driver

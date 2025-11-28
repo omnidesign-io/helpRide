@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserSession {
+  final String uid;
   final String phoneNumber;
   final String? username;
   final String? sessionToken;
 
   UserSession({
+    required this.uid,
     required this.phoneNumber,
     this.username,
     this.sessionToken,
@@ -15,6 +17,7 @@ class UserSession {
 
   Map<String, dynamic> toJson() {
     return {
+      'uid': uid,
       'phoneNumber': phoneNumber,
       'username': username,
       'sessionToken': sessionToken,
@@ -23,6 +26,7 @@ class UserSession {
 
   factory UserSession.fromJson(Map<String, dynamic> map) {
     return UserSession(
+      uid: map['uid'] as String? ?? '', // Fallback for old sessions (should clear them really)
       phoneNumber: map['phoneNumber'] as String,
       username: map['username'] as String?,
       sessionToken: map['sessionToken'] as String?,

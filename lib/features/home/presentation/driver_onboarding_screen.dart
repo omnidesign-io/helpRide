@@ -7,10 +7,10 @@ import 'package:helpride/features/rides/presentation/vehicle_selection_screen.da
 import 'package:helpride/features/rides/domain/ride_options.dart';
 import 'package:helpride/features/rides/domain/vehicle_type.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
+import 'package:helpride/core/providers/session_provider.dart';
 
 class DriverOnboardingScreen extends ConsumerStatefulWidget {
-  final String phoneNumber;
-  const DriverOnboardingScreen({super.key, required this.phoneNumber});
+  const DriverOnboardingScreen({super.key});
 
   @override
   ConsumerState<DriverOnboardingScreen> createState() => _DriverOnboardingScreenState();
@@ -61,13 +61,16 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
       };
 
       try {
-        await ref.read(userRepositoryProvider).updateUserVehicle(
-          widget.phoneNumber,
-          vehicleData,
-        );
-        
-        if (mounted) {
-          context.pop(true); // Return success
+        final session = ref.read(sessionProvider);
+        if (session != null) {
+          await ref.read(userRepositoryProvider).updateUserVehicle(
+            session.uid,
+            vehicleData,
+          );
+          
+          if (mounted) {
+            context.pop(true); // Return success
+          }
         }
       } catch (e) {
         if (mounted) {

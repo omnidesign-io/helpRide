@@ -28,30 +28,48 @@ class AuthRepository {
   // Check if user exists
   Future<bool> checkUserExists(String phoneNumber) async {
     await signInAnonymously();
-    final userDoc = await _firestore.collection('users').doc(phoneNumber).get();
-    return userDoc.exists;
+    final querySnapshot = await _firestore
+        .collection('users')
+        .where('phoneNumber', isEqualTo: phoneNumber)
+        .limit(1)
+        .get();
+    return querySnapshot.docs.isNotEmpty;
   }
 
   // Login (Existing User)
-  Future<void> login(String phoneNumber) async {
+  Future<Map<String, String>> login(String phoneNumber) async {
     await signInAnonymously();
-    // In a real app, we'd trigger the approval flow here.
-    // For MVP, we just ensure they are connected.
+    final querySnapshot = await _firestore
+        .collection('users')
+        .where('phoneNumber', isEqualTo: phoneNumber)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isEmpty) {
+      throw Exception('User not found');
+    }
+
+    final doc = querySnapshot.docs.first;
+    return {
+      'uid': doc.id,
+      'sessionToken': doc.data()['sessionToken'] as String? ?? '',
+    };
   }
 
   // Sign Up (New User)
-  Future<String> signUp({
+  Future<Map<String, String>> signUp({
     required String phoneNumber,
     required String username,
     String? telegramHandle,
   }) async {
     await signInAnonymously();
     
-    final userDocRef = _firestore.collection('users').doc(phoneNumber);
+    // Use Auto-ID for the document
+    final userDocRef = _firestore.collection('users').doc();
     final sessionToken = _uuid.v4();
     
     await userDocRef.set({
-      'uid': _auth.currentUser?.uid,
+      'uid': _auth.currentUser?.uid, // Firebase Auth UID (Anonymous)
       'phoneNumber': phoneNumber,
       'sessionToken': sessionToken,
       'username': username,
@@ -61,7 +79,10 @@ class AuthRepository {
       'isOnline': true,
     });
     
-    return sessionToken;
+    return {
+      'uid': userDocRef.id,
+      'sessionToken': sessionToken,
+    };
   }
 
   // Sign in with Google and attempt to claim Superadmin role
@@ -77,16 +98,24 @@ class AuthRepository {
       );
 
       // Link Google Credential to the current Anonymous User
-      // Note: This merges the accounts.
       if (_auth.currentUser != null) {
         await _auth.currentUser!.linkWithCredential(credential);
       } else {
         await _auth.signInWithCredential(credential);
       }
 
-      // Attempt to claim Superadmin role
-      // This will only succeed if the Firestore Rule allows it (i.e., email is in super_admins)
-      final userDocRef = _firestore.collection('users').doc(phoneNumber);
+      // Find user by phone number
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where('phoneNumber', isEqualTo: phoneNumber)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception('User not found for admin claim');
+      }
+
+      final userDocRef = querySnapshot.docs.first.reference;
       await userDocRef.update({
         'role': 'superadmin',
         'googleEmail': googleUser.email,
@@ -94,8 +123,6 @@ class AuthRepository {
       
     } catch (e) {
       print("Error claiming admin: $e");
-      // If update fails (permission denied), it means they are NOT a superadmin.
-      // We should probably handle this gracefully.
       rethrow;
     }
   }
