@@ -5,6 +5,7 @@ import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:helpride/core/providers/locale_provider.dart';
 import 'package:helpride/core/providers/role_provider.dart';
 import 'package:helpride/features/rides/repository/ride_repository.dart';
+import 'package:helpride/features/rides/domain/ride_model.dart'; // Added import
 import 'package:helpride/features/home/repository/user_repository.dart';
 import 'package:helpride/features/home/presentation/driver_onboarding_screen.dart';
 import 'package:helpride/core/providers/session_provider.dart';
@@ -60,52 +61,115 @@ class SettingsScreen extends ConsumerWidget {
 
                 // Group 2: Role
                 Card(
-                  child: SwitchListTile(
-                    key: const Key('settings_switch_role_tile'),
-                    title: Text(currentRole == UserRole.rider ? l10n.riderLabel : l10n.driverLabel),
-                    subtitle: Text(l10n.switchRoleLabel),
-                    value: currentRole == UserRole.driver,
-                    onChanged: (value) async {
-                      // 1. Check for Active Rides
-                      final activeRides = await ref.read(rideRepositoryProvider).streamRiderRides(session!.uid).first;
-                      final hasActiveRide = activeRides.any((r) => r.isActive);
-                      
-                      if (hasActiveRide) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(l10n.cannotSwitchRoleError),
-                              backgroundColor: Colors.red,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          l10n.switchRoleLabel,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 12),
+                        SegmentedButton<UserRole>(
+                          segments: [
+                            ButtonSegment<UserRole>(
+                              value: UserRole.rider,
+                              label: Text(l10n.riderLabel),
+                              icon: const Icon(Icons.person_outline),
                             ),
-                          );
-                        }
-                        return;
-                      }
+                            ButtonSegment<UserRole>(
+                              value: UserRole.driver,
+                              label: Text(l10n.driverLabel),
+                              icon: const Icon(Icons.drive_eta),
+                            ),
+                          ],
+                          selected: {currentRole},
+                          onSelectionChanged: (Set<UserRole> newSelection) async {
+                            final newRole = newSelection.first;
+                            if (newRole == currentRole) return;
 
-                      // 2. If Switching to Driver, Check Onboarding
-                      if (value == true) { // Switching TO Driver
-                         final userDoc = await ref.read(userRepositoryProvider).getUser(session.uid);
-                         final hasVehicle = userDoc.exists && (userDoc.data() as Map<String, dynamic>)['vehicle'] != null;
+                            // 1. Check for Active Rides based on CURRENT role
+                            bool hasActiveRide = false;
+                            if (currentRole == UserRole.rider) {
+                              final activeRides = await ref.read(rideRepositoryProvider).streamRiderRides(session!.uid).first;
+                              hasActiveRide = activeRides.any((r) => 
+                                r.status != RideStatus.completed && 
+                                r.status != RideStatus.cancelled
+                              );
+                            } else {
+                              // Current role is Driver
+                              final activeRides = await ref.read(rideRepositoryProvider).streamDriverRides(session!.uid).first;
+                              hasActiveRide = activeRides.any((r) => 
+                                r.status != RideStatus.completed && 
+                                r.status != RideStatus.cancelled
+                              );
+                            }
+                            
+                            if (hasActiveRide) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(l10n.cannotSwitchRoleError),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                              return;
+                            }
 
-                         if (!hasVehicle) {
-                           if (context.mounted) {
-                             // Show Onboarding
-                             final result = await Navigator.of(context).push<bool>(
-                               MaterialPageRoute(builder: (_) => const DriverOnboardingScreen()),
-                             );
-                             
-                             if (result != true) {
-                               // User cancelled onboarding
-                               return;
-                             }
-                           }
-                         }
-                      }
+                            // 2. If Switching to Driver, Check Onboarding
+                            if (newRole == UserRole.driver) {
+                               final userDoc = await ref.read(userRepositoryProvider).getUser(session.uid);
+                               final hasVehicle = userDoc.exists && (userDoc.data() as Map<String, dynamic>)['vehicle'] != null;
 
-                      // 3. Proceed with Switch
-                      ref.read(roleProvider.notifier).toggleRole();
-                    },
-                    secondary: const Icon(Icons.swap_horiz),
+                               if (!hasVehicle) {
+                                 if (context.mounted) {
+                                   // Show Onboarding
+                                   final result = await Navigator.of(context).push<bool>(
+                                     MaterialPageRoute(builder: (_) => const DriverOnboardingScreen()),
+                                   );
+                                   
+                                   if (result != true) {
+                                     // User cancelled onboarding
+                                     return;
+                                   }
+                                 }
+                               }
+                            }
+
+                            // 3. Proceed with Switch & Persist
+                            try {
+                              await ref.read(userRepositoryProvider).updateUserRole(session.uid, newRole.name);
+                              await ref.read(sessionProvider.notifier).updateRole(newRole.name); // Update local session
+                              ref.read(roleProvider.notifier).setRole(newRole);
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Failed to update role: $e')),
+                                );
+                              }
+                            }
+                          },
+                        ),
+                        
+                        // Vehicle Settings Button (Driver Only)
+                        if (currentRole == UserRole.driver) ...[
+                          const SizedBox(height: 16),
+                          const Divider(),
+                          ListTile(
+                            leading: const Icon(Icons.settings_applications),
+                            title: Text(l10n.vehicleDetailsTitle),
+                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const DriverOnboardingScreen()),
+                              );
+                            },
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),

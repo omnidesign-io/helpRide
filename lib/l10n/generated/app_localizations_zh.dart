@@ -219,6 +219,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get driverSetupTitle => '司機設定';
 
   @override
+  String get driverModeLabel => '司機模式';
+
+  @override
+  String get lookingForRidesMessage => '正在尋找行程...';
+
+  @override
   String get vehicleDetailsTitle => '車輛詳情';
 
   @override

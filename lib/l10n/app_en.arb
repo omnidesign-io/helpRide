@@ -69,6 +69,8 @@
   "ordersLabel": "Orders",
   "settingsLabel": "Settings",
   "driverSetupTitle": "Driver Setup",
+  "driverModeLabel": "Driver Mode",
+  "lookingForRidesMessage": "Looking for rides...",
   "vehicleDetailsTitle": "Vehicle Details",
   "vehicleDetailsSubtitle": "Please provide some details about your vehicle to help riders identify you.",
   "vehicleColorLabel": "Vehicle Color",

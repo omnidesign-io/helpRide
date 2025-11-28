@@ -13,6 +13,7 @@ import 'features/home/presentation/profile_screen.dart';
 import 'features/rides/presentation/request_ride_screen.dart';
 import 'features/rides/presentation/driver_dashboard_screen.dart';
 import 'core/providers/locale_provider.dart';
+import 'core/providers/role_provider.dart'; // Added import
 
 import 'features/home/presentation/main_screen.dart';
 import 'features/home/presentation/settings_screen.dart';
@@ -42,6 +43,11 @@ void main() async {
     ProviderScope(
       overrides: [
         sessionProvider.overrideWith((ref) => sessionNotifier),
+        roleProvider.overrideWith((ref) {
+          final session = ref.watch(sessionProvider);
+          final initialRole = session?.role == 'driver' ? UserRole.driver : UserRole.rider;
+          return RoleNotifier()..setRole(initialRole);
+        }),
       ],
       child: const MyApp(),
     ),

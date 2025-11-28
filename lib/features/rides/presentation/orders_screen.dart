@@ -6,6 +6,7 @@ import 'package:helpride/features/rides/repository/ride_repository.dart';
 import 'package:helpride/features/rides/domain/ride_model.dart';
 import 'package:helpride/features/rides/domain/ride_status_extension.dart';
 import 'package:helpride/core/providers/session_provider.dart';
+import 'package:helpride/core/providers/role_provider.dart'; // Added import
 
 class OrdersScreen extends ConsumerWidget {
   const OrdersScreen({super.key});
@@ -48,7 +49,11 @@ class OrdersScreen extends ConsumerWidget {
         // or create a new streamHistoryRides method.
         // For now, let's assume we create a new method or modify the existing one.
         // I'll use a new stream method name here and implement it next.
-        stream: ref.watch(rideRepositoryProvider).streamRideHistory(session.uid),
+        // Stream based on role
+        stream: ref.watch(rideRepositoryProvider).streamRideHistory(
+          session.uid, 
+          isDriver: ref.watch(roleProvider) == UserRole.driver,
+        ),
         builder: (context, snapshot) {
           if (snapshot.hasError) return Center(child: Text('Error: ${snapshot.error}'));
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());

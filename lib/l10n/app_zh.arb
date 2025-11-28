@@ -69,6 +69,8 @@
   "ordersLabel": "訂單",
   "settingsLabel": "設定",
   "driverSetupTitle": "司機設定",
+  "driverModeLabel": "司機模式",
+  "lookingForRidesMessage": "正在尋找行程...",
   "vehicleDetailsTitle": "車輛詳情",
   "vehicleDetailsSubtitle": "請提供您的車輛詳情，以便乘客識別。",
   "vehicleColorLabel": "車身顏色",

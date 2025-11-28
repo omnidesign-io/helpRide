@@ -147,16 +147,32 @@ class RideRepository {
         .collection('rides')
         .where('riderId', isEqualTo: riderId)
         .orderBy('createdAt', descending: true)
-        // .limit(1) // Removed limit to allow seeing history if we reuse this, but better to separate
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => RideModel.fromFirestore(doc)).toList());
+  }
+
+  // Stream active rides for a specific driver
+  Stream<List<RideModel>> streamDriverRides(String driverId) {
+    return _firestore
+        .collection('rides')
+        .where('driverId', isEqualTo: driverId)
+        .where('status', whereIn: ['accepted', 'arrived', 'riding']) // Only active states
+        .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) => RideModel.fromFirestore(doc)).toList());
   }
 
   // Stream ride history (all rides)
-  Stream<List<RideModel>> streamRideHistory(String riderId) {
-    return _firestore
-        .collection('rides')
-        .where('riderId', isEqualTo: riderId)
+  Stream<List<RideModel>> streamRideHistory(String userId, {bool isDriver = false}) {
+    Query query = _firestore.collection('rides');
+
+    if (isDriver) {
+      query = query.where('driverId', isEqualTo: userId);
+    } else {
+      query = query.where('riderId', isEqualTo: userId);
+    }
+
+    return query
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) => RideModel.fromFirestore(doc)).toList());

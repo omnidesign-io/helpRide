@@ -31,6 +31,49 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
   bool _acceptCargo = false;
 
   @override
+  void initState() {
+    super.initState();
+    _loadExistingData();
+  }
+
+  Future<void> _loadExistingData() async {
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+
+    try {
+      final userDoc = await ref.read(userRepositoryProvider).getUser(session.uid);
+      if (userDoc.exists) {
+        final data = userDoc.data() as Map<String, dynamic>;
+        if (data.containsKey('vehicle')) {
+          final vehicle = data['vehicle'] as Map<String, dynamic>;
+          
+          setState(() {
+            // Parse Vehicle Type
+            final typeStr = vehicle['type'] as String;
+            _vehicleType = VehicleType.values.firstWhere(
+              (e) => e.toString().split('.').last == typeStr,
+              orElse: () => VehicleType.sedan,
+            );
+            
+            _vehicleColorController.text = vehicle['color'] ?? '';
+            _licensePlateController.text = vehicle['licensePlate'] ?? '';
+            _capacity = vehicle['capacity'] ?? 4;
+            
+            if (vehicle.containsKey('conditions')) {
+              final conditions = vehicle['conditions'] as Map<String, dynamic>;
+              _acceptPets = conditions['pets'] ?? false;
+              _acceptWheelchair = conditions['wheelchair'] ?? false;
+              _acceptCargo = conditions['cargo'] ?? false;
+            }
+          });
+        }
+      }
+    } catch (e) {
+      // Ignore errors, just start fresh
+    }
+  }
+
+  @override
   void dispose() {
     _vehicleColorController.dispose();
     _licensePlateController.dispose();

@@ -7,6 +7,8 @@ import 'package:helpride/features/rides/domain/ride_model.dart';
 import 'package:helpride/features/rides/presentation/active_ride_screen.dart';
 import 'package:helpride/core/providers/session_provider.dart';
 
+import 'package:helpride/core/providers/role_provider.dart'; // Added import
+
 class MainScreen extends ConsumerStatefulWidget {
   final Widget child;
   const MainScreen({super.key, required this.child});
@@ -18,7 +20,20 @@ class MainScreen extends ConsumerStatefulWidget {
 class _MainScreenState extends ConsumerState<MainScreen> {
   int _selectedIndex = 0;
 
-  void _onItemTapped(int index) {
+  // Helper to calculate selected index based on route
+  int _calculateSelectedIndex(BuildContext context) {
+    final String location = GoRouterState.of(context).uri.toString();
+    if (location.startsWith('/orders')) {
+      return 1;
+    } else if (location.startsWith('/settings')) { // Assuming /settings is now /profile
+      return 2;
+    } else {
+      return 0;
+    }
+  }
+
+  // Updated _onItemTapped to match the new signature
+  void _onItemTapped(int index, BuildContext context) {
     setState(() {
       _selectedIndex = index;
     });
@@ -30,22 +45,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         context.go('/orders');
         break;
       case 2:
-        context.go('/settings');
+        context.go('/settings'); // Assuming /settings is now /profile
         break;
-    }
-  }
-
-  // Sync selected index with current route
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final String location = GoRouterState.of(context).uri.toString();
-    if (location.startsWith('/orders')) {
-      _selectedIndex = 1;
-    } else if (location.startsWith('/settings')) {
-      _selectedIndex = 2;
-    } else {
-      _selectedIndex = 0;
     }
   }
 
@@ -53,51 +54,79 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final session = ref.watch(sessionProvider);
+    final currentUserId = session?.uid;
+    final currentRole = ref.watch(roleProvider); // Use roleProvider
+
+    // Watch for active rides
+    final activeRidesAsync = (currentUserId != null)
+        ? (currentRole == UserRole.driver
+            ? ref.watch(rideRepositoryProvider).streamDriverRides(currentUserId)
+            : ref.watch(rideRepositoryProvider).streamRiderRides(currentUserId))
+        : null; // Handle case where session is null
 
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(child: widget.child),
+          widget.child,
+          
           // Sticky Active Ride Banner
-          if (session != null)
-            StreamBuilder<List<RideModel>>(
-              stream: ref.watch(rideRepositoryProvider).streamRiderRides(session.uid),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) return const SizedBox.shrink();
-                final rides = snapshot.data!;
-                
-                RideModel? activeRide;
-                try {
-                  activeRide = rides.firstWhere((r) => r.status != RideStatus.completed && r.status != RideStatus.cancelled);
-                } catch (_) {
-                  activeRide = null;
-                }
+          if (activeRidesAsync != null) // Only show if we have a valid stream
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: StreamBuilder<List<RideModel>>(
+                stream: activeRidesAsync,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
 
-                if (activeRide == null) return const SizedBox.shrink();
+                  // Find the first truly active ride
+                  final activeRides = snapshot.data!.where((r) => 
+                    r.status != RideStatus.completed && 
+                    r.status != RideStatus.cancelled
+                  ).toList();
 
-                return ActiveRideScreen(ride: activeRide, isDriver: false);
-              },
+                  if (activeRides.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+
+                  final activeRide = activeRides.first;
+                  
+                  // Don't show if we are already on the details screen or active ride screen
+                  final location = GoRouterState.of(context).uri.toString();
+                  if (location.contains('/ride-details') || location.contains('/active-ride')) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return ActiveRideScreen(
+                    ride: activeRide, // Fixed: pass ride object
+                    isDriver: currentRole == UserRole.driver,
+                  );
+                },
+              ),
             ),
         ],
       ),
       bottomNavigationBar: NavigationBar(
-        onDestinationSelected: _onItemTapped,
-        selectedIndex: _selectedIndex,
-        destinations: <Widget>[
+        selectedIndex: _calculateSelectedIndex(context),
+        onDestinationSelected: (index) => _onItemTapped(index, context), // Using the new _onItemTapped
+        destinations: [
           NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined),
-            label: l10n.homeLabel,
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
+            label: l10n.homeLabel, // Changed from homeTabLabel
           ),
           NavigationDestination(
-            selectedIcon: Icon(Icons.history),
-            icon: Icon(Icons.history_outlined),
-            label: l10n.ordersLabel,
+            icon: const Icon(Icons.history_outlined),
+            selectedIcon: const Icon(Icons.history),
+            label: l10n.ordersLabel, // Changed from ordersTabLabel
           ),
           NavigationDestination(
-            selectedIcon: Icon(Icons.settings),
-            icon: Icon(Icons.settings_outlined),
-            label: l10n.settingsLabel,
+            icon: const Icon(Icons.person_outlined),
+            selectedIcon: const Icon(Icons.person),
+            label: l10n.settingsLabel, // Changed from profileTabLabel, assuming settings is now profile
           ),
         ],
       ),

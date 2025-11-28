@@ -7,12 +7,14 @@ class UserSession {
   final String phoneNumber;
   final String? username;
   final String? sessionToken;
+  final String role; // Added role
 
   UserSession({
     required this.uid,
     required this.phoneNumber,
     this.username,
     this.sessionToken,
+    this.role = 'rider', // Default to rider
   });
 
   Map<String, dynamic> toJson() {
@@ -21,15 +23,17 @@ class UserSession {
       'phoneNumber': phoneNumber,
       'username': username,
       'sessionToken': sessionToken,
+      'role': role,
     };
   }
 
   factory UserSession.fromJson(Map<String, dynamic> map) {
     return UserSession(
-      uid: map['uid'] as String? ?? '', // Fallback for old sessions (should clear them really)
+      uid: map['uid'] as String? ?? '',
       phoneNumber: map['phoneNumber'] as String,
       username: map['username'] as String?,
       sessionToken: map['sessionToken'] as String?,
+      role: map['role'] as String? ?? 'rider',
     );
   }
 }
@@ -61,6 +65,18 @@ class SessionNotifier extends StateNotifier<UserSession?> {
     state = null;
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
+  }
+
+  Future<void> updateRole(String role) async {
+    if (state == null) return;
+    final newSession = UserSession(
+      uid: state!.uid,
+      phoneNumber: state!.phoneNumber,
+      username: state!.username,
+      sessionToken: state!.sessionToken,
+      role: role,
+    );
+    await setSession(newSession);
   }
 }
 

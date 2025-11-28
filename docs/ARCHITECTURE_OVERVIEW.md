@@ -1,0 +1,50 @@
+# Architecture Overview
+
+## Ride Lifecycle
+
+The ride lifecycle in HelpRide follows a strict state machine to ensure consistency and reliability.
+
+### States
+
+1.  **Pending (`pending`)**
+    *   **Trigger**: Rider requests a ride.
+    *   **Description**: The ride is created in Firestore and is visible to all available drivers.
+    *   **Allowed Actions**:
+        *   Rider: Cancel.
+        *   Driver: Accept.
+
+2.  **Accepted (`accepted`)**
+    *   **Trigger**: A driver accepts a pending ride.
+    *   **Description**: The ride is assigned to a specific driver. Contact details are exchanged.
+    *   **Allowed Actions**:
+        *   Rider: Cancel (Audit trail updated).
+        *   Driver: Cancel (Audit trail updated), Arrive.
+
+3.  **Arrived (`arrived`)**
+    *   **Trigger**: Driver marks themselves as arrived at the pickup location.
+    *   **Description**: Driver is waiting for the passenger.
+    *   **Allowed Actions**:
+        *   Rider: Cancel.
+        *   Driver: Cancel, Start Ride (Move to `riding`).
+
+4.  **Riding (`riding`)**
+    *   **Trigger**: Driver starts the trip.
+    *   **Description**: The ride is in progress.
+    *   **Allowed Actions**:
+        *   Driver: Complete.
+
+5.  **Completed (`completed`)**
+    *   **Trigger**: Driver marks the ride as finished.
+    *   **Description**: The ride has successfully ended. This is a terminal state.
+    *   **Allowed Actions**: None (Review/Rating in future).
+
+6.  **Cancelled (`cancelled`)**
+    *   **Trigger**: Rider or Driver cancels the ride.
+    *   **Description**: The ride was terminated before completion. This is a terminal state.
+    *   **Allowed Actions**: None.
+
+### Constraints & Invariants
+
+*   **Role Switching**: A user **cannot** switch between Rider and Driver roles if they have an active ride (any state other than `completed` or `cancelled`). This prevents data inconsistency and UI confusion.
+*   **Active Ride Limit**: A rider can only have **one** active ride at a time.
+*   **Driver Availability**: Drivers are considered "available" whenever they are in Driver Mode and do not have an active ride.

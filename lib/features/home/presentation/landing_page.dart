@@ -9,6 +9,11 @@ import 'package:helpride/features/rides/domain/vehicle_type.dart';
 import 'package:helpride/features/rides/domain/ride_options.dart';
 import 'package:helpride/core/providers/session_provider.dart';
 import 'package:helpride/features/home/repository/user_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Added for DocumentSnapshot
+
+final userProfileProvider = StreamProvider.family<DocumentSnapshot<Map<String, dynamic>>, String>((ref, uid) {
+  return ref.watch(userRepositoryProvider).getUserStream(uid);
+});
 
 class LandingPage extends ConsumerStatefulWidget {
   const LandingPage({super.key});
@@ -25,7 +30,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
   RideOptions? _rideOptions;
 
   // Driver State
-  bool _isDriverOnline = false;
+
 
   @override
   void initState() {
@@ -65,6 +70,28 @@ class _LandingPageState extends ConsumerState<LandingPage> {
 
     final String currentUserPhone = session.phoneNumber;
     final String currentUserId = session.uid;
+
+    // Sync Role with Firestore
+    ref.listen(userProfileProvider(currentUserId), (previous, next) {
+      next.whenData((doc) {
+        if (doc.exists) {
+          final data = doc.data();
+          final roleStr = data?['role'] as String?;
+          if (roleStr != null) {
+            final role = roleStr == 'driver' ? UserRole.driver : UserRole.rider;
+            // Only update if different to avoid loops/rebuilds
+            if (ref.read(roleProvider) != role) {
+               // Schedule update to avoid build-phase modification
+               Future.microtask(() {
+                 ref.read(roleProvider.notifier).setRole(role);
+                 // Also update session to keep it in sync for next boot
+                 ref.read(sessionProvider.notifier).updateRole(roleStr);
+               });
+            }
+          }
+        }
+      });
+    });
 
     // Watch for active rides
     final activeRidesAsync = ref.watch(rideRepositoryProvider).streamRiderRides(currentUserId);
@@ -281,23 +308,23 @@ class _LandingPageState extends ConsumerState<LandingPage> {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  _isDriverOnline ? l10n.youAreOnlineMessage : l10n.youAreOfflineMessage,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: _isDriverOnline ? Colors.green : Theme.of(context).colorScheme.onSurface,
+                const Icon(Icons.work, color: Colors.green),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.driverModeLabel, // You might need to add this key or use "Driver Mode"
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(
+                        l10n.lookingForRidesMessage, // You might need to add this key or use "Looking for rides..."
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
                   ),
-                ),
-                Switch(
-                  value: _isDriverOnline,
-                  onChanged: (val) {
-                    setState(() {
-                      _isDriverOnline = val;
-                    });
-                  },
-                  activeColor: Colors.green,
                 ),
               ],
             ),
@@ -305,62 +332,75 @@ class _LandingPageState extends ConsumerState<LandingPage> {
         ),
         const SizedBox(height: 16),
 
-        if (!_isDriverOnline)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 40),
-            child: Center(
-              child: Text(
-                l10n.goOnlineMessage,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-              ),
-            ),
-          )
-        else
-          StreamBuilder<List<RideModel>>(
-            stream: ref.watch(rideRepositoryProvider).streamAvailableRides(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) return Text('Error: ${snapshot.error}');
-              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-              
-              final rides = snapshot.data!.where((r) => r.status == RideStatus.pending).toList();
+        StreamBuilder<List<RideModel>>(
+          stream: ref.watch(rideRepositoryProvider).streamAvailableRides(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+            if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+            
+            final rides = snapshot.data!.where((r) => r.status == RideStatus.pending).toList();
 
-              if (rides.isEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Center(child: Text(l10n.noPendingRidesMessage)),
-                );
-              }
-
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: rides.length,
-                itemBuilder: (context, index) {
-                  final ride = rides[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: ListTile(
-                      leading: const CircleAvatar(child: Icon(Icons.person)),
-                      title: Text('${l10n.rideIdLabel}${ride.shortId}'),
-                      subtitle: Text(l10n.pickupProximityMessage), // Mock proximity
-                      trailing: ElevatedButton(
-                        onPressed: () {
-                          ref.read(rideRepositoryProvider).acceptRide(
-                            rideId: ride.id,
-                            driverId: uid,
-                            driverName: username ?? 'Unknown Driver',
-                            driverTelegram: null, // TODO: Add telegram to Session/User model
-                            driverPhone: phone,
-                          );
-                        },
-                        child: Text(l10n.acceptButton),
-                      ),
-                    ),
-                  );
-                },
+            if (rides.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(Icons.directions_car_outlined, size: 48, color: Theme.of(context).colorScheme.outline),
+                      const SizedBox(height: 16),
+                      Text(l10n.noPendingRidesMessage),
+                    ],
+                  ),
+                ),
               );
-            },
-          ),
+            }
+
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: rides.length,
+              itemBuilder: (context, index) {
+                final ride = rides[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    leading: const CircleAvatar(child: Icon(Icons.person)),
+                    title: Text('${l10n.rideIdLabel}${ride.shortId}'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(ride.pickupAddress, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(ride.vehicleType.icon, size: 14),
+                            const SizedBox(width: 4),
+                            Text(ride.vehicleType.localized(context), style: Theme.of(context).textTheme.bodySmall),
+                          ],
+                        ),
+                      ],
+                    ),
+                    trailing: ElevatedButton(
+                      onPressed: () {
+                        ref.read(rideRepositoryProvider).acceptRide(
+                          rideId: ride.id,
+                          driverId: uid,
+                          driverName: username ?? 'Unknown Driver',
+                          driverPhone: phone,
+                          driverTelegram: null, // TODO: Add telegram to Session/User model
+                        );
+                      },
+                      child: Text(l10n.acceptButton),
+                    ),
+                    onTap: () {
+                      context.push('/ride-details/${ride.id}');
+                    },
+                  ),
+                );
+              },
+            );
+          },
+        ),
         
         const SizedBox(height: 16),
       ],

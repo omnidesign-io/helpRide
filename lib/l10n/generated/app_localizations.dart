@@ -518,6 +518,18 @@ abstract class AppLocalizations {
   /// **'Driver Setup'**
   String get driverSetupTitle;
 
+  /// No description provided for @driverModeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver Mode'**
+  String get driverModeLabel;
+
+  /// No description provided for @lookingForRidesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for rides...'**
+  String get lookingForRidesMessage;
+
   /// No description provided for @vehicleDetailsTitle.
   ///
   /// In en, this message translates to:

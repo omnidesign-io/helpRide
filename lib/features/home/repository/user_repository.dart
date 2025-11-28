@@ -43,6 +43,13 @@ class UserRepository {
     await _firestore.collection('users').doc(uid).update(data);
   }
 
+  // Update User Role
+  Future<void> updateUserRole(String uid, String role) async {
+    await _firestore.collection('users').doc(uid).update({
+      'role': role,
+    });
+  }
+
   // Stream User Data
   Stream<DocumentSnapshot<Map<String, dynamic>>> getUserStream(String uid) {
     return _firestore.collection('users').doc(uid).snapshots();

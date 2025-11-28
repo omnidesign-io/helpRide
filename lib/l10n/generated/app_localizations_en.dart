@@ -228,6 +228,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get driverSetupTitle => 'Driver Setup';
 
   @override
+  String get driverModeLabel => 'Driver Mode';
+
+  @override
+  String get lookingForRidesMessage => 'Looking for rides...';
+
+  @override
   String get vehicleDetailsTitle => 'Vehicle Details';
 
   @override
