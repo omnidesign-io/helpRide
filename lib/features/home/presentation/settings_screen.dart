@@ -52,7 +52,7 @@ class SettingsScreen extends ConsumerWidget {
                     title: Text(l10n.editProfileTitle),
                     subtitle: Text(currentUserPhone!),
                     onTap: () {
-                      context.push('/profile/$currentUserPhone');
+                      context.push('/profile');
                     },
                   ),
                 ),
@@ -67,7 +67,7 @@ class SettingsScreen extends ConsumerWidget {
                     value: currentRole == UserRole.driver,
                     onChanged: (value) async {
                       // 1. Check for Active Rides
-                      final activeRides = await ref.read(rideRepositoryProvider).streamRiderRides(currentUserPhone).first;
+                      final activeRides = await ref.read(rideRepositoryProvider).streamRiderRides(session!.uid).first;
                       final hasActiveRide = activeRides.any((r) => r.isActive);
                       
                       if (hasActiveRide) {
@@ -84,14 +84,14 @@ class SettingsScreen extends ConsumerWidget {
 
                       // 2. If Switching to Driver, Check Onboarding
                       if (value == true) { // Switching TO Driver
-                         final userDoc = await ref.read(userRepositoryProvider).getUser(currentUserPhone);
+                         final userDoc = await ref.read(userRepositoryProvider).getUser(session.uid);
                          final hasVehicle = userDoc.exists && (userDoc.data() as Map<String, dynamic>)['vehicle'] != null;
 
                          if (!hasVehicle) {
                            if (context.mounted) {
                              // Show Onboarding
                              final result = await Navigator.of(context).push<bool>(
-                               MaterialPageRoute(builder: (_) => DriverOnboardingScreen(phoneNumber: currentUserPhone)),
+                               MaterialPageRoute(builder: (_) => const DriverOnboardingScreen()),
                              );
                              
                              if (result != true) {

@@ -61,7 +61,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           // Sticky Active Ride Banner
           if (session != null)
             StreamBuilder<List<RideModel>>(
-              stream: ref.watch(rideRepositoryProvider).streamRiderRides(session.phoneNumber),
+              stream: ref.watch(rideRepositoryProvider).streamRiderRides(session.uid),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) return const SizedBox.shrink();
                 final rides = snapshot.data!;

@@ -47,15 +47,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       
       if (exists) {
         // If user exists, just log them in (MVP flow)
-        await authRepo.login(_phoneController.text);
-        final userDoc = await ref.read(userRepositoryProvider).getUser(_phoneController.text);
+        final result = await authRepo.login(_phoneController.text);
+        final uid = result['uid']!;
+        final sessionToken = result['sessionToken'];
+
+        final userDoc = await ref.read(userRepositoryProvider).getUser(uid);
         final data = userDoc.data();
         if (data != null) {
           await ref.read(sessionProvider.notifier).setSession(
                 UserSession(
+                  uid: uid,
                   phoneNumber: _phoneController.text,
                   username: data['username'] as String?,
-                  sessionToken: data['sessionToken'] as String?,
+                  sessionToken: sessionToken,
                 ),
               );
         }
@@ -92,7 +96,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       final authRepo = ref.read(authRepositoryProvider);
-      final sessionToken = await authRepo.signUp(
+      final result = await authRepo.signUp(
         phoneNumber: _phoneController.text,
         username: _usernameController.text,
         telegramHandle: _telegramController.text.isNotEmpty 
@@ -102,9 +106,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       await ref.read(sessionProvider.notifier).setSession(
             UserSession(
+              uid: result['uid']!,
               phoneNumber: _phoneController.text,
               username: _usernameController.text,
-              sessionToken: sessionToken,
+              sessionToken: result['sessionToken'],
             ),
           );
 
@@ -234,14 +239,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   try {
                     final authRepo = ref.read(authRepositoryProvider);
                     await authRepo.signInWithGoogleAndClaimAdmin(_phoneController.text);
-                    final userDoc = await ref.read(userRepositoryProvider).getUser(_phoneController.text);
+                    
+                    // After claiming admin, we need to fetch the user to get the UID
+                    // Since signInWithGoogleAndClaimAdmin doesn't return it, we use login or getUserByPhone
+                    final result = await authRepo.login(_phoneController.text);
+                    final uid = result['uid']!;
+                    final sessionToken = result['sessionToken'];
+
+                    final userDoc = await ref.read(userRepositoryProvider).getUser(uid);
                     final data = userDoc.data();
                     if (data != null) {
                       await ref.read(sessionProvider.notifier).setSession(
                             UserSession(
+                              uid: uid,
                               phoneNumber: _phoneController.text,
                               username: data['username'] as String?,
-                              sessionToken: data['sessionToken'] as String?,
+                              sessionToken: sessionToken,
                             ),
                           );
                     }

@@ -6,6 +6,8 @@ enum RideStatus { pending, accepted, arrived, riding, completed, cancelled }
 class RideModel {
   final String id;
   final String shortId; // 8-digit unique ID
+  final String riderId; // UID
+  final String? driverId; // UID
   final String riderPhone;
   final String? driverPhone;
   final String pickupAddress;
@@ -21,6 +23,8 @@ class RideModel {
   RideModel({
     required this.id,
     required this.shortId,
+    required this.riderId,
+    this.driverId,
     required this.riderPhone,
     this.driverPhone,
     required this.pickupAddress,
@@ -40,6 +44,8 @@ class RideModel {
     return RideModel(
       id: doc.id,
       shortId: data['shortId'] ?? '00000000',
+      riderId: data['riderId'] ?? '',
+      driverId: data['driverId'],
       riderPhone: data['riderPhone'] ?? '',
       driverPhone: data['driverPhone'],
       pickupAddress: data['pickupAddress'] ?? '',
@@ -64,6 +70,8 @@ class RideModel {
   Map<String, dynamic> toMap() {
     return {
       'shortId': shortId,
+      'riderId': riderId,
+      'driverId': driverId,
       'riderPhone': riderPhone,
       'driverPhone': driverPhone,
       'pickupAddress': pickupAddress,

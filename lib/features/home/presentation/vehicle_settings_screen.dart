@@ -7,10 +7,10 @@ import 'package:helpride/features/rides/presentation/vehicle_selection_screen.da
 import 'package:helpride/features/rides/domain/ride_options.dart';
 import 'package:helpride/features/rides/domain/vehicle_type.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
+import 'package:helpride/core/providers/session_provider.dart';
 
 class VehicleSettingsScreen extends ConsumerStatefulWidget {
-  final String phoneNumber;
-  const VehicleSettingsScreen({super.key, required this.phoneNumber});
+  const VehicleSettingsScreen({super.key});
 
   @override
   ConsumerState<VehicleSettingsScreen> createState() => _VehicleSettingsScreenState();
@@ -39,12 +39,15 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
   }
 
   Future<void> _loadData() async {
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+
     // Check for active ride first
-    final activeRides = await ref.read(rideRepositoryProvider).streamRiderRides(widget.phoneNumber).first;
+    final activeRides = await ref.read(rideRepositoryProvider).streamRiderRides(session.uid).first;
     _hasActiveRide = activeRides.any((r) => r.isActive);
 
     // Load User Data
-    final userDoc = await ref.read(userRepositoryProvider).getUser(widget.phoneNumber);
+    final userDoc = await ref.read(userRepositoryProvider).getUser(session.uid);
     if (userDoc.exists) {
       final data = userDoc.data() as Map<String, dynamic>;
       final vehicle = data['vehicle'] as Map<String, dynamic>?;
@@ -107,16 +110,19 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
       };
 
       try {
-        await ref.read(userRepositoryProvider).updateUserVehicle(
-          widget.phoneNumber,
-          vehicleData,
-        );
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Vehicle settings updated!')),
+        final session = ref.read(sessionProvider);
+        if (session != null) {
+          await ref.read(userRepositoryProvider).updateUserVehicle(
+            session.uid,
+            vehicleData,
           );
-          Navigator.of(context).pop();
+          
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Vehicle settings updated!')),
+            );
+            Navigator.of(context).pop();
+          }
         }
       } catch (e) {
         if (mounted) {

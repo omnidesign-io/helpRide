@@ -48,7 +48,7 @@ class OrdersScreen extends ConsumerWidget {
         // or create a new streamHistoryRides method.
         // For now, let's assume we create a new method or modify the existing one.
         // I'll use a new stream method name here and implement it next.
-        stream: ref.watch(rideRepositoryProvider).streamRideHistory(session.phoneNumber),
+        stream: ref.watch(rideRepositoryProvider).streamRideHistory(session.uid),
         builder: (context, snapshot) {
           if (snapshot.hasError) return Center(child: Text('Error: ${snapshot.error}'));
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());

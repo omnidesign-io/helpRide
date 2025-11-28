@@ -64,9 +64,10 @@ class _LandingPageState extends ConsumerState<LandingPage> {
     }
 
     final String currentUserPhone = session.phoneNumber;
+    final String currentUserId = session.uid;
 
     // Watch for active rides
-    final activeRidesAsync = ref.watch(rideRepositoryProvider).streamRiderRides(currentUserPhone);
+    final activeRidesAsync = ref.watch(rideRepositoryProvider).streamRiderRides(currentUserId);
 
     return Scaffold(
       appBar: AppBar(
@@ -86,8 +87,8 @@ class _LandingPageState extends ConsumerState<LandingPage> {
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: currentRole == UserRole.driver
-                ? _buildDriverControls(context, ref, l10n, currentUserPhone)
-                : _buildRiderControls(context, ref, l10n, currentUserPhone, activeRide),
+                ? _buildDriverControls(context, ref, l10n, currentUserPhone, currentUserId)
+                : _buildRiderControls(context, ref, l10n, currentUserPhone, currentUserId, activeRide),
           );
         },
       ),
@@ -117,7 +118,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
     );
   }
 
-  Widget _buildRiderControls(BuildContext context, WidgetRef ref, AppLocalizations l10n, String phone, RideModel? activeRide) {
+  Widget _buildRiderControls(BuildContext context, WidgetRef ref, AppLocalizations l10n, String phone, String uid, RideModel? activeRide) {
     final bool isInputDisabled = activeRide != null;
 
     return Column(
@@ -240,6 +241,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                   // Create Ride Request
                   try {
                     await ref.read(rideRepositoryProvider).createRideRequest(
+                      riderId: uid,
                       riderPhone: phone,
                       pickupAddress: _fromController.text,
                       destinationAddress: _toController.text,
@@ -268,7 +270,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
     );
   }
 
-  Widget _buildDriverControls(BuildContext context, WidgetRef ref, AppLocalizations l10n, String phone) {
+  Widget _buildDriverControls(BuildContext context, WidgetRef ref, AppLocalizations l10n, String phone, String uid) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -343,6 +345,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                         onPressed: () {
                           ref.read(rideRepositoryProvider).acceptRide(
                             rideId: ride.id,
+                            driverId: uid,
                             driverPhone: phone,
                           );
                         },
