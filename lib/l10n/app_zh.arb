@@ -139,5 +139,9 @@
   "auditActionArrived": "司機已到達",
   "auditActionRiding": "行程中",
   "auditActionCompleted": "已完成",
-  "auditActionCancelled": "已取消"
+  "auditActionCancelled": "已取消",
+  "enterLicensePlateError": "請輸入車牌號碼 (至少部分)",
+  "callButtonLabel": "致電",
+  "messageButtonLabel": "WhatsApp",
+  "telegramButtonLabel": "Telegram"
 }

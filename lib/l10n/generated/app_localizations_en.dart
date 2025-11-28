@@ -446,4 +446,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auditActionCancelled => 'Cancelled';
+
+  @override
+  String get enterLicensePlateError =>
+      'Please enter your license plate (at least partially)';
+
+  @override
+  String get callButtonLabel => 'Call';
+
+  @override
+  String get messageButtonLabel => 'WhatsApp';
+
+  @override
+  String get telegramButtonLabel => 'Telegram';
 }

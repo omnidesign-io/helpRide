@@ -429,4 +429,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get auditActionCancelled => '已取消';
+
+  @override
+  String get enterLicensePlateError => '請輸入車牌號碼 (至少部分)';
+
+  @override
+  String get callButtonLabel => '致電';
+
+  @override
+  String get messageButtonLabel => 'WhatsApp';
+
+  @override
+  String get telegramButtonLabel => 'Telegram';
 }

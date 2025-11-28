@@ -78,6 +78,18 @@ class SessionNotifier extends StateNotifier<UserSession?> {
     );
     await setSession(newSession);
   }
+
+  Future<void> updateUsername(String username) async {
+    if (state == null) return;
+    final newSession = UserSession(
+      uid: state!.uid,
+      phoneNumber: state!.phoneNumber,
+      username: username,
+      sessionToken: state!.sessionToken,
+      role: state!.role,
+    );
+    await setSession(newSession);
+  }
 }
 
 final sessionProvider = StateNotifierProvider<SessionNotifier, UserSession?>((ref) {

@@ -54,18 +54,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         final uid = result['uid']!;
         final sessionToken = result['sessionToken'];
 
-        final userDoc = await ref.read(userRepositoryProvider).getUser(uid);
-        final data = userDoc.data();
-        if (data != null) {
-          await ref.read(sessionProvider.notifier).setSession(
-                UserSession(
-                  uid: uid,
-                  phoneNumber: _fullPhoneNumber,
-                  username: data['username'] as String?,
-                  sessionToken: sessionToken,
-                ),
-              );
-        }
+        // Use data returned from login, including role
+        await ref.read(sessionProvider.notifier).setSession(
+            UserSession(
+              uid: result['uid']!,
+              phoneNumber: _fullPhoneNumber,
+              username: result['username'],
+              sessionToken: result['sessionToken'],
+              role: result['role'] ?? 'rider',
+            ),
+          );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(AppLocalizations.of(context)!.welcomeBackMessage)),
@@ -116,14 +114,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             : null,
       );
 
-      await ref.read(sessionProvider.notifier).setSession(
-            UserSession(
-              uid: result['uid']!,
-              phoneNumber: _fullPhoneNumber,
-              username: _usernameController.text,
-              sessionToken: result['sessionToken'],
-            ),
-          );
+      final session = UserSession(
+        uid: result['uid']!,
+        phoneNumber: _fullPhoneNumber,
+        sessionToken: result['sessionToken'],
+        role: result['role'] ?? 'rider',
+        username: result['username'],
+      );
+      await ref.read(sessionProvider.notifier).setSession(session);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -318,18 +316,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       final uid = result['uid']!;
                       final sessionToken = result['sessionToken'];
 
-                      final userDoc = await ref.read(userRepositoryProvider).getUser(uid);
-                      final data = userDoc.data();
-                      if (data != null) {
-                        await ref.read(sessionProvider.notifier).setSession(
-                              UserSession(
-                                uid: uid,
-                                phoneNumber: _fullPhoneNumber,
-                                username: data['username'] as String?,
-                                sessionToken: sessionToken,
-                              ),
-                            );
-                      }
+                      // Use data returned from login, including role
+                      await ref.read(sessionProvider.notifier).setSession(
+                            UserSession(
+                              uid: uid,
+                              phoneNumber: _fullPhoneNumber,
+                              username: result['username'],
+                              sessionToken: sessionToken,
+                              role: result['role'] ?? 'rider',
+                            ),
+                          );
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(l10n.adminAccessGranted)),

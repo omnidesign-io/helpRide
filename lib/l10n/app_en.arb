@@ -139,5 +139,9 @@
   "auditActionArrived": "Arrived",
   "auditActionRiding": "Riding",
   "auditActionCompleted": "Completed",
-  "auditActionCancelled": "Cancelled"
+  "auditActionCancelled": "Cancelled",
+  "enterLicensePlateError": "Please enter your license plate (at least partially)",
+  "callButtonLabel": "Call",
+  "messageButtonLabel": "WhatsApp",
+  "telegramButtonLabel": "Telegram"
 }

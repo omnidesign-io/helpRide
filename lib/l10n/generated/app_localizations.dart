@@ -937,6 +937,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancelled'**
   String get auditActionCancelled;
+
+  /// No description provided for @enterLicensePlateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your license plate (at least partially)'**
+  String get enterLicensePlateError;
+
+  /// No description provided for @callButtonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get callButtonLabel;
+
+  /// No description provided for @messageButtonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get messageButtonLabel;
+
+  /// No description provided for @telegramButtonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Telegram'**
+  String get telegramButtonLabel;
 }
 
 class _AppLocalizationsDelegate

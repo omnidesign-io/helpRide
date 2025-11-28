@@ -97,25 +97,139 @@ class RideDetailsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
 
-              // Contact Info (Interactive vs Static)
-              if (otherPartyName != null || otherPartyPhone != null) ...[
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
+              // Party Info (Context Aware)
+              if ((ride.status == RideStatus.accepted || 
+                   ride.status == RideStatus.arrived || 
+                   ride.status == RideStatus.riding) && 
+                  (isRider || isDriver)) ...[
+                Builder(
+                  builder: (context) {
+                    final isShowingDriver = isRider;
+                    final name = isShowingDriver ? ride.driverName : ride.riderName;
+                    final phone = isShowingDriver ? ride.driverPhone : ride.riderPhone;
+                    final telegram = isShowingDriver ? ride.driverTelegram : ride.riderTelegram;
+                    final licensePlate = isShowingDriver ? ride.driverLicensePlate : null;
+                    final label = isShowingDriver ? l10n.driverLabel : l10n.riderLabel;
+
+                    if (name == null) return const SizedBox.shrink();
+
+                    return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(otherPartyLabel, style: Theme.of(context).textTheme.titleMedium),
+                        Text(
+                          label,
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    CircleAvatar(
+                                      child: Text(name.isNotEmpty ? name[0].toUpperCase() : '?'),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            name,
+                                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                          ),
+                                          if (licensePlate != null && licensePlate.isNotEmpty) ...[
+                                            const SizedBox(height: 4),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                                borderRadius: BorderRadius.circular(4),
+                                                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                                              ),
+                                              child: Text(
+                                                licensePlate,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    if (phone != null)
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                                          child: FilledButton.tonal(
+                                            onPressed: () => _launchUrl('tel:$phone'),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(Icons.phone, size: 18),
+                                                const SizedBox(width: 8),
+                                                Flexible(child: Text(l10n.callButtonLabel, overflow: TextOverflow.ellipsis)),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    if (phone != null)
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                                          child: FilledButton.tonal(
+                                            onPressed: () => _launchUrl('https://wa.me/${phone.replaceAll('+', '')}'),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(Icons.message, size: 18),
+                                                const SizedBox(width: 8),
+                                                Flexible(child: Text(l10n.messageButtonLabel, overflow: TextOverflow.ellipsis)),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    if (telegram != null && telegram.isNotEmpty)
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                                          child: FilledButton.tonal(
+                                            onPressed: () => _launchUrl('https://t.me/$telegram'),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(Icons.send, size: 18),
+                                                const SizedBox(width: 8),
+                                                Flexible(child: Text(l10n.telegramButtonLabel, overflow: TextOverflow.ellipsis)),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 16),
-                        if (showInteractiveContact)
-                          _buildInteractiveContact(context, otherPartyName, otherPartyPhone!, otherPartyTelegram)
-                        else
-                          _buildStaticContact(context, otherPartyName, otherPartyPhone, otherPartyTelegram),
                       ],
-                    ),
-                  ),
+                    );
+                  }
                 ),
-                const SizedBox(height: 16),
               ],
 
               // Details Card
@@ -196,6 +310,16 @@ class RideDetailsScreen extends ConsumerWidget {
                             final log = ride.auditTrail[index];
                             final timestamp = (log['timestamp'] as dynamic)?.toDate() ?? DateTime.now();
                             final action = log['action'].toString();
+                            final actorId = log['actorId'] as String?;
+                            
+                            String actorName = 'System';
+                            if (actorId != null) {
+                              if (actorId == ride.riderId) {
+                                actorName = ride.riderName;
+                              } else if (actorId == ride.driverId) {
+                                actorName = ride.driverName ?? 'Driver';
+                              }
+                            }
                             
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -211,9 +335,19 @@ class RideDetailsScreen extends ConsumerWidget {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          _localizeAction(context, action),
-                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                                        RichText(
+                                          text: TextSpan(
+                                            style: DefaultTextStyle.of(context).style.copyWith(fontSize: 13),
+                                            children: [
+                                              TextSpan(
+                                                text: '$actorName ',
+                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                              ),
+                                              TextSpan(
+                                                text: _localizeAction(context, action),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -229,6 +363,8 @@ class RideDetailsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
               ],
+
+
 
               // Cancel Button
               if (canCancel)

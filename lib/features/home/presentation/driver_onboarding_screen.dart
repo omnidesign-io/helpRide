@@ -197,6 +197,7 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
                         helperText: l10n.licensePlateHelper,
                         helperMaxLines: 2,
                       ),
+                      validator: (val) => val == null || val.isEmpty ? l10n.enterLicensePlateError : null,
                     ),
                     const SizedBox(height: 16),
 

@@ -50,9 +50,12 @@ class AuthRepository {
     }
 
     final doc = querySnapshot.docs.first;
+    final data = doc.data();
     return {
       'uid': doc.id,
-      'sessionToken': doc.data()['sessionToken'] as String? ?? '',
+      'sessionToken': data['sessionToken'] as String? ?? '',
+      'role': data['role'] as String? ?? 'rider',
+      'username': data['username'] as String? ?? '',
     };
   }
 
@@ -83,6 +86,8 @@ class AuthRepository {
     return {
       'uid': uid,
       'sessionToken': sessionToken,
+      'role': 'rider',
+      'username': username,
     };
   }
 

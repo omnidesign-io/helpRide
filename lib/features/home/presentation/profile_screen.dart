@@ -41,8 +41,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (session == null) return;
     
     // 1. Check Active Rides
-    final activeRides = await ref.read(rideRepositoryProvider).streamRiderRides(session.uid).first;
-    _hasActiveRide = activeRides.any((r) => r.isActive);
+    // 1. Check Active Rides
+    final rideRepo = ref.read(rideRepositoryProvider);
+    final riderRides = await rideRepo.streamRiderRides(session.uid).first;
+    final driverRides = await rideRepo.streamDriverRides(session.uid).first;
+    
+    _hasActiveRide = riderRides.any((r) => r.isActive) || driverRides.isNotEmpty;
 
     // 2. Load User Data
     final userDoc = await ref.read(userRepositoryProvider).getUser(session.uid);
@@ -155,6 +159,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 : null,
             isUsernameChanged: isUsernameChanged,
           );
+
+      // Update local session immediately
+      await ref.read(sessionProvider.notifier).updateUsername(_usernameController.text);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

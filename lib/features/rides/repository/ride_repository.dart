@@ -98,12 +98,29 @@ class RideRepository {
     required String driverPhone,
     String? driverTelegram,
   }) async {
+    // Fetch driver's vehicle info
+    String? driverLicensePlate;
+    try {
+      final userDoc = await _firestore.collection('users').doc(driverId).get();
+      if (userDoc.exists) {
+        final data = userDoc.data();
+        if (data != null && data.containsKey('vehicle')) {
+          final vehicle = data['vehicle'] as Map<String, dynamic>;
+          driverLicensePlate = vehicle['licensePlate'] as String?;
+        }
+      }
+    } catch (e) {
+      // Ignore error, proceed without license plate if fetch fails
+      print('Error fetching driver vehicle info: $e');
+    }
+
     await _firestore.collection('rides').doc(rideId).update({
       'status': 'accepted',
       'driverId': driverId,
       'driverName': driverName,
       'driverPhone': driverPhone,
       'driverTelegram': driverTelegram,
+      'driverLicensePlate': driverLicensePlate,
       'acceptedAt': FieldValue.serverTimestamp(),
       'auditTrail': FieldValue.arrayUnion([
         {
