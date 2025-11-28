@@ -32,11 +32,89 @@ class _LandingPageState extends ConsumerState<LandingPage> {
   // Driver State
 
 
+  bool _isLoading = false;
+  bool _isBooking = false; // Prevent double-click
+  String? _riderName;
+  String? _riderPhone;
+  String? _riderTelegram;
+
   @override
   void initState() {
     super.initState();
+    _loadUserProfile();
     _fromController.addListener(_onFieldChanged);
     _toController.addListener(_onFieldChanged);
+  }
+
+  Future<void> _loadUserProfile() async {
+    final session = ref.read(sessionProvider);
+    if (session != null) {
+      setState(() {
+        _riderName = session.username;
+        _riderPhone = session.phoneNumber;
+        // _riderTelegram = session.telegramHandle; // TODO: Add to session
+      });
+    }
+  }
+
+  Future<void> _createRideRequest() async {
+    if (_fromController.text.isEmpty ||
+        _toController.text.isEmpty ||
+        _rideOptions == null) {
+       // Should be handled by button disable state, but good for safety
+      return;
+    }
+
+    if (_isBooking) return;
+
+    setState(() {
+      _isLoading = true;
+      _isBooking = true;
+    });
+
+    try {
+      final session = ref.read(sessionProvider);
+      if (session == null) throw Exception('User not logged in');
+
+      // Use session data if available, otherwise fallback (shouldn't happen if logged in)
+      final name = _riderName ?? 'Unknown Rider';
+      final phone = _riderPhone ?? 'Unknown Phone';
+
+      await ref.read(rideRepositoryProvider).createRideRequest(
+            riderId: session.uid,
+            riderName: name,
+            riderPhone: phone,
+            riderTelegram: _riderTelegram,
+            pickupAddress: _fromController.text,
+            destinationAddress: _toController.text,
+            options: _rideOptions!,
+          );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.rideRequestedMessage)),
+        );
+        // Clear fields after successful request
+        _fromController.clear();
+        _toController.clear();
+        setState(() {
+          _rideOptions = null; // Reset options
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isBooking = false;
+        });
+      }
+    }
   }
 
   void _onFieldChanged() {
@@ -263,28 +341,8 @@ class _LandingPageState extends ConsumerState<LandingPage> {
           onPressed: (!isInputDisabled && 
                       _fromController.text.isNotEmpty && 
                       _toController.text.isNotEmpty && 
-                      _rideOptions != null) 
-              ? () async {
-                  // Create Ride Request
-                  try {
-                    await ref.read(rideRepositoryProvider).createRideRequest(
-                      riderId: uid,
-                      riderName: username ?? 'Unknown Rider',
-                      riderTelegram: null, // TODO: Add telegram to Session/User model
-                      riderPhone: phone,
-                      pickupAddress: _fromController.text,
-                      destinationAddress: _toController.text,
-                      options: _rideOptions!,
-                    );
-                    // UI will auto-update due to stream
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: $e')),
-                      );
-                    }
-                  }
-                }
+                      _rideOptions != null && !_isBooking) 
+              ? _createRideRequest
               : null, // Disable if invalid or active ride exists
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),

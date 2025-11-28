@@ -43,6 +43,14 @@ The ride lifecycle in HelpRide follows a strict state machine to ensure consiste
     *   **Description**: The ride was terminated before completion. This is a terminal state.
     *   **Allowed Actions**: None.
 
+## Critical Action Handling
+For critical actions (e.g., booking a ride, payments), we implement a **"Disable-on-Click"** pattern:
+1.  **Immediate Feedback**: Set a local loading state (e.g., `_isBooking = true`) *immediately* when the button is pressed.
+2.  **Disable UI**: Disable the button to prevent double-clicks while the async operation is starting.
+3.  **Reset**: Reset the state in a `finally` block to ensure the UI recovers even if the operation fails.
+
+This is a frontend safeguard that complements backend idempotency checks (like Firestore Transactions).
+
 ### Constraints & Invariants
 
 *   **Role Switching**: A user **cannot** switch between Rider and Driver roles if they have an active ride (any state other than `completed` or `cancelled`). This prevents data inconsistency and UI confusion.
