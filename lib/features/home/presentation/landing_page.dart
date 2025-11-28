@@ -7,17 +7,21 @@ import 'package:helpride/features/rides/repository/ride_repository.dart';
 import 'package:helpride/features/rides/domain/ride_model.dart';
 import 'package:helpride/core/presentation/constants.dart';
 import 'package:helpride/features/rides/presentation/widgets/ride_route_widget.dart';
+import 'package:helpride/features/rides/presentation/widgets/condition_chip.dart';
 import 'package:helpride/core/presentation/widgets/pulsing_green_dot.dart';
 import 'package:helpride/core/providers/connectivity_provider.dart';
-import 'package:helpride/features/rides/domain/vehicle_type.dart';
 import 'package:helpride/features/rides/domain/ride_options.dart';
+import 'package:helpride/features/rides/repository/vehicle_type_repository.dart';
 import 'package:helpride/core/providers/session_provider.dart';
 import 'package:helpride/features/home/repository/user_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Added for DocumentSnapshot
+import 'package:helpride/features/rides/presentation/providers/ride_request_provider.dart';
 
 final userProfileProvider = StreamProvider.family<DocumentSnapshot<Map<String, dynamic>>, String>((ref, uid) {
   return ref.watch(userRepositoryProvider).getUserStream(uid);
 });
+
+
 
 class LandingPage extends ConsumerStatefulWidget {
   const LandingPage({super.key});
@@ -31,7 +35,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
   final TextEditingController _fromController = TextEditingController();
   final TextEditingController _toController = TextEditingController();
 
-  RideOptions? _rideOptions;
+  // RideOptions is now managed by rideRequestProvider
 
   // Driver State
 
@@ -96,8 +100,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
 
   Future<void> _createRideRequest() async {
     if (_fromController.text.isEmpty ||
-        _toController.text.isEmpty ||
-        _rideOptions == null) {
+        _toController.text.isEmpty) {
        // Should be handled by button disable state, but good for safety
       return;
     }
@@ -132,7 +135,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
             riderTelegram: _riderTelegram,
             pickupAddress: _fromController.text,
             destinationAddress: _toController.text,
-            options: _rideOptions!,
+            options: ref.read(rideRequestProvider),
             scheduledTime: _scheduledTime,
           );
 
@@ -144,7 +147,8 @@ class _LandingPageState extends ConsumerState<LandingPage> {
         _fromController.clear();
         _toController.clear();
         setState(() {
-          _rideOptions = null; // Reset options
+          // _rideOptions = null; // Reset options - actually we might want to keep them or reset provider
+          ref.read(rideRequestProvider.notifier).state = const RideOptions();
           _scheduledTime = null; // Reset time
         });
       }
@@ -218,6 +222,28 @@ class _LandingPageState extends ConsumerState<LandingPage> {
       });
     });
 
+    // Auto-select default vehicle type
+    ref.listen(vehicleTypesProvider, (previous, next) {
+      next.whenData((types) {
+        final currentOptions = ref.read(rideRequestProvider);
+        if (currentOptions.vehicleTypeIds.isEmpty) {
+          final defaultType = types.where((t) => t.isDefault).firstOrNull;
+          if (defaultType != null) {
+            // Schedule update to avoid build-phase modification
+            Future.microtask(() {
+              ref.read(rideRequestProvider.notifier).state = currentOptions.copyWith(
+                vehicleTypeIds: [defaultType.id],
+                passengerCount: 1,
+                acceptPets: false,
+                acceptWheelchair: false,
+                acceptCargo: false,
+              );
+            });
+          }
+        }
+      });
+    });
+
     // Watch for active rides
     final activeRidesAsync = ref.watch(rideRepositoryProvider).streamRiderRides(currentUserId);
 
@@ -272,6 +298,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
 
   Widget _buildRiderControls(BuildContext context, WidgetRef ref, AppLocalizations l10n, String phone, String uid, String? username, RideModel? activeRide) {
     final bool isInputDisabled = activeRide != null;
+    final vehicleTypesAsync = ref.watch(vehicleTypesProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -318,13 +345,8 @@ class _LandingPageState extends ConsumerState<LandingPage> {
         Card(
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
-            onTap: isInputDisabled ? null : () async {
-              final result = await context.push('/vehicle-selection', extra: _rideOptions);
-              if (result != null && result is RideOptions) {
-                setState(() {
-                  _rideOptions = result;
-                });
-              }
+            onTap: isInputDisabled ? null : () {
+              context.push('/vehicle-selection');
             },
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -344,36 +366,60 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  if (_rideOptions == null)
-                    Text(l10n.selectRideOptionsButton, style: const TextStyle(fontSize: 16))
-                  else ...[
-                    Row(
-                      children: [
-                        Icon(_rideOptions!.vehicleType.icon, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          _rideOptions!.vehicleType.localized(context),
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${l10n.passengerCountLabel}: ${_rideOptions!.passengerCount}',
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    ),
-                    if (_rideOptions!.acceptPets || _rideOptions!.acceptWheelchair || _rideOptions!.acceptCargo) ...[
-                      const SizedBox(height: 4),
-                      Wrap(
-                        spacing: 8,
+                  const SizedBox(height: 8),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final rideOptions = ref.watch(rideRequestProvider);
+                      if (rideOptions.vehicleTypeIds.isEmpty) {
+                        return Text(l10n.selectVehicleLabel, style: const TextStyle(fontSize: 16));
+                      }
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (_rideOptions!.acceptPets) _buildConditionChip(l10n.conditionPets, Icons.pets),
-                          if (_rideOptions!.acceptWheelchair) _buildConditionChip(l10n.conditionWheelchair, Icons.accessible),
-                          if (_rideOptions!.acceptCargo) _buildConditionChip(l10n.conditionCargo, Icons.luggage),
+                          Row(
+                            children: [
+                              const Icon(Icons.directions_car, size: 20), // Generic icon or first selected
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: vehicleTypesAsync.when(
+                                  data: (types) {
+                                    final isZh = Localizations.localeOf(context).languageCode == 'zh';
+                                    final names = rideOptions.vehicleTypeIds.map((id) {
+                                      final type = types.where((t) => t.id == id).firstOrNull;
+                                      return type != null ? (isZh ? type.nameZh : type.nameEn) : id;
+                                    }).join(', ');
+                                    return Text(
+                                      names,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                      overflow: TextOverflow.ellipsis,
+                                    );
+                                  },
+                                  loading: () => const Text('...'),
+                                  error: (_, __) => const Text('Error'),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${l10n.passengerCountLabel}: ${rideOptions.passengerCount}',
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          ),
+                          if (rideOptions.acceptPets || rideOptions.acceptWheelchair || rideOptions.acceptCargo) ...[
+                            const SizedBox(height: 4),
+                            Wrap(
+                              spacing: 8,
+                              children: [
+                                if (rideOptions.acceptPets) ConditionChip(label: l10n.conditionPets, icon: Icons.pets),
+                                if (rideOptions.acceptWheelchair) ConditionChip(label: l10n.conditionWheelchair, icon: Icons.accessible),
+                                if (rideOptions.acceptCargo) ConditionChip(label: l10n.conditionCargo, icon: Icons.luggage),
+                              ],
+                            ),
+                          ],
                         ],
-                      ),
-                    ],
-                  ],
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -497,7 +543,9 @@ class _LandingPageState extends ConsumerState<LandingPage> {
           onPressed: (!isInputDisabled && 
                       _fromController.text.isNotEmpty && 
                       _toController.text.isNotEmpty && 
-                      _rideOptions != null && 
+                      _fromController.text.isNotEmpty && 
+                      _toController.text.isNotEmpty && 
+                      // _rideOptions != null && // Always have default options now
                       !_isBooking &&
                       (_scheduledTime == null || _scheduledTime!.isAfter(DateTime.now()))) 
               ? _createRideRequest
@@ -517,6 +565,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
 
   Widget _buildDriverControls(BuildContext context, WidgetRef ref, AppLocalizations l10n, String phone, String uid, String? username) {
     final isConnected = ref.watch(isConnectedProvider);
+    final vehicleTypesAsync = ref.watch(vehicleTypesProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -548,7 +597,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                       Text(
                         isConnected
                             ? l10n.lookingForRidesMessage
-                            : l10n.offlineRefreshMessage, // You'll need to add this key
+                            : l10n.offlineRefreshMessage,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: isConnected ? null : Theme.of(context).colorScheme.error,
                             ),
@@ -584,10 +633,6 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                 ),
               );
             }
-
-
-
-// ...
 
             return ListView.separated(
               shrinkWrap: true,
@@ -642,9 +687,22 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              Icon(ride.vehicleType.icon, size: 14, color: Colors.grey),
+                              Icon(Icons.directions_car, size: 14, color: Colors.grey),
                               const SizedBox(width: 4),
-                              Text(ride.vehicleType.localized(context), style: Theme.of(context).textTheme.bodySmall),
+                              Expanded(
+                                child: vehicleTypesAsync.when(
+                                  data: (types) {
+                                    final isZh = Localizations.localeOf(context).languageCode == 'zh';
+                                    final names = ride.requestedVehicleTypeIds.map((id) {
+                                      final type = types.where((t) => t.id == id).firstOrNull;
+                                      return type != null ? (isZh ? type.nameZh : type.nameEn) : id;
+                                    }).join(', ');
+                                    return Text(names, style: Theme.of(context).textTheme.bodySmall);
+                                  },
+                                  loading: () => const Text('...'),
+                                  error: (_, __) => const Text(''),
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -662,12 +720,5 @@ class _LandingPageState extends ConsumerState<LandingPage> {
     );
   }
 
-  Widget _buildConditionChip(String label, IconData icon) {
-    return Chip(
-      avatar: Icon(icon, size: 16),
-      label: Text(label, style: const TextStyle(fontSize: 12)),
-      visualDensity: VisualDensity.compact,
-      padding: EdgeInsets.zero,
-    );
-  }
+
 }

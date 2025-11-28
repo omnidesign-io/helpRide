@@ -3,9 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:helpride/features/home/repository/user_repository.dart';
 import 'package:helpride/core/presentation/counter_input_widget.dart';
-import 'package:helpride/features/rides/presentation/vehicle_selection_screen.dart';
+import 'package:helpride/features/rides/presentation/widgets/vehicle_type_selector.dart';
 import 'package:helpride/features/rides/domain/ride_options.dart';
-import 'package:helpride/features/rides/domain/vehicle_type.dart';
+
+import 'package:helpride/features/rides/repository/vehicle_type_repository.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:helpride/core/providers/session_provider.dart';
 
@@ -20,7 +21,7 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
   final _formKey = GlobalKey<FormState>();
   
   // Form Fields
-  VehicleType? _vehicleType;
+  String? _vehicleTypeId;
   final _vehicleColorController = TextEditingController();
   final _licensePlateController = TextEditingController();
   int _capacity = 4;
@@ -48,12 +49,8 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
           final vehicle = data['vehicle'] as Map<String, dynamic>;
           
           setState(() {
-            // Parse Vehicle Type
-            final typeStr = vehicle['type'] as String;
-            _vehicleType = VehicleType.values.firstWhere(
-              (e) => e.toString().split('.').last == typeStr,
-              orElse: () => VehicleType.sedan,
-            );
+            // Parse Vehicle Type ID
+            _vehicleTypeId = vehicle['type'] as String?;
             
             _vehicleColorController.text = vehicle['color'] ?? '';
             _licensePlateController.text = vehicle['licensePlate'] ?? '';
@@ -81,7 +78,7 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
   }
 
   Future<void> _submit() async {
-    if (_vehicleType == null) {
+    if (_vehicleTypeId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.selectVehicleTypeError)),
       );
@@ -92,7 +89,7 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
       _formKey.currentState!.save();
 
       final vehicleData = {
-        'type': _vehicleType.toString().split('.').last,
+        'type': _vehicleTypeId,
         'color': _vehicleColorController.text.trim(),
         'licensePlate': _licensePlateController.text.trim(),
         'capacity': _capacity,
@@ -128,8 +125,11 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final vehicleTypesAsync = ref.watch(vehicleTypesProvider);
+
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(l10n.driverSetupTitle),
       ),
       body: Form(
@@ -150,21 +150,27 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
 
             // Vehicle Type
             Card(
-              child: ListTile(
-                title: Text(l10n.vehicleTypeLabel),
-                subtitle: Text(_vehicleType?.localized(context) ?? l10n.selectVehicleLabel),
-                trailing: const Icon(Icons.arrow_forward_ios),
-                onTap: () async {
-                  final currentOptions = _vehicleType != null ? RideOptions(vehicleType: _vehicleType!) : null;
-                  final result = await Navigator.of(context).push<RideOptions>(
-                    MaterialPageRoute(
-                      builder: (_) => VehicleSelectionScreen(currentOptions: currentOptions),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.vehicleTypeLabel,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                  );
-                  if (result != null) {
-                    setState(() => _vehicleType = result.vehicleType);
-                  }
-                },
+                    const SizedBox(height: 8),
+                    VehicleTypeSelector(
+                      selectedTypeIds: _vehicleTypeId != null ? [_vehicleTypeId!] : [],
+                      multiSelect: false,
+                      onChanged: (ids) {
+                        setState(() {
+                          _vehicleTypeId = ids.firstOrNull;
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -178,10 +184,11 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
                     // Vehicle Color
                     TextFormField(
                       controller: _vehicleColorController,
+                      maxLength: 10,
                       decoration: InputDecoration(
                         labelText: l10n.vehicleColorLabel,
                         hintText: l10n.vehicleColorHint,
-                        prefixIcon: Icon(Icons.color_lens),
+                        prefixIcon: const Icon(Icons.color_lens),
                       ),
                       validator: (val) => val == null || val.isEmpty ? l10n.enterColorError : null,
                     ),
@@ -190,10 +197,10 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
                     // License Plate
                     TextFormField(
                       controller: _licensePlateController,
-                      maxLength: 20,
+                      maxLength: 8,
                       decoration: InputDecoration(
                         labelText: l10n.licensePlateLabel,
-                        prefixIcon: Icon(Icons.confirmation_number),
+                        prefixIcon: const Icon(Icons.confirmation_number),
                         helperText: l10n.licensePlateHelper,
                         helperMaxLines: 2,
                       ),
@@ -206,7 +213,7 @@ class _DriverOnboardingScreenState extends ConsumerState<DriverOnboardingScreen>
                       label: l10n.capacityLabel,
                       value: _capacity,
                       onChanged: (val) => setState(() => _capacity = val),
-                      min: 1,
+                      min: 0,
                       max: 20,
                     ),
                   ],

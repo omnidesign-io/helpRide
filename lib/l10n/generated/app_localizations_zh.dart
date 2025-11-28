@@ -231,16 +231,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get vehicleDetailsSubtitle => '請提供您的車輛詳情，以便乘客識別。';
 
   @override
-  String get vehicleColorLabel => '車身顏色';
+  String get vehicleColorLabel => '車輛顏色及特徵';
 
   @override
-  String get vehicleColorHint => '例如：白色';
+  String get vehicleColorHint => '例如：紅色豐田';
 
   @override
-  String get enterColorError => '請輸入顏色';
+  String get enterColorError => '請輸入車輛特徵';
 
   @override
-  String get licensePlateLabel => '車牌號碼 (選填)';
+  String get licensePlateLabel => '車牌號碼';
 
   @override
   String get licensePlateHelper => '為保障私隱，您可以只輸入部分車牌 (例如：數字部分)。';
@@ -261,10 +261,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get acceptCargoLabel => '接載貨物/行李？';
 
   @override
+  String get petsLabel => '寵物';
+
+  @override
+  String get wheelchairLabel => '輪椅';
+
+  @override
+  String get cargoLabel => '貨物 / 行李';
+
+  @override
   String get cancelButton => '取消';
 
   @override
   String get saveAndContinueButton => '儲存並繼續';
+
+  @override
+  String get multipleChoicesPossible => '(可多選)';
 
   @override
   String get selectVehicleTypeError => '請選擇車輛類型';

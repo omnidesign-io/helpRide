@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:helpride/features/rides/domain/vehicle_type.dart';
+
 
 enum RideStatus { pending, accepted, arrived, riding, completed, cancelled }
 
@@ -16,6 +16,7 @@ class RideModel {
   final String? driverTelegram;
   final String? driverLicensePlate; // Added field
   final String? driverVehicleColor; // Added field
+  final String? driverVehicleTypeId; // The actual vehicle type of the driver
   final String pickupAddress;
   final String destinationAddress;
   final RideStatus status;
@@ -26,7 +27,7 @@ class RideModel {
   final DateTime? startedAt;
   final DateTime? completedAt;
   final int passengerCount;
-  final VehicleType vehicleType;
+  final List<String> requestedVehicleTypeIds; // Changed from single enum to list of IDs
   final bool acceptPets;
   final bool acceptWheelchair;
   final bool acceptCargo;
@@ -45,6 +46,7 @@ class RideModel {
     this.driverTelegram,
     this.driverLicensePlate,
     this.driverVehicleColor,
+    this.driverVehicleTypeId,
     required this.pickupAddress,
     required this.destinationAddress,
     required this.status,
@@ -55,7 +57,7 @@ class RideModel {
     this.startedAt,
     this.completedAt,
     required this.passengerCount,
-    required this.vehicleType,
+    required this.requestedVehicleTypeIds,
     required this.acceptPets,
     required this.acceptWheelchair,
     required this.acceptCargo,
@@ -65,6 +67,17 @@ class RideModel {
   // From Firestore
   factory RideModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    
+    // Handle legacy vehicleType (single string) vs new requestedVehicleTypeIds (list)
+    List<String> vehicleTypes = [];
+    if (data['requestedVehicleTypeIds'] != null) {
+      vehicleTypes = List<String>.from(data['requestedVehicleTypeIds']);
+    } else if (data['vehicleType'] != null) {
+      vehicleTypes = [data['vehicleType'] as String];
+    } else {
+      vehicleTypes = ['sedan']; // Fallback
+    }
+
     return RideModel(
       id: doc.id,
       shortId: data['shortId'] ?? '',
@@ -78,6 +91,7 @@ class RideModel {
       driverTelegram: data['driverTelegram'],
       driverLicensePlate: data['driverLicensePlate'],
       driverVehicleColor: data['driverVehicleColor'],
+      driverVehicleTypeId: data['driverVehicleTypeId'],
       pickupAddress: data['pickupAddress'] ?? '',
       destinationAddress: data['destinationAddress'] ?? '',
       status: RideStatus.values.firstWhere(
@@ -93,10 +107,7 @@ class RideModel {
       startedAt: data['startedAt'] != null ? (data['startedAt'] as Timestamp).toDate() : null,
       completedAt: data['completedAt'] != null ? (data['completedAt'] as Timestamp).toDate() : null,
       passengerCount: data['passengerCount'] ?? 1,
-      vehicleType: VehicleType.values.firstWhere(
-        (e) => e.toString().split('.').last == data['vehicleType'],
-        orElse: () => VehicleType.sedan,
-      ),
+      requestedVehicleTypeIds: vehicleTypes,
       acceptPets: data['acceptPets'] ?? false,
       acceptWheelchair: data['acceptWheelchair'] ?? false,
       acceptCargo: data['acceptCargo'] ?? false,
@@ -118,6 +129,7 @@ class RideModel {
       'driverTelegram': driverTelegram,
       'driverLicensePlate': driverLicensePlate,
       'driverVehicleColor': driverVehicleColor,
+      'driverVehicleTypeId': driverVehicleTypeId,
       'pickupAddress': pickupAddress,
       'destinationAddress': destinationAddress,
       'status': status.toString().split('.').last,
@@ -128,7 +140,7 @@ class RideModel {
       'startedAt': startedAt != null ? Timestamp.fromDate(startedAt!) : null,
       'completedAt': completedAt != null ? Timestamp.fromDate(completedAt!) : null,
       'passengerCount': passengerCount,
-      'vehicleType': vehicleType.toString().split('.').last,
+      'requestedVehicleTypeIds': requestedVehicleTypeIds,
       'acceptPets': acceptPets,
       'acceptWheelchair': acceptWheelchair,
       'acceptCargo': acceptCargo,

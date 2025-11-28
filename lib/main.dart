@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -10,7 +10,7 @@ import 'firebase_options.dart';
 import 'features/home/presentation/landing_page.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/home/presentation/profile_screen.dart';
-import 'features/rides/presentation/request_ride_screen.dart';
+
 import 'features/rides/presentation/driver_dashboard_screen.dart';
 import 'core/providers/locale_provider.dart';
 import 'core/providers/role_provider.dart'; // Added import
@@ -21,7 +21,6 @@ import 'features/rides/presentation/orders_screen.dart';
 import 'package:helpride/features/rides/presentation/ride_details_screen.dart';
 
 import 'package:helpride/features/rides/presentation/vehicle_selection_screen.dart';
-import 'package:helpride/features/rides/domain/ride_options.dart';
 import 'features/home/presentation/vehicle_settings_screen.dart';
 import 'core/providers/session_provider.dart';
 import 'core/constants/app_constants.dart';
@@ -80,13 +79,7 @@ final _router = GoRouter(
             child: SettingsScreen(),
           ),
         ),
-        GoRoute(
-          path: '/vehicle-selection',
-          builder: (context, state) {
-            final currentOptions = state.extra as RideOptions?;
-            return VehicleSelectionScreen(currentOptions: currentOptions);
-          },
-        ),
+
       ],
     ),
     GoRoute(
@@ -97,10 +90,7 @@ final _router = GoRouter(
       path: '/profile',
       builder: (context, state) => const ProfileScreen(),
     ),
-    GoRoute(
-      path: '/request-ride',
-      builder: (context, state) => const RequestRideScreen(),
-    ),
+
     GoRoute(
       path: '/ride-details/:id',
       builder: (context, state) => RideDetailsScreen(
@@ -114,6 +104,10 @@ final _router = GoRouter(
     GoRoute(
       path: '/vehicle-settings',
       builder: (context, state) => const VehicleSettingsScreen(),
+    ),
+    GoRoute(
+      path: '/vehicle-selection',
+      builder: (context, state) => const VehicleSelectionScreen(),
     ),
   ],
 );

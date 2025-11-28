@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/ride_model.dart';
 import '../domain/ride_options.dart';
@@ -64,7 +65,7 @@ class RideRepository {
       createdAt: DateTime.now(),
       scheduledTime: scheduledTime,
       passengerCount: options.passengerCount,
-      vehicleType: options.vehicleType,
+      requestedVehicleTypeIds: options.vehicleTypeIds,
       acceptPets: options.acceptPets,
       acceptWheelchair: options.acceptWheelchair,
       acceptCargo: options.acceptCargo,
@@ -139,6 +140,7 @@ class RideRepository {
     // Fetch driver's vehicle info
     String? driverLicensePlate;
     String? driverVehicleColor;
+    String? driverVehicleTypeId;
     try {
       final userDoc = await _firestore.collection('users').doc(driverId).get();
       if (userDoc.exists) {
@@ -147,11 +149,12 @@ class RideRepository {
           final vehicle = data['vehicle'] as Map<String, dynamic>;
           driverLicensePlate = vehicle['licensePlate'] as String?;
           driverVehicleColor = vehicle['color'] as String?;
+          driverVehicleTypeId = vehicle['type'] as String?;
         }
       }
     } catch (e) {
       // Ignore error, proceed without license plate if fetch fails
-      print('Error fetching driver vehicle info: $e');
+      debugPrint('Error fetching driver vehicle info: $e');
     }
 
     await _firestore.collection('rides').doc(rideId).update({
@@ -162,6 +165,7 @@ class RideRepository {
       'driverTelegram': driverTelegram,
       'driverLicensePlate': driverLicensePlate,
       'driverVehicleColor': driverVehicleColor,
+      'driverVehicleTypeId': driverVehicleTypeId,
       'acceptedAt': FieldValue.serverTimestamp(),
       'auditTrail': FieldValue.arrayUnion([
         {

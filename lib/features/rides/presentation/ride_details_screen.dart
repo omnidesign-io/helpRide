@@ -4,7 +4,7 @@ import 'package:helpride/features/rides/domain/ride_model.dart';
 import 'package:helpride/features/rides/repository/ride_repository.dart';
 import 'package:helpride/features/rides/domain/ride_status_extension.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
-import 'package:helpride/features/rides/domain/vehicle_type.dart';
+import 'package:helpride/features/rides/repository/vehicle_type_repository.dart';
 import 'package:intl/intl.dart';
 
 import 'package:url_launcher/url_launcher.dart';
@@ -19,6 +19,7 @@ class RideDetailsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final vehicleTypesAsync = ref.watch(vehicleTypesProvider);
     final rideAsync = ref.watch(rideStreamProvider(rideId));
     final session = ref.watch(sessionProvider);
     final currentUserId = session?.uid;
@@ -132,13 +133,22 @@ class RideDetailsScreen extends ConsumerWidget {
                                                 borderRadius: BorderRadius.circular(4),
                                                 border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                                               ),
-                                              child: Text(
-                                                '${ride.vehicleType.localized(context)} • $licensePlate${ride.driverVehicleColor != null ? " (${ride.driverVehicleColor})" : ""}',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                                ),
+                                              child: vehicleTypesAsync.when(
+                                                data: (types) {
+                                                  final isZh = Localizations.localeOf(context).languageCode == 'zh';
+                                                  final type = types.where((t) => t.id == ride.driverVehicleTypeId).firstOrNull;
+                                                  final typeName = type != null ? (isZh ? type.nameZh : type.nameEn) : (ride.driverVehicleTypeId ?? '');
+                                                  return Text(
+                                                    '$typeName • $licensePlate${ride.driverVehicleColor != null ? " (${ride.driverVehicleColor})" : ""}',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.w500,
+                                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                    ),
+                                                  );
+                                                },
+                                                loading: () => const Text('...'),
+                                                error: (_, __) => const Text(''),
                                               ),
                                             ),
                                           ],
@@ -239,7 +249,26 @@ class RideDetailsScreen extends ConsumerWidget {
                           : l10n.nowLabel
                       ),
                       const Divider(color: Color.fromRGBO(0, 0, 0, 0.12)),
-                      _buildDetailRow(context, Icons.directions_car, l10n.vehicleTypeLabel, ride.vehicleType.localized(context)),
+                      vehicleTypesAsync.when(
+                        data: (types) {
+                          final isZh = Localizations.localeOf(context).languageCode == 'zh';
+                          // If ride is accepted, show the driver's vehicle type.
+                          // If pending, show requested types.
+                          String typeNames;
+                          if (ride.driverVehicleTypeId != null) {
+                             final type = types.where((t) => t.id == ride.driverVehicleTypeId).firstOrNull;
+                             typeNames = type != null ? (isZh ? type.nameZh : type.nameEn) : ride.driverVehicleTypeId!;
+                          } else {
+                             typeNames = ride.requestedVehicleTypeIds.map((id) {
+                                final type = types.where((t) => t.id == id).firstOrNull;
+                                return type != null ? (isZh ? type.nameZh : type.nameEn) : id;
+                             }).join(', ');
+                          }
+                          return _buildDetailRow(context, Icons.directions_car, l10n.vehicleTypeLabel, typeNames);
+                        },
+                        loading: () => _buildDetailRow(context, Icons.directions_car, l10n.vehicleTypeLabel, '...'),
+                        error: (_, __) => _buildDetailRow(context, Icons.directions_car, l10n.vehicleTypeLabel, ''),
+                      ),
                       const Divider(color: Color.fromRGBO(0, 0, 0, 0.12)),
                       _buildDetailRow(context, Icons.people, l10n.passengerCountLabel, ride.passengerCount.toString()),
                       

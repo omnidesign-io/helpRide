@@ -3,11 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:helpride/features/home/repository/user_repository.dart';
 import 'package:helpride/features/rides/repository/ride_repository.dart';
 import 'package:helpride/core/presentation/counter_input_widget.dart';
-import 'package:helpride/features/rides/presentation/vehicle_selection_screen.dart';
-import 'package:helpride/features/rides/domain/ride_options.dart';
-import 'package:helpride/features/rides/domain/vehicle_type.dart';
-import 'package:helpride/l10n/generated/app_localizations.dart';
+import 'package:helpride/features/rides/presentation/widgets/vehicle_type_selector.dart';
+import 'package:helpride/features/rides/repository/vehicle_type_repository.dart';
 import 'package:helpride/core/providers/session_provider.dart';
+import 'package:helpride/l10n/generated/app_localizations.dart';
 
 class VehicleSettingsScreen extends ConsumerStatefulWidget {
   const VehicleSettingsScreen({super.key});
@@ -22,7 +21,7 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
   bool _hasActiveRide = false;
   
   // Form Fields
-  VehicleType? _vehicleType;
+  String? _vehicleTypeId;
   final _vehicleColorController = TextEditingController();
   final _licensePlateController = TextEditingController();
   int _capacity = 4;
@@ -53,10 +52,7 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
       final vehicle = data['vehicle'] as Map<String, dynamic>?;
       
       if (vehicle != null) {
-        _vehicleType = VehicleType.values.firstWhere(
-          (e) => e.toString().split('.').last == vehicle['type'],
-          orElse: () => VehicleType.sedan,
-        );
+        _vehicleTypeId = vehicle['type'] as String?;
         _vehicleColorController.text = vehicle['color'] ?? '';
         _licensePlateController.text = vehicle['licensePlate'] ?? '';
         _capacity = vehicle['capacity'] ?? 4;
@@ -87,7 +83,7 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
   Future<void> _submit() async {
     if (_hasActiveRide) return; // Double check
 
-    if (_vehicleType == null) {
+    if (_vehicleTypeId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select a vehicle type')),
       );
@@ -98,7 +94,7 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
       _formKey.currentState!.save();
 
       final vehicleData = {
-        'type': _vehicleType.toString().split('.').last,
+        'type': _vehicleTypeId,
         'color': _vehicleColorController.text.trim(),
         'licensePlate': _licensePlateController.text.trim(),
         'capacity': _capacity,
@@ -136,11 +132,36 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Vehicle Settings'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.cloud_upload),
+            tooltip: 'Seed Default Types',
+            onPressed: () async {
+              try {
+                await ref.read(vehicleTypeRepositoryProvider).seedDefaultTypes();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vehicle types seeded successfully!')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error seeding types: $e')),
+                  );
+                }
+              }
+            },
+          ),
+        ],
       ),
       body: _hasActiveRide 
         ? const Center(
@@ -160,21 +181,27 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
               children: [
                 // Vehicle Type
                 Card(
-                  child: ListTile(
-                    title: const Text('Vehicle Type'),
-                    subtitle: Text(_vehicleType?.localized(context) ?? 'Select Type'),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () async {
-                      final currentOptions = _vehicleType != null ? RideOptions(vehicleType: _vehicleType!) : null;
-                      final result = await Navigator.of(context).push<RideOptions>(
-                        MaterialPageRoute(
-                          builder: (_) => VehicleSelectionScreen(currentOptions: currentOptions),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Vehicle Type',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                      );
-                      if (result != null) {
-                        setState(() => _vehicleType = result.vehicleType);
-                      }
-                    },
+                        const SizedBox(height: 8),
+                        VehicleTypeSelector(
+                          selectedTypeIds: _vehicleTypeId != null ? [_vehicleTypeId!] : [],
+                          multiSelect: false,
+                          onChanged: (ids) {
+                            setState(() {
+                              _vehicleTypeId = ids.firstOrNull;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -188,25 +215,27 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
                         // Vehicle Color
                         TextFormField(
                           controller: _vehicleColorController,
-                          decoration: const InputDecoration(
-                            labelText: 'Vehicle Color',
-                            hintText: 'e.g. White',
-                            prefixIcon: Icon(Icons.color_lens),
+                          maxLength: 10,
+                          decoration: InputDecoration(
+                            labelText: l10n.vehicleColorLabel,
+                            hintText: l10n.vehicleColorHint,
+                            prefixIcon: const Icon(Icons.color_lens),
                           ),
-                          validator: (val) => val == null || val.isEmpty ? 'Please enter a color' : null,
+                          validator: (val) => val == null || val.isEmpty ? l10n.enterColorError : null,
                         ),
                         const SizedBox(height: 16),
 
                         // License Plate
                         TextFormField(
                           controller: _licensePlateController,
-                          maxLength: 20,
-                          decoration: const InputDecoration(
-                            labelText: 'License Plate (Optional)',
-                            prefixIcon: Icon(Icons.confirmation_number),
-                            helperText: 'For privacy, you may enter only part of the plate (e.g., numbers only).',
+                          maxLength: 8,
+                          decoration: InputDecoration(
+                            labelText: l10n.licensePlateLabel,
+                            prefixIcon: const Icon(Icons.confirmation_number),
+                            helperText: l10n.licensePlateHelper,
                             helperMaxLines: 2,
                           ),
+                          validator: (val) => val == null || val.isEmpty ? l10n.enterLicensePlateError : null,
                         ),
                         const SizedBox(height: 16),
 
@@ -215,7 +244,7 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
                           label: 'Capacity (excluding driver)',
                           value: _capacity,
                           onChanged: (val) => setState(() => _capacity = val),
-                          min: 1,
+                          min: 0,
                           max: 20,
                         ),
                       ],
@@ -255,9 +284,22 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
                 ),
 
                 const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: _submit,
-                  child: const Text('Save Changes'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _submit,
+                        child: const Text('Save Changes'),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

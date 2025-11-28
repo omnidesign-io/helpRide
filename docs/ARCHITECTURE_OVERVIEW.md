@@ -68,3 +68,8 @@ This is a frontend safeguard that complements backend idempotency checks (like F
 *   **Role Switching**: A user **cannot** switch between Rider and Driver roles if they have an active ride (any state other than `completed` or `cancelled`). This prevents data inconsistency and UI confusion.
 *   **Active Ride Limit**: A rider can only have **one** active ride at a time.
 *   **Driver Availability**: Drivers are considered "available" whenever they are in Driver Mode and do not have an active ride.
+
+## UX Guidelines
+
+### Navigation
+*   **Bottom Navigation Visibility**: The bottom navigation bar should **only** be visible on the top-level screens (e.g., Home, Orders, Settings). For any sub-screens or detailed views (e.g., Ride Details, Vehicle Settings), the bottom navigation must be hidden to focus the user on the current task. Use `rootNavigator: true` when pushing these routes or configure them outside the `ShellRoute`.

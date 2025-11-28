@@ -7,7 +7,7 @@ import 'package:helpride/features/rides/domain/ride_model.dart';
 import 'package:helpride/features/rides/repository/ride_repository.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:helpride/features/rides/presentation/widgets/status_chip.dart';
-import 'package:helpride/features/rides/domain/vehicle_type.dart';
+import 'package:helpride/features/rides/repository/vehicle_type_repository.dart';
 
 class ActiveRideScreen extends ConsumerWidget {
   final RideModel ride;
@@ -22,7 +22,9 @@ class ActiveRideScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final rideRepo = ref.read(rideRepositoryProvider);
+
+
+    final vehicleTypesAsync = ref.watch(vehicleTypesProvider);
 
     // Determine other party details
     final otherPartyName = isDriver ? ride.riderName : (ride.driverName ?? l10n.findingDriverMessage);
@@ -111,13 +113,22 @@ class ActiveRideScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                     ),
-                    child: Text(
-                      '${ride.vehicleType.localized(context)} • $vehiclePlate${vehicleColor != null ? " $vehicleColor" : ""}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                    child: vehicleTypesAsync.when(
+                      data: (types) {
+                        final isZh = Localizations.localeOf(context).languageCode == 'zh';
+                        final type = types.where((t) => t.id == ride.driverVehicleTypeId).firstOrNull;
+                        final typeName = type != null ? (isZh ? type.nameZh : type.nameEn) : (ride.driverVehicleTypeId ?? '');
+                        return Text(
+                          '$typeName • $vehiclePlate${vehicleColor != null ? " $vehicleColor" : ""}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        );
+                      },
+                      loading: () => const Text('...'),
+                      error: (_, __) => const Text(''),
                     ),
                   ),
                 ],

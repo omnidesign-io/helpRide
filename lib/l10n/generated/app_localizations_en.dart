@@ -241,16 +241,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please provide some details about your vehicle to help riders identify you.';
 
   @override
-  String get vehicleColorLabel => 'Vehicle Color';
+  String get vehicleColorLabel => 'Vehicle Colour & Characteristics';
 
   @override
-  String get vehicleColorHint => 'e.g. White';
+  String get vehicleColorHint => 'e.g. Red Toyota';
 
   @override
-  String get enterColorError => 'Please enter a color';
+  String get enterColorError => 'Please enter vehicle characteristics';
 
   @override
-  String get licensePlateLabel => 'License Plate (Optional)';
+  String get licensePlateLabel => 'License Plate';
 
   @override
   String get licensePlateHelper =>
@@ -272,10 +272,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get acceptCargoLabel => 'Accept Cargo/Luggage?';
 
   @override
+  String get petsLabel => 'Pets';
+
+  @override
+  String get wheelchairLabel => 'Wheelchair';
+
+  @override
+  String get cargoLabel => 'Cargo / Luggage';
+
+  @override
   String get cancelButton => 'Cancel';
 
   @override
   String get saveAndContinueButton => 'Save & Continue';
+
+  @override
+  String get multipleChoicesPossible => '(multiple choices possible)';
 
   @override
   String get selectVehicleTypeError => 'Please select a vehicle type';

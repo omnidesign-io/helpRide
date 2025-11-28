@@ -1,59 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:helpride/features/rides/domain/ride_options.dart';
-import 'package:helpride/features/rides/domain/vehicle_type.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
-import 'package:helpride/features/rides/presentation/vehicle_type_list_view.dart';
+import 'package:helpride/features/rides/presentation/widgets/vehicle_type_selector.dart';
+import 'package:helpride/features/rides/presentation/providers/ride_request_provider.dart';
 import 'package:helpride/core/presentation/counter_input_widget.dart';
 
-class VehicleSelectionScreen extends StatefulWidget {
-  final RideOptions? currentOptions;
-
-  const VehicleSelectionScreen({super.key, this.currentOptions});
+class VehicleSelectionScreen extends ConsumerWidget {
+  const VehicleSelectionScreen({super.key});
 
   @override
-  State<VehicleSelectionScreen> createState() => _VehicleSelectionScreenState();
-}
-
-class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
-  late VehicleType _selectedType;
-  late int _passengerCount;
-  late bool _acceptPets;
-  late bool _acceptWheelchair;
-  late bool _acceptCargo;
-
-  @override
-  void initState() {
-    super.initState();
-    final options = widget.currentOptions ?? const RideOptions(vehicleType: VehicleType.sedan);
-    _selectedType = options.vehicleType;
-    _passengerCount = options.passengerCount;
-    _acceptPets = options.acceptPets;
-    _acceptWheelchair = options.acceptWheelchair;
-    _acceptCargo = options.acceptCargo;
-  }
-
-  void _submit() {
-    final options = RideOptions(
-      vehicleType: _selectedType,
-      passengerCount: _passengerCount,
-      acceptPets: _acceptPets,
-      acceptWheelchair: _acceptWheelchair,
-      acceptCargo: _acceptCargo,
-    );
-    context.pop(options);
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final rideOptions = ref.watch(rideRequestProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.rideOptionsTitle),
         actions: [
           TextButton(
-            onPressed: _submit,
+            onPressed: () => context.pop(),
             child: Text(l10n.saveButton),
           ),
         ],
@@ -68,21 +34,26 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    l10n.vehicleTypeLabel,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  Row(
+                    children: [
+                      Text(
+                        l10n.vehicleTypeLabel,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        l10n.multipleChoicesPossible,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
-                  SizedBox(
-                    height: 300, // Fixed height for the list
-                    child: VehicleTypeListView(
-                      selectedType: _selectedType,
-                      onSelected: (type) {
-                        setState(() {
-                          _selectedType = type;
-                        });
-                      },
-                    ),
+                  VehicleTypeSelector(
+                    selectedTypeIds: rideOptions.vehicleTypeIds,
+                    multiSelect: true, // Riders can select multiple
+                    onChanged: (ids) {
+                      ref.read(rideRequestProvider.notifier).state = rideOptions.copyWith(vehicleTypeIds: ids);
+                    },
                   ),
                 ],
               ),
@@ -104,9 +75,11 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
                   const SizedBox(height: 8),
                   CounterInputWidget(
                     label: l10n.passengerCountLabel,
-                    value: _passengerCount,
-                    onChanged: (val) => setState(() => _passengerCount = val),
-                    min: 0, // Allow 0 for goods-only
+                    value: rideOptions.passengerCount,
+                    onChanged: (val) {
+                      ref.read(rideRequestProvider.notifier).state = rideOptions.copyWith(passengerCount: val);
+                    },
+                    min: 0,
                     max: 10,
                   ),
                 ],
@@ -132,20 +105,26 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
                   SwitchListTile(
                     title: Text(l10n.conditionPets),
                     secondary: const Icon(Icons.pets),
-                    value: _acceptPets,
-                    onChanged: (val) => setState(() => _acceptPets = val),
+                    value: rideOptions.acceptPets,
+                    onChanged: (val) {
+                      ref.read(rideRequestProvider.notifier).state = rideOptions.copyWith(acceptPets: val);
+                    },
                   ),
                   SwitchListTile(
                     title: Text(l10n.conditionWheelchair),
                     secondary: const Icon(Icons.accessible),
-                    value: _acceptWheelchair,
-                    onChanged: (val) => setState(() => _acceptWheelchair = val),
+                    value: rideOptions.acceptWheelchair,
+                    onChanged: (val) {
+                      ref.read(rideRequestProvider.notifier).state = rideOptions.copyWith(acceptWheelchair: val);
+                    },
                   ),
                   SwitchListTile(
                     title: Text(l10n.conditionCargo),
                     secondary: const Icon(Icons.luggage),
-                    value: _acceptCargo,
-                    onChanged: (val) => setState(() => _acceptCargo = val),
+                    value: rideOptions.acceptCargo,
+                    onChanged: (val) {
+                      ref.read(rideRequestProvider.notifier).state = rideOptions.copyWith(acceptCargo: val);
+                    },
                   ),
                 ],
               ),
@@ -154,7 +133,7 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
           
           const SizedBox(height: 32),
           ElevatedButton(
-            onPressed: _submit,
+            onPressed: () => context.pop(),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               backgroundColor: Theme.of(context).primaryColor,

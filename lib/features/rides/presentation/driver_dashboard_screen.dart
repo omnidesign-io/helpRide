@@ -6,25 +6,21 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:helpride/core/providers/session_provider.dart';
 import 'package:helpride/features/rides/domain/ride_model.dart';
 import 'package:helpride/features/rides/repository/ride_repository.dart';
-import 'package:helpride/features/rides/domain/vehicle_type.dart';
+import 'package:helpride/features/rides/repository/vehicle_type_repository.dart';
 import 'package:helpride/core/presentation/constants.dart';
 import 'package:helpride/features/rides/presentation/widgets/ride_route_widget.dart';
 
 class DriverDashboardScreen extends ConsumerWidget {
   const DriverDashboardScreen({super.key});
 
-  Future<void> _launchWhatsApp(String phone) async {
-    final url = Uri.parse('https://wa.me/$phone');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    }
-  }
+
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final rideRepo = ref.watch(rideRepositoryProvider);
     final session = ref.watch(sessionProvider);
+    final vehicleTypesAsync = ref.watch(vehicleTypesProvider);
 
     if (session == null) {
       return const Center(child: CircularProgressIndicator());
@@ -109,9 +105,20 @@ class DriverDashboardScreen extends ConsumerWidget {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            Icon(ride.vehicleType.icon, size: 16, color: Colors.grey),
+                            const Icon(Icons.directions_car, size: 16, color: Colors.grey),
                             const SizedBox(width: 4),
-                            Text(ride.vehicleType.localized(context), style: Theme.of(context).textTheme.bodySmall),
+                            vehicleTypesAsync.when(
+                              data: (types) {
+                                final isZh = Localizations.localeOf(context).languageCode == 'zh';
+                                final typeNames = ride.requestedVehicleTypeIds.map((id) {
+                                  final type = types.where((t) => t.id == id).firstOrNull;
+                                  return type != null ? (isZh ? type.nameZh : type.nameEn) : id;
+                                }).join(', ');
+                                return Text(typeNames, style: Theme.of(context).textTheme.bodySmall);
+                              },
+                              loading: () => const Text('...'),
+                              error: (_, __) => const Text(''),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -137,81 +144,5 @@ class DriverDashboardScreen extends ConsumerWidget {
         ),
       ],
     );
-  }
-
-  Widget _buildActionButtons(
-    BuildContext context, 
-    RideRepository rideRepo, 
-    RideModel ride, 
-    bool isMyRide, 
-    AppLocalizations l10n,
-    WidgetRef ref,
-    String uid,
-    String username,
-    String phoneNumber,
-  ) {
-    if (!isMyRide) {
-      return SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: () async {
-            try {
-              await rideRepo.acceptRide(
-                rideId: ride.id,
-                driverId: uid,
-                driverName: username ?? 'Unknown Driver',
-                driverTelegram: null, // TODO: Add telegram to Session/User model
-                driverPhone: '12345678', // Mock phone for nowNumber,
-              );
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.rideAcceptedMessage)),
-                  );
-                }
-            } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: $e')),
-                );
-              }
-            }
-          },
-          child: Text(l10n.acceptRideButton),
-        ),
-      );
-    }
-
-    // My Ride Actions
-    switch (ride.status) {
-      case RideStatus.accepted:
-        return SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () => rideRepo.updateRideStatus(rideId: ride.id, status: 'arrived'),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-            child: const Text("I've Arrived"), // TODO: Localize
-          ),
-        );
-      case RideStatus.arrived:
-        return SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () => rideRepo.updateRideStatus(rideId: ride.id, status: 'riding'),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-            child: const Text("Start Ride"), // TODO: Localize
-          ),
-        );
-      case RideStatus.riding:
-        return SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () => rideRepo.updateRideStatus(rideId: ride.id, status: 'completed'),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            child: const Text("Complete Ride"), // TODO: Localize
-          ),
-        );
-      default:
-        return const SizedBox.shrink();
-    }
   }
 }

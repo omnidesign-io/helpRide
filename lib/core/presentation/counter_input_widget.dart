@@ -12,7 +12,7 @@ class CounterInputWidget extends StatelessWidget {
     required this.label,
     required this.value,
     required this.onChanged,
-    this.min = 1,
+    this.min = 0,
     this.max = 10,
   });
 

@@ -545,25 +545,25 @@ abstract class AppLocalizations {
   /// No description provided for @vehicleColorLabel.
   ///
   /// In en, this message translates to:
-  /// **'Vehicle Color'**
+  /// **'Vehicle Colour & Characteristics'**
   String get vehicleColorLabel;
 
   /// No description provided for @vehicleColorHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. White'**
+  /// **'e.g. Red Toyota'**
   String get vehicleColorHint;
 
   /// No description provided for @enterColorError.
   ///
   /// In en, this message translates to:
-  /// **'Please enter a color'**
+  /// **'Please enter vehicle characteristics'**
   String get enterColorError;
 
   /// No description provided for @licensePlateLabel.
   ///
   /// In en, this message translates to:
-  /// **'License Plate (Optional)'**
+  /// **'License Plate'**
   String get licensePlateLabel;
 
   /// No description provided for @licensePlateHelper.
@@ -602,6 +602,24 @@ abstract class AppLocalizations {
   /// **'Accept Cargo/Luggage?'**
   String get acceptCargoLabel;
 
+  /// No description provided for @petsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pets'**
+  String get petsLabel;
+
+  /// No description provided for @wheelchairLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wheelchair'**
+  String get wheelchairLabel;
+
+  /// No description provided for @cargoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cargo / Luggage'**
+  String get cargoLabel;
+
   /// No description provided for @cancelButton.
   ///
   /// In en, this message translates to:
@@ -613,6 +631,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save & Continue'**
   String get saveAndContinueButton;
+
+  /// No description provided for @multipleChoicesPossible.
+  ///
+  /// In en, this message translates to:
+  /// **'(multiple choices possible)'**
+  String get multipleChoicesPossible;
 
   /// No description provided for @selectVehicleTypeError.
   ///

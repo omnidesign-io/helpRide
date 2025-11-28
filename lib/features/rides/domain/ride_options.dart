@@ -1,14 +1,14 @@
-import 'package:helpride/features/rides/domain/vehicle_type.dart';
+
 
 class RideOptions {
-  final VehicleType vehicleType;
+  final List<String> vehicleTypeIds;
   final int passengerCount;
   final bool acceptPets;
   final bool acceptWheelchair;
   final bool acceptCargo;
 
   const RideOptions({
-    required this.vehicleType,
+    this.vehicleTypeIds = const [], // Default to empty, meaning any or none selected initially
     this.passengerCount = 1,
     this.acceptPets = false,
     this.acceptWheelchair = false,
@@ -16,14 +16,14 @@ class RideOptions {
   });
 
   RideOptions copyWith({
-    VehicleType? vehicleType,
+    List<String>? vehicleTypeIds,
     int? passengerCount,
     bool? acceptPets,
     bool? acceptWheelchair,
     bool? acceptCargo,
   }) {
     return RideOptions(
-      vehicleType: vehicleType ?? this.vehicleType,
+      vehicleTypeIds: vehicleTypeIds ?? this.vehicleTypeIds,
       passengerCount: passengerCount ?? this.passengerCount,
       acceptPets: acceptPets ?? this.acceptPets,
       acceptWheelchair: acceptWheelchair ?? this.acceptWheelchair,
