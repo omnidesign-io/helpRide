@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:helpride/features/rides/domain/ride_model.dart';
 import 'package:helpride/features/rides/repository/ride_repository.dart';
 import 'package:helpride/features/rides/domain/ride_status_extension.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:helpride/features/rides/domain/vehicle_type.dart';
 import 'package:intl/intl.dart';
+
+import 'package:url_launcher/url_launcher.dart';
+import 'package:helpride/core/providers/session_provider.dart';
 
 class RideDetailsScreen extends ConsumerWidget {
   final String rideId;
@@ -17,6 +19,8 @@ class RideDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final rideAsync = ref.watch(rideStreamProvider(rideId));
+    final session = ref.watch(sessionProvider);
+    final currentUserId = session?.uid;
 
     return Scaffold(
       appBar: AppBar(
@@ -28,6 +32,35 @@ class RideDetailsScreen extends ConsumerWidget {
           final canCancel = ride.status == RideStatus.pending ||
               ride.status == RideStatus.accepted ||
               ride.status == RideStatus.arrived;
+
+          // Determine roles
+          final isRider = ride.riderId == currentUserId;
+          final isDriver = ride.driverId == currentUserId;
+          
+          // Determine other party info
+          String? otherPartyName;
+          String? otherPartyPhone;
+          String? otherPartyTelegram;
+          String otherPartyLabel = '';
+
+          if (isRider) {
+            otherPartyLabel = 'Driver';
+            otherPartyName = ride.driverName;
+            otherPartyPhone = ride.driverPhone;
+            otherPartyTelegram = ride.driverTelegram;
+          } else if (isDriver) {
+            otherPartyLabel = 'Rider';
+            otherPartyName = ride.riderName;
+            otherPartyPhone = ride.riderPhone;
+            otherPartyTelegram = ride.riderTelegram;
+          }
+
+          final showInteractiveContact = isActive && 
+              (ride.status == RideStatus.accepted || 
+               ride.status == RideStatus.arrived || 
+               ride.status == RideStatus.riding) &&
+              (isRider || isDriver) &&
+              otherPartyPhone != null;
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -46,7 +79,7 @@ class RideDetailsScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(ride.status).withOpacity(0.1),
+                          color: _getStatusColor(ride.status).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: _getStatusColor(ride.status)),
                         ),
@@ -63,6 +96,27 @@ class RideDetailsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
+
+              // Contact Info (Interactive vs Static)
+              if (otherPartyName != null || otherPartyPhone != null) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(otherPartyLabel, style: Theme.of(context).textTheme.titleMedium),
+                        const SizedBox(height: 16),
+                        if (showInteractiveContact)
+                          _buildInteractiveContact(context, otherPartyName, otherPartyPhone!, otherPartyTelegram)
+                        else
+                          _buildStaticContact(context, otherPartyName, otherPartyPhone, otherPartyTelegram),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
 
               // Details Card
               Card(
@@ -104,6 +158,7 @@ class RideDetailsScreen extends ConsumerWidget {
                       _buildDetailRow(context, Icons.directions_car, l10n.vehicleTypeLabel, ride.vehicleType.localized(context)),
                       const Divider(color: Color.fromRGBO(0, 0, 0, 0.12)),
                       _buildDetailRow(context, Icons.people, l10n.passengerCountLabel, ride.passengerCount.toString()),
+                      
                       if (ride.acceptPets || ride.acceptWheelchair || ride.acceptCargo) ...[
                         const Divider(color: Color.fromRGBO(0, 0, 0, 0.12)),
                         Text('${l10n.conditionsLabel}:', style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -121,7 +176,59 @@ class RideDetailsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+
+              // Audit Trail
+              if (ride.auditTrail.isNotEmpty) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(l10n.activityHeader, style: Theme.of(context).textTheme.titleMedium),
+                        const SizedBox(height: 8),
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: ride.auditTrail.length,
+                          itemBuilder: (context, index) {
+                            final log = ride.auditTrail[index];
+                            final timestamp = (log['timestamp'] as dynamic)?.toDate() ?? DateTime.now();
+                            final action = log['action'].toString();
+                            
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    DateFormat('HH:mm').format(timestamp),
+                                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _localizeAction(context, action),
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
 
               // Cancel Button
               if (canCancel)
@@ -145,6 +252,78 @@ class RideDetailsScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
     );
+  }
+
+  Widget _buildInteractiveContact(BuildContext context, String? name, String phone, String? telegram) {
+    return Column(
+      children: [
+        if (name != null) 
+          Text(name, style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildContactButton(
+              context,
+              icon: Icons.call,
+              color: Theme.of(context).primaryColor,
+              onPressed: () => _launchUrl('tel:$phone'),
+            ),
+            _buildContactButton(
+              context,
+              icon: Icons.message, // WhatsApp placeholder
+              color: const Color(0xFF25D366), // WhatsApp Green
+              onPressed: () => _launchUrl('https://wa.me/${phone.replaceAll('+', '')}'),
+            ),
+            if (telegram != null && telegram.isNotEmpty)
+              _buildContactButton(
+                context,
+                icon: Icons.send, // Telegram placeholder
+                color: const Color(0xFF0088cc), // Telegram Blue
+                onPressed: () => _launchUrl('https://t.me/$telegram'),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContactButton(BuildContext context, {required IconData icon, required Color color, required VoidCallback onPressed}) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(30),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: color, size: 28),
+      ),
+    );
+  }
+
+  Widget _buildStaticContact(BuildContext context, String? name, String? phone, String? telegram) {
+    return Column(
+      children: [
+        _buildDetailRow(context, Icons.person, 'Name', name ?? 'N/A'),
+        if (phone != null) _buildDetailRow(context, Icons.phone, 'Phone', phone),
+        if (telegram != null) _buildDetailRow(context, Icons.telegram, 'Telegram', telegram),
+      ],
+    );
+  }
+
+  String _localizeAction(BuildContext context, String action) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (action.toLowerCase()) {
+      case 'created': return l10n.auditActionCreated;
+      case 'accepted': return l10n.auditActionAccepted;
+      case 'arrived': return l10n.auditActionArrived;
+      case 'riding': return l10n.auditActionRiding;
+      case 'completed': return l10n.auditActionCompleted;
+      case 'cancelled': return l10n.auditActionCancelled;
+      default: return action.toUpperCase();
+    }
   }
 
   Color _getStatusColor(RideStatus status) {
@@ -179,6 +358,13 @@ class RideDetailsScreen extends ConsumerWidget {
       label: Text(label),
       visualDensity: VisualDensity.compact,
     );
+  }
+
+  Future<void> _launchUrl(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      debugPrint('Could not launch $url');
+    }
   }
 
   Future<void> _confirmCancel(BuildContext context, WidgetRef ref, String rideId, AppLocalizations l10n) async {

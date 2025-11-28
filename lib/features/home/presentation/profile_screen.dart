@@ -190,6 +190,80 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
+  Future<void> _confirmDeleteAccount() async {
+    final l10n = AppLocalizations.of(context)!;
+    final controller = TextEditingController();
+    
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.deleteAccountTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.deleteAccountMessage),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                labelText: l10n.deleteAccountConfirmation,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancelButton),
+          ),
+          TextButton(
+            onPressed: () {
+              if (controller.text == l10n.deleteConfirmationKeyword) {
+                Navigator.pop(context, true);
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(l10n.deleteAccountButton),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      _executeAccountDeletion();
+    }
+  }
+
+  Future<void> _executeAccountDeletion() async {
+    final l10n = AppLocalizations.of(context)!;
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      await ref.read(userRepositoryProvider).deleteAccount(session.uid);
+      
+      // Clear session and redirect
+      await ref.read(sessionProvider.notifier).clearSession();
+      if (mounted) {
+        context.go('/login');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -303,6 +377,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           side: const BorderSide(color: Colors.red),
                         ),
                         child: Text(l10n.logoutButton),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: TextButton(
+                        onPressed: _confirmDeleteAccount,
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red,
+                        ),
+                        child: Text(l10n.deleteAccountButton),
                       ),
                     ),
                     const SizedBox(height: 24),

@@ -64,8 +64,9 @@ class AuthRepository {
   }) async {
     await signInAnonymously();
     
-    // Use Auto-ID for the document
-    final userDocRef = _firestore.collection('users').doc();
+    // Use Auth UID as Firestore Document ID
+    final uid = _auth.currentUser!.uid;
+    final userDocRef = _firestore.collection('users').doc(uid);
     final sessionToken = _uuid.v4();
     
     await userDocRef.set({
@@ -80,7 +81,7 @@ class AuthRepository {
     });
     
     return {
-      'uid': userDocRef.id,
+      'uid': uid,
       'sessionToken': sessionToken,
     };
   }

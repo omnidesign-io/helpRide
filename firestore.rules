@@ -58,14 +58,20 @@ service cloud.firestore {
       // Update:
       allow update: if request.auth != null && (
         // Rider cancelling
-        (resource.data.riderPhone == request.resource.data.riderPhone && // Must be owner (checking phone, ideally check session too but phone is proxy)
-         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) &&
+        // Fallback: If UID doesn't match (e.g. reinstall), allow if phone number is preserved.
+        // This is a temporary trade-off for Anonymous Auth until Phone Auth is implemented.
+        ((resource.data.riderId == request.auth.uid || resource.data.riderPhone == request.resource.data.riderPhone) && 
          request.resource.data.status == 'cancelled') ||
          
         // Driver accepting
         (resource.data.status == 'pending' &&
-         request.resource.data.status == 'accepted' &&
-         request.resource.data.diff(resource.data).affectedKeys().hasAll(['status', 'driverPhone', 'acceptedAt']))
+         request.resource.data.status == 'accepted') ||
+
+        // Driver updating status (arrived, riding, completed)
+        (resource.data.driverId == request.auth.uid &&
+         (request.resource.data.status == 'arrived' || 
+          request.resource.data.status == 'riding' || 
+          request.resource.data.status == 'completed'))
       );
     }
   }

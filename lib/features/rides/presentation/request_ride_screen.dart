@@ -37,6 +37,7 @@ class _RequestRideScreenState extends ConsumerState<RequestRideScreen> {
         final rideRepo = ref.read(rideRepositoryProvider);
         await rideRepo.createRideRequest(
           riderId: session.uid,
+          riderName: session.username ?? 'Unknown Rider',
           riderPhone: session.phoneNumber,
           pickupAddress: _pickupController.text,
           destinationAddress: _destinationController.text,

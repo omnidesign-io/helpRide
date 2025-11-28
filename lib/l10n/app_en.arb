@@ -20,6 +20,13 @@
   "searchCountry": "Search country",
   "phoneNumberHint": "Phone Number",
   "phoneInfoText": "Your number will be used for WhatsApp and calls from the people you match. It will only be displayed to the other party after matching, for contact purposes.",
+  "deleteAccountButton": "Delete Account",
+  "deleteAccountTitle": "Delete Account",
+  "deleteAccountMessage": "Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently removed.",
+  "deleteAccountConfirmation": "Type DELETE to confirm",
+  "deleteAccountError": "Failed to delete account. Please try again.",
+  "deleteAccountActiveRideError": "Cannot delete account while you have active rides.",
+  "deleteConfirmationKeyword": "DELETE",
   "usernameInfoText": "Username is another way to quickly identify you inside the app. It can be anything you prefer.",
   "telegramInfoText": "Your Telegram handle will be an alternative way to contact you after matching you with another party.",
   "privacyInfoText": "Only your username will be visible on public listings when looking for a ride or looking for passengers. You may delete your account entirely anytime inside profile settings.",
@@ -123,5 +130,12 @@
   "findingDriverMessage": "Finding...",
   "completeRideButton": "Complete Ride",
   "originLabel": "Origin",
-  "destinationLabel": "Destination"
+  "destinationLabel": "Destination",
+  "activityHeader": "Activity",
+  "auditActionCreated": "Created",
+  "auditActionAccepted": "Accepted",
+  "auditActionArrived": "Arrived",
+  "auditActionRiding": "Riding",
+  "auditActionCompleted": "Completed",
+  "auditActionCancelled": "Cancelled"
 }

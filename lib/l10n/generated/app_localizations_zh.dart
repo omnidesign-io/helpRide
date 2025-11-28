@@ -72,6 +72,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get phoneInfoText => '您的電話號碼將用於 WhatsApp 和通話聯繫。配對成功後才會顯示給對方，僅供聯繫使用。';
 
   @override
+  String get deleteAccountButton => '刪除帳戶';
+
+  @override
+  String get deleteAccountTitle => '刪除帳戶';
+
+  @override
+  String get deleteAccountMessage => '您確定要刪除您的帳戶嗎？此操作無法撤銷。您的所有資料將被永久刪除。';
+
+  @override
+  String get deleteAccountConfirmation => '輸入 DELETE 以確認';
+
+  @override
+  String get deleteAccountError => '刪除帳戶失敗，請重試。';
+
+  @override
+  String get deleteAccountActiveRideError => '您有進行中的行程，無法刪除帳戶。';
+
+  @override
+  String get deleteConfirmationKeyword => 'DELETE';
+
+  @override
   String get usernameInfoText => '用戶名稱是應用程式中識別您的另一種方式。您可以使用任何喜歡的名稱。';
 
   @override
@@ -381,4 +402,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get originLabel => '出發地';
+
+  @override
+  String get activityHeader => '活動記錄';
+
+  @override
+  String get auditActionCreated => '已建立';
+
+  @override
+  String get auditActionAccepted => '已接單';
+
+  @override
+  String get auditActionArrived => '司機已到達';
+
+  @override
+  String get auditActionRiding => '行程中';
+
+  @override
+  String get auditActionCompleted => '已完成';
+
+  @override
+  String get auditActionCancelled => '已取消';
 }

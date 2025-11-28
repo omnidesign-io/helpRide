@@ -87,8 +87,8 @@ class _LandingPageState extends ConsumerState<LandingPage> {
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: currentRole == UserRole.driver
-                ? _buildDriverControls(context, ref, l10n, currentUserPhone, currentUserId)
-                : _buildRiderControls(context, ref, l10n, currentUserPhone, currentUserId, activeRide),
+                ? _buildDriverControls(context, ref, l10n, currentUserPhone, currentUserId, session.username)
+                : _buildRiderControls(context, ref, l10n, currentUserPhone, currentUserId, session.username, activeRide),
           );
         },
       ),
@@ -118,7 +118,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
     );
   }
 
-  Widget _buildRiderControls(BuildContext context, WidgetRef ref, AppLocalizations l10n, String phone, String uid, RideModel? activeRide) {
+  Widget _buildRiderControls(BuildContext context, WidgetRef ref, AppLocalizations l10n, String phone, String uid, String? username, RideModel? activeRide) {
     final bool isInputDisabled = activeRide != null;
 
     return Column(
@@ -242,6 +242,8 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                   try {
                     await ref.read(rideRepositoryProvider).createRideRequest(
                       riderId: uid,
+                      riderName: username ?? 'Unknown Rider',
+                      riderTelegram: null, // TODO: Add telegram to Session/User model
                       riderPhone: phone,
                       pickupAddress: _fromController.text,
                       destinationAddress: _toController.text,
@@ -270,7 +272,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
     );
   }
 
-  Widget _buildDriverControls(BuildContext context, WidgetRef ref, AppLocalizations l10n, String phone, String uid) {
+  Widget _buildDriverControls(BuildContext context, WidgetRef ref, AppLocalizations l10n, String phone, String uid, String? username) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -346,6 +348,8 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                           ref.read(rideRepositoryProvider).acceptRide(
                             rideId: ride.id,
                             driverId: uid,
+                            driverName: username ?? 'Unknown Driver',
+                            driverTelegram: null, // TODO: Add telegram to Session/User model
                             driverPhone: phone,
                           );
                         },

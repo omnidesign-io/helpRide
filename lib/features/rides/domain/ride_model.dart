@@ -8,8 +8,12 @@ class RideModel {
   final String shortId; // 8-digit unique ID
   final String riderId; // UID
   final String? driverId; // UID
+  final String riderName; // Denormalized for data retention
+  final String? driverName; // Denormalized for data retention
   final String riderPhone;
   final String? driverPhone;
+  final String? riderTelegram;
+  final String? driverTelegram;
   final String pickupAddress;
   final String destinationAddress;
   final RideStatus status;
@@ -19,14 +23,19 @@ class RideModel {
   final bool acceptPets;
   final bool acceptWheelchair;
   final bool acceptCargo;
+  final List<Map<String, dynamic>> auditTrail;
 
   RideModel({
     required this.id,
     required this.shortId,
     required this.riderId,
     this.driverId,
+    required this.riderName,
+    this.driverName,
     required this.riderPhone,
     this.driverPhone,
+    this.riderTelegram,
+    this.driverTelegram,
     required this.pickupAddress,
     required this.destinationAddress,
     required this.status,
@@ -36,6 +45,7 @@ class RideModel {
     this.acceptPets = false,
     this.acceptWheelchair = false,
     this.acceptCargo = false,
+    this.auditTrail = const [],
   });
 
   // From Firestore
@@ -46,8 +56,12 @@ class RideModel {
       shortId: data['shortId'] ?? '00000000',
       riderId: data['riderId'] ?? '',
       driverId: data['driverId'],
+      riderName: data['riderName'] ?? 'Unknown Rider',
+      driverName: data['driverName'],
       riderPhone: data['riderPhone'] ?? '',
       driverPhone: data['driverPhone'],
+      riderTelegram: data['riderTelegram'],
+      driverTelegram: data['driverTelegram'],
       pickupAddress: data['pickupAddress'] ?? '',
       destinationAddress: data['destinationAddress'] ?? '',
       status: RideStatus.values.firstWhere(
@@ -63,6 +77,7 @@ class RideModel {
       acceptPets: data['acceptPets'] ?? false,
       acceptWheelchair: data['acceptWheelchair'] ?? false,
       acceptCargo: data['acceptCargo'] ?? false,
+      auditTrail: List<Map<String, dynamic>>.from(data['auditTrail'] ?? []),
     );
   }
 
@@ -72,8 +87,12 @@ class RideModel {
       'shortId': shortId,
       'riderId': riderId,
       'driverId': driverId,
+      'riderName': riderName,
+      'driverName': driverName,
       'riderPhone': riderPhone,
       'driverPhone': driverPhone,
+      'riderTelegram': riderTelegram,
+      'driverTelegram': driverTelegram,
       'pickupAddress': pickupAddress,
       'destinationAddress': destinationAddress,
       'status': status.toString().split('.').last,
@@ -83,6 +102,7 @@ class RideModel {
       'acceptPets': acceptPets,
       'acceptWheelchair': acceptWheelchair,
       'acceptCargo': acceptCargo,
+      'auditTrail': auditTrail,
     };
   }
 

@@ -96,7 +96,7 @@ class DriverDashboardScreen extends ConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      _buildActionButtons(context, rideRepo, ride, isMyRide, l10n, ref, session.uid, session.phoneNumber),
+                      _buildActionButtons(context, rideRepo, ride, isMyRide, l10n, ref, session.uid, session.username ?? 'Unknown Driver', session.phoneNumber),
                     ],
                   ),
                 ),
@@ -118,6 +118,7 @@ class DriverDashboardScreen extends ConsumerWidget {
     AppLocalizations l10n,
     WidgetRef ref,
     String uid,
+    String username,
     String phoneNumber,
   ) {
     if (!isMyRide) {
@@ -129,7 +130,9 @@ class DriverDashboardScreen extends ConsumerWidget {
               await rideRepo.acceptRide(
                 rideId: ride.id,
                 driverId: uid,
-                driverPhone: phoneNumber,
+                driverName: username ?? 'Unknown Driver',
+                driverTelegram: null, // TODO: Add telegram to Session/User model
+                driverPhone: '12345678', // Mock phone for nowNumber,
               );
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(

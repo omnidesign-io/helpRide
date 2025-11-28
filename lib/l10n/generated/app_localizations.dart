@@ -224,6 +224,48 @@ abstract class AppLocalizations {
   /// **'Your number will be used for WhatsApp and calls from the people you match. It will only be displayed to the other party after matching, for contact purposes.'**
   String get phoneInfoText;
 
+  /// No description provided for @deleteAccountButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccountButton;
+
+  /// No description provided for @deleteAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccountTitle;
+
+  /// No description provided for @deleteAccountMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently removed.'**
+  String get deleteAccountMessage;
+
+  /// No description provided for @deleteAccountConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Type DELETE to confirm'**
+  String get deleteAccountConfirmation;
+
+  /// No description provided for @deleteAccountError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete account. Please try again.'**
+  String get deleteAccountError;
+
+  /// No description provided for @deleteAccountActiveRideError.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot delete account while you have active rides.'**
+  String get deleteAccountActiveRideError;
+
+  /// No description provided for @deleteConfirmationKeyword.
+  ///
+  /// In en, this message translates to:
+  /// **'DELETE'**
+  String get deleteConfirmationKeyword;
+
   /// No description provided for @usernameInfoText.
   ///
   /// In en, this message translates to:
@@ -841,6 +883,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Origin'**
   String get originLabel;
+
+  /// No description provided for @activityHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get activityHeader;
+
+  /// No description provided for @auditActionCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get auditActionCreated;
+
+  /// No description provided for @auditActionAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get auditActionAccepted;
+
+  /// No description provided for @auditActionArrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived'**
+  String get auditActionArrived;
+
+  /// No description provided for @auditActionRiding.
+  ///
+  /// In en, this message translates to:
+  /// **'Riding'**
+  String get auditActionRiding;
+
+  /// No description provided for @auditActionCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get auditActionCompleted;
+
+  /// No description provided for @auditActionCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get auditActionCancelled;
 }
 
 class _AppLocalizationsDelegate

@@ -73,6 +73,30 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your number will be used for WhatsApp and calls from the people you match. It will only be displayed to the other party after matching, for contact purposes.';
 
   @override
+  String get deleteAccountButton => 'Delete Account';
+
+  @override
+  String get deleteAccountTitle => 'Delete Account';
+
+  @override
+  String get deleteAccountMessage =>
+      'Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently removed.';
+
+  @override
+  String get deleteAccountConfirmation => 'Type DELETE to confirm';
+
+  @override
+  String get deleteAccountError =>
+      'Failed to delete account. Please try again.';
+
+  @override
+  String get deleteAccountActiveRideError =>
+      'Cannot delete account while you have active rides.';
+
+  @override
+  String get deleteConfirmationKeyword => 'DELETE';
+
+  @override
   String get usernameInfoText =>
       'Username is another way to quickly identify you inside the app. It can be anything you prefer.';
 
@@ -395,4 +419,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get originLabel => 'Origin';
+
+  @override
+  String get activityHeader => 'Activity';
+
+  @override
+  String get auditActionCreated => 'Created';
+
+  @override
+  String get auditActionAccepted => 'Accepted';
+
+  @override
+  String get auditActionArrived => 'Arrived';
+
+  @override
+  String get auditActionRiding => 'Riding';
+
+  @override
+  String get auditActionCompleted => 'Completed';
+
+  @override
+  String get auditActionCancelled => 'Cancelled';
 }
