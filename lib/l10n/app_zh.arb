@@ -154,5 +154,6 @@
   "enterLicensePlateError": "請輸入車牌號碼 (至少部分)",
   "callButtonLabel": "致電",
   "messageButtonLabel": "WhatsApp",
-  "telegramButtonLabel": "Telegram"
+  "telegramButtonLabel": "Telegram",
+  "offlineRefreshMessage": "已離線，請等待連線，或重新整理頁面。"
 }

@@ -138,6 +138,7 @@ class RideRepository {
   }) async {
     // Fetch driver's vehicle info
     String? driverLicensePlate;
+    String? driverVehicleColor;
     try {
       final userDoc = await _firestore.collection('users').doc(driverId).get();
       if (userDoc.exists) {
@@ -145,6 +146,7 @@ class RideRepository {
         if (data != null && data.containsKey('vehicle')) {
           final vehicle = data['vehicle'] as Map<String, dynamic>;
           driverLicensePlate = vehicle['licensePlate'] as String?;
+          driverVehicleColor = vehicle['color'] as String?;
         }
       }
     } catch (e) {
@@ -159,6 +161,7 @@ class RideRepository {
       'driverPhone': driverPhone,
       'driverTelegram': driverTelegram,
       'driverLicensePlate': driverLicensePlate,
+      'driverVehicleColor': driverVehicleColor,
       'acceptedAt': FieldValue.serverTimestamp(),
       'auditTrail': FieldValue.arrayUnion([
         {

@@ -489,4 +489,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get telegramButtonLabel => 'Telegram';
+
+  @override
+  String get offlineRefreshMessage => 'Offline. Please refresh page.';
 }

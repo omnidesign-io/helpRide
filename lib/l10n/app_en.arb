@@ -153,5 +153,6 @@
   "enterLicensePlateError": "Please enter your license plate (at least partially)",
   "callButtonLabel": "Call",
   "messageButtonLabel": "WhatsApp",
-  "telegramButtonLabel": "Telegram"
+  "telegramButtonLabel": "Telegram",
+  "offlineRefreshMessage": "Offline. Please refresh page."
 }

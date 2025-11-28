@@ -471,4 +471,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get telegramButtonLabel => 'Telegram';
+
+  @override
+  String get offlineRefreshMessage => '已離線，請等待連線，或重新整理頁面。';
 }

@@ -138,6 +138,11 @@ class MyApp extends ConsumerWidget {
           surfaceContainerHigh: const Color(0xFFF2F2F2), // Same for consistency
         ),
         scaffoldBackgroundColor: const Color(0xFFFDFDFD),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: Colors.teal.withValues(alpha: 0.05), // Light teal tint
+          indicatorColor: Colors.teal.withValues(alpha: 0.2),
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        ),
         cardTheme: CardThemeData(
           elevation: 0,
           color: const Color(0xFFF2F2F2),

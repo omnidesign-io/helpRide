@@ -65,68 +65,71 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         : null; // Handle case where session is null
 
     return Scaffold(
-      body: Stack(
+      body: widget.child,
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          widget.child,
-          
-          // Sticky Active Ride Banner
-          if (activeRidesAsync != null) // Only show if we have a valid stream
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: StreamBuilder<List<RideModel>>(
-                stream: activeRidesAsync,
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const SizedBox.shrink();
-                  }
+          // Active Ride Section
+          if (activeRidesAsync != null)
+            StreamBuilder<List<RideModel>>(
+              stream: activeRidesAsync,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const SizedBox.shrink();
+                }
 
-                  // Find the first truly active ride
-                  final activeRides = snapshot.data!.where((r) => 
-                    r.status != RideStatus.completed && 
-                    r.status != RideStatus.cancelled
-                  ).toList();
+                // Find the first truly active ride
+                final activeRides = snapshot.data!.where((r) => 
+                  r.status != RideStatus.completed && 
+                  r.status != RideStatus.cancelled
+                ).toList();
 
-                  if (activeRides.isEmpty) {
-                    return const SizedBox.shrink();
-                  }
+                if (activeRides.isEmpty) {
+                  return const SizedBox.shrink();
+                }
 
-                  final activeRide = activeRides.first;
-                  
-                  // Don't show if we are already on the details screen or active ride screen
-                  final location = GoRouterState.of(context).uri.toString();
-                  if (location.contains('/ride-details') || location.contains('/active-ride')) {
-                    return const SizedBox.shrink();
-                  }
+                final activeRide = activeRides.first;
+                
+                // Don't show if we are already on the details screen or active ride screen
+                final location = GoRouterState.of(context).uri.toString();
+                if (location.contains('/ride-details') || location.contains('/active-ride')) {
+                  return const SizedBox.shrink();
+                }
 
-                  return ActiveRideScreen(
-                    ride: activeRide, // Fixed: pass ride object
-                    isDriver: currentRole == UserRole.driver,
-                  );
-                },
-              ),
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ActiveRideScreen(
+                      ride: activeRide,
+                      isDriver: currentRole == UserRole.driver,
+                    ),
+                    Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)),
+                  ],
+                );
+              },
             ),
-        ],
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _calculateSelectedIndex(context),
-        onDestinationSelected: (index) => _onItemTapped(index, context), // Using the new _onItemTapped
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: const Icon(Icons.home),
-            label: l10n.homeLabel, // Changed from homeTabLabel
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.history_outlined),
-            selectedIcon: const Icon(Icons.history),
-            label: l10n.ordersLabel, // Changed from ordersTabLabel
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.person_outlined),
-            selectedIcon: const Icon(Icons.person),
-            label: l10n.settingsLabel, // Changed from profileTabLabel, assuming settings is now profile
+
+          // Navigation Bar
+          NavigationBar(
+            selectedIndex: _calculateSelectedIndex(context),
+            onDestinationSelected: (index) => _onItemTapped(index, context),
+            destinations: [
+              NavigationDestination(
+                icon: const Icon(Icons.home_outlined),
+                selectedIcon: const Icon(Icons.home),
+                label: l10n.homeLabel,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.history_outlined),
+                selectedIcon: const Icon(Icons.history),
+                label: l10n.ordersLabel,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.person_outlined),
+                selectedIcon: const Icon(Icons.person),
+                label: l10n.settingsLabel,
+              ),
+            ],
           ),
         ],
       ),

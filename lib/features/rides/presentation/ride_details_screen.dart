@@ -133,7 +133,7 @@ class RideDetailsScreen extends ConsumerWidget {
                                                 border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                                               ),
                                               child: Text(
-                                                licensePlate,
+                                                '${ride.vehicleType.localized(context)} • $licensePlate${ride.driverVehicleColor != null ? " (${ride.driverVehicleColor})" : ""}',
                                                 style: TextStyle(
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w500,
@@ -451,7 +451,10 @@ class RideDetailsScreen extends ConsumerWidget {
                     Expanded(
                       child: RichText(
                         text: TextSpan(
-                          style: DefaultTextStyle.of(context).style.copyWith(fontSize: 13),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                           children: [
                             TextSpan(
                               text: '$actorName ',

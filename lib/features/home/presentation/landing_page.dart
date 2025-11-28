@@ -7,6 +7,8 @@ import 'package:helpride/features/rides/repository/ride_repository.dart';
 import 'package:helpride/features/rides/domain/ride_model.dart';
 import 'package:helpride/core/presentation/constants.dart';
 import 'package:helpride/features/rides/presentation/widgets/ride_route_widget.dart';
+import 'package:helpride/core/presentation/widgets/pulsing_green_dot.dart';
+import 'package:helpride/core/providers/connectivity_provider.dart';
 import 'package:helpride/features/rides/domain/vehicle_type.dart';
 import 'package:helpride/features/rides/domain/ride_options.dart';
 import 'package:helpride/core/providers/session_provider.dart';
@@ -380,95 +382,97 @@ class _LandingPageState extends ConsumerState<LandingPage> {
         const SizedBox(height: 16),
 
         // Time Selection Section
-        Card(
-          color: (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
-              ? Theme.of(context).colorScheme.errorContainer
-              : null,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: isInputDisabled ? null : () {
-              if (_scheduledTime == null) {
-                // Switch to scheduled -> open picker
-                _selectScheduledTime();
-              } else {
-                // Already scheduled -> show options (Change or Reset to Now)
-                showModalBottomSheet(
-                  context: context,
-                  builder: (context) => SafeArea(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+        Opacity(
+          opacity: isInputDisabled ? 0.6 : 1.0,
+          child: Card(
+            color: (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
+                ? Theme.of(context).colorScheme.errorContainer
+                : null,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: isInputDisabled ? null : () {
+                if (_scheduledTime == null) {
+                  // Switch to scheduled -> open picker
+                  _selectScheduledTime();
+                } else {
+                  // Already scheduled -> show options (Change or Reset to Now)
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (context) => SafeArea(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.edit),
+                            title: Text(l10n.changeTimeButton),
+                            onTap: () {
+                              Navigator.pop(context);
+                              _selectScheduledTime();
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.restore),
+                            title: Text(l10n.resetToNowButton),
+                            onTap: () {
+                              setState(() => _scheduledTime = null);
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        ListTile(
-                          leading: const Icon(Icons.edit),
-                          title: Text(l10n.changeTimeButton),
-                          onTap: () {
-                            Navigator.pop(context);
-                            _selectScheduledTime();
-                          },
+                        Text(
+                          l10n.timeLabel,
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
+                                ? Theme.of(context).colorScheme.onErrorContainer
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
-                        ListTile(
-                          leading: const Icon(Icons.restore),
-                          title: Text(l10n.resetToNowButton),
-                          onTap: () {
-                            setState(() => _scheduledTime = null);
-                            Navigator.pop(context);
-                          },
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
+                                ? Theme.of(context).colorScheme.onErrorContainer
+                                : null,
                         ),
                       ],
                     ),
-                  ),
-                );
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        l10n.timeLabel,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          _scheduledTime == null ? Icons.access_time_filled : Icons.event,
+                          size: 20,
                           color: (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
-                              ? Theme.of(context).colorScheme.onErrorContainer
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                                ? Theme.of(context).colorScheme.onErrorContainer
+                                : null,
                         ),
-                      ),
-                      Icon(
-                        Icons.arrow_drop_down,
-                        color: (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
-                              ? Theme.of(context).colorScheme.onErrorContainer
-                              : null,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(
-                        _scheduledTime == null ? Icons.access_time_filled : Icons.event,
-                        size: 20,
-                        color: (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
-                              ? Theme.of(context).colorScheme.onErrorContainer
-                              : null,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        _scheduledTime == null
-                            ? l10n.nowLabel
-                            : '${_scheduledTime!.year}-${_scheduledTime!.month.toString().padLeft(2, '0')}-${_scheduledTime!.day.toString().padLeft(2, '0')} ${_scheduledTime!.hour.toString().padLeft(2, '0')}:${_scheduledTime!.minute.toString().padLeft(2, '0')}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold, 
-                          fontSize: 16,
-                          color: (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
-                              ? Theme.of(context).colorScheme.onErrorContainer
-                              : null,
+                        const SizedBox(width: 8),
+                        Text(
+                          _scheduledTime == null
+                              ? l10n.nowLabel
+                              : '${_scheduledTime!.year}-${_scheduledTime!.month.toString().padLeft(2, '0')}-${_scheduledTime!.day.toString().padLeft(2, '0')} ${_scheduledTime!.hour.toString().padLeft(2, '0')}:${_scheduledTime!.minute.toString().padLeft(2, '0')}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold, 
+                            fontSize: 16,
+                            color: (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
+                                ? Theme.of(context).colorScheme.onErrorContainer
+                                : null, // Use default color to match Ride Options
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                   if (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
                     Padding(
                       padding: const EdgeInsets.only(top: 4.0),
@@ -480,7 +484,8 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                         ),
                       ),
                     ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -511,6 +516,8 @@ class _LandingPageState extends ConsumerState<LandingPage> {
   }
 
   Widget _buildDriverControls(BuildContext context, WidgetRef ref, AppLocalizations l10n, String phone, String uid, String? username) {
+    final isConnected = ref.watch(isConnectedProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -520,19 +527,31 @@ class _LandingPageState extends ConsumerState<LandingPage> {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                const Icon(Icons.work, color: Colors.green),
+                isConnected
+                    ? const PulsingGreenDot(size: 12)
+                    : SizedBox(
+                        width: 36,
+                        height: 36,
+                        child: Center(
+                          child: Icon(Icons.wifi_off, color: Theme.of(context).colorScheme.error),
+                        ),
+                      ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        l10n.driverModeLabel, // You might need to add this key or use "Driver Mode"
+                        l10n.driverModeLabel,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       Text(
-                        l10n.lookingForRidesMessage, // You might need to add this key or use "Looking for rides..."
-                        style: Theme.of(context).textTheme.bodySmall,
+                        isConnected
+                            ? l10n.lookingForRidesMessage
+                            : l10n.offlineRefreshMessage, // You'll need to add this key
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: isConnected ? null : Theme.of(context).colorScheme.error,
+                            ),
                       ),
                     ],
                   ),

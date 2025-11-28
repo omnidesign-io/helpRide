@@ -1021,6 +1021,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Telegram'**
   String get telegramButtonLabel;
+
+  /// No description provided for @offlineRefreshMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline. Please refresh page.'**
+  String get offlineRefreshMessage;
 }
 
 class _AppLocalizationsDelegate

@@ -15,6 +15,7 @@ class RideModel {
   final String? riderTelegram;
   final String? driverTelegram;
   final String? driverLicensePlate; // Added field
+  final String? driverVehicleColor; // Added field
   final String pickupAddress;
   final String destinationAddress;
   final RideStatus status;
@@ -43,6 +44,7 @@ class RideModel {
     this.riderTelegram,
     this.driverTelegram,
     this.driverLicensePlate,
+    this.driverVehicleColor,
     required this.pickupAddress,
     required this.destinationAddress,
     required this.status,
@@ -75,6 +77,7 @@ class RideModel {
       riderTelegram: data['riderTelegram'],
       driverTelegram: data['driverTelegram'],
       driverLicensePlate: data['driverLicensePlate'],
+      driverVehicleColor: data['driverVehicleColor'],
       pickupAddress: data['pickupAddress'] ?? '',
       destinationAddress: data['destinationAddress'] ?? '',
       status: RideStatus.values.firstWhere(
@@ -114,6 +117,7 @@ class RideModel {
       'riderTelegram': riderTelegram,
       'driverTelegram': driverTelegram,
       'driverLicensePlate': driverLicensePlate,
+      'driverVehicleColor': driverVehicleColor,
       'pickupAddress': pickupAddress,
       'destinationAddress': destinationAddress,
       'status': status.toString().split('.').last,
