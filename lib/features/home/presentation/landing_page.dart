@@ -673,7 +673,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   visualDensity: VisualDensity.compact,
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(horizontal: 24),
                                 ),
                                 child: Text(l10n.acceptButton),
                               ),

@@ -159,10 +159,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get riderLabel => 'Rider';
 
   @override
-  String get acceptRideButton => 'Accept Ride';
+  String get acceptRideButton => 'Accept';
 
   @override
-  String get rideAcceptedMessage => 'Ride Accepted!';
+  String get rideAcceptedMessage => 'Accepted!';
 
   @override
   String get searchingForDriverMessage => 'Searching for driver...';
@@ -198,13 +198,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goOnlineMessage => 'Go online to see requests';
 
   @override
-  String get noPendingRidesMessage => 'No pending rides nearby';
+  String get noPendingRidesMessage => 'No pending rides';
 
   @override
   String get rideIdLabel => 'Ride #';
-
-  @override
-  String get pickupProximityMessage => 'Pickup: 2 mins away';
 
   @override
   String get acceptButton => 'Accept';
@@ -219,7 +216,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeLabel => 'Home';
 
   @override
-  String get ordersLabel => 'Orders';
+  String get ordersLabel => 'Trips';
 
   @override
   String get settingsLabel => 'Settings';
@@ -306,7 +303,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Cannot switch role while you have an active ride.';
 
   @override
-  String get orderHistoryTitle => 'Order History';
+  String get orderHistoryTitle => 'Trip History';
 
   @override
   String get rideStatusPending => 'PENDING';
@@ -393,7 +390,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Unable to fetch your location. Please try again.';
 
   @override
-  String get noHistoryMessage => 'No ride history yet';
+  String get noHistoryMessage => 'No trip history yet';
 
   @override
   String get settingsTitle => 'Settings';
@@ -432,7 +429,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toLabel => 'To: ';
 
   @override
-  String get submitBookingButton => 'Submit Booking';
+  String get submitBookingButton => 'Send Request';
 
   @override
   String get changeTimeButton => 'Change Time';

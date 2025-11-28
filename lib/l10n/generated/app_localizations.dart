@@ -383,13 +383,13 @@ abstract class AppLocalizations {
   /// No description provided for @acceptRideButton.
   ///
   /// In en, this message translates to:
-  /// **'Accept Ride'**
+  /// **'Accept'**
   String get acceptRideButton;
 
   /// No description provided for @rideAcceptedMessage.
   ///
   /// In en, this message translates to:
-  /// **'Ride Accepted!'**
+  /// **'Accepted!'**
   String get rideAcceptedMessage;
 
   /// No description provided for @searchingForDriverMessage.
@@ -461,7 +461,7 @@ abstract class AppLocalizations {
   /// No description provided for @noPendingRidesMessage.
   ///
   /// In en, this message translates to:
-  /// **'No pending rides nearby'**
+  /// **'No pending rides'**
   String get noPendingRidesMessage;
 
   /// No description provided for @rideIdLabel.
@@ -469,12 +469,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ride #'**
   String get rideIdLabel;
-
-  /// No description provided for @pickupProximityMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Pickup: 2 mins away'**
-  String get pickupProximityMessage;
 
   /// No description provided for @acceptButton.
   ///
@@ -503,7 +497,7 @@ abstract class AppLocalizations {
   /// No description provided for @ordersLabel.
   ///
   /// In en, this message translates to:
-  /// **'Orders'**
+  /// **'Trips'**
   String get ordersLabel;
 
   /// No description provided for @settingsLabel.
@@ -671,7 +665,7 @@ abstract class AppLocalizations {
   /// No description provided for @orderHistoryTitle.
   ///
   /// In en, this message translates to:
-  /// **'Order History'**
+  /// **'Trip History'**
   String get orderHistoryTitle;
 
   /// No description provided for @rideStatusPending.
@@ -833,7 +827,7 @@ abstract class AppLocalizations {
   /// No description provided for @noHistoryMessage.
   ///
   /// In en, this message translates to:
-  /// **'No ride history yet'**
+  /// **'No trip history yet'**
   String get noHistoryMessage;
 
   /// No description provided for @settingsTitle.
@@ -911,7 +905,7 @@ abstract class AppLocalizations {
   /// No description provided for @submitBookingButton.
   ///
   /// In en, this message translates to:
-  /// **'Submit Booking'**
+  /// **'Send Request'**
   String get submitBookingButton;
 
   /// No description provided for @changeTimeButton.

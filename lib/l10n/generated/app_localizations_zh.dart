@@ -141,34 +141,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get locationNeededError => '需要位置信息才能預約';
 
   @override
-  String get driverDashboardTitle => '司機儀表板';
+  String get driverDashboardTitle => '車手儀表板';
 
   @override
-  String get noRidesAvailableMessage => '暫無可用預約';
+  String get noRidesAvailableMessage => '暫無可用行程';
 
   @override
   String get riderLabel => '乘客';
 
   @override
-  String get acceptRideButton => '接單';
+  String get acceptRideButton => '接';
 
   @override
-  String get rideAcceptedMessage => '已接單！';
+  String get rideAcceptedMessage => '已接受！';
 
   @override
-  String get searchingForDriverMessage => '正在尋找司機...';
+  String get searchingForDriverMessage => '正在尋找車手...';
 
   @override
-  String get driverFoundMessage => '已找到司機！';
+  String get driverFoundMessage => '已找到車手！';
 
   @override
-  String get driverLabel => '司機';
+  String get driverLabel => '車手';
 
   @override
-  String get cancelRideButton => '取消預約';
+  String get cancelRideButton => '取消行程';
 
   @override
-  String get requestRideButton => '預約車輛';
+  String get requestRideButton => '請求行程';
 
   @override
   String get destinationLabel => '目的地';
@@ -186,19 +186,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get youAreOfflineMessage => '您已離線';
 
   @override
-  String get goOnlineMessage => '上線以查看預約請求';
+  String get goOnlineMessage => '上線以查看請求';
 
   @override
-  String get noPendingRidesMessage => '附近暫無待處理預約';
+  String get noPendingRidesMessage => '暫無待處理行程';
 
   @override
   String get rideIdLabel => '行程編號：';
 
   @override
-  String get pickupProximityMessage => '上車點：2 分鐘路程';
-
-  @override
-  String get acceptButton => '接單';
+  String get acceptButton => '接';
 
   @override
   String get locationUpdatedMessage => '位置已更新！';
@@ -210,16 +207,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeLabel => '主頁';
 
   @override
-  String get ordersLabel => '訂單';
+  String get ordersLabel => '行程';
 
   @override
   String get settingsLabel => '設定';
 
   @override
-  String get driverSetupTitle => '司機設定';
+  String get driverSetupTitle => '車手設定';
 
   @override
-  String get driverModeLabel => '司機模式';
+  String get driverModeLabel => '車手模式';
 
   @override
   String get lookingForRidesMessage => '正在尋找行程...';
@@ -246,7 +243,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get licensePlateHelper => '為保障私隱，您可以只輸入部分車牌 (例如：數字部分)。';
 
   @override
-  String get capacityLabel => '載客量 (不含司機)';
+  String get capacityLabel => '載客量 (不含車手)';
 
   @override
   String get conditionsTitle => '服務選項';
@@ -294,16 +291,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cannotSwitchRoleError => '您有進行中的行程，無法切換身份。';
 
   @override
-  String get orderHistoryTitle => '訂單記錄';
+  String get orderHistoryTitle => '行程記錄';
 
   @override
   String get rideStatusPending => '待處理';
 
   @override
-  String get rideStatusAccepted => '已接單';
+  String get rideStatusAccepted => '已接受';
 
   @override
-  String get rideStatusArrived => '司機已到達';
+  String get rideStatusArrived => '車手已到達';
 
   @override
   String get rideStatusRiding => '行程中';
@@ -371,7 +368,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get goToLoginButton => '前往登入';
 
   @override
-  String get locationPermissionDenied => '需要位置權限才能預約車輛，請在設定中啟用。';
+  String get locationPermissionDenied => '需要位置權限才能請求行程，請在設定中啟用。';
 
   @override
   String get locationFetchError => '無法取得您的位置，請再試一次。';
@@ -416,7 +413,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get toLabel => '往：';
 
   @override
-  String get submitBookingButton => '提交預約';
+  String get submitBookingButton => '發送請求';
 
   @override
   String get changeTimeButton => '更改時間';
@@ -443,7 +440,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dateLabel => '日期';
 
   @override
-  String get findingDriverMessage => '尋找中...';
+  String get findingDriverMessage => '正在尋找車手...';
 
   @override
   String get completeRideButton => '完成行程';
@@ -458,10 +455,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get auditActionCreated => '已建立';
 
   @override
-  String get auditActionAccepted => '已接單';
+  String get auditActionAccepted => '已接受';
 
   @override
-  String get auditActionArrived => '司機已到達';
+  String get auditActionArrived => '車手已到達';
 
   @override
   String get auditActionRiding => '行程中';
