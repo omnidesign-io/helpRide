@@ -19,6 +19,11 @@ class RideModel {
   final String destinationAddress;
   final RideStatus status;
   final DateTime createdAt;
+  final DateTime? scheduledTime; // New field for scheduled rides
+  final DateTime? acceptedAt;
+  final DateTime? arrivedAt;
+  final DateTime? startedAt;
+  final DateTime? completedAt;
   final int passengerCount;
   final VehicleType vehicleType;
   final bool acceptPets;
@@ -42,12 +47,17 @@ class RideModel {
     required this.destinationAddress,
     required this.status,
     required this.createdAt,
-    this.passengerCount = 1,
-    this.vehicleType = VehicleType.sedan,
-    this.acceptPets = false,
-    this.acceptWheelchair = false,
-    this.acceptCargo = false,
-    this.auditTrail = const [],
+    this.scheduledTime,
+    this.acceptedAt,
+    this.arrivedAt,
+    this.startedAt,
+    this.completedAt,
+    required this.passengerCount,
+    required this.vehicleType,
+    required this.acceptPets,
+    required this.acceptWheelchair,
+    required this.acceptCargo,
+    required this.auditTrail,
   });
 
   // From Firestore
@@ -55,10 +65,10 @@ class RideModel {
     final data = doc.data() as Map<String, dynamic>;
     return RideModel(
       id: doc.id,
-      shortId: data['shortId'] ?? '00000000',
+      shortId: data['shortId'] ?? '',
       riderId: data['riderId'] ?? '',
       driverId: data['driverId'],
-      riderName: data['riderName'] ?? 'Unknown Rider',
+      riderName: data['riderName'] ?? '',
       driverName: data['driverName'],
       riderPhone: data['riderPhone'] ?? '',
       driverPhone: data['driverPhone'],
@@ -72,6 +82,13 @@ class RideModel {
         orElse: () => RideStatus.pending,
       ),
       createdAt: (data['createdAt'] as Timestamp).toDate(),
+      scheduledTime: data['scheduledTime'] != null 
+          ? (data['scheduledTime'] as Timestamp).toDate() 
+          : null,
+      acceptedAt: data['acceptedAt'] != null ? (data['acceptedAt'] as Timestamp).toDate() : null,
+      arrivedAt: data['arrivedAt'] != null ? (data['arrivedAt'] as Timestamp).toDate() : null,
+      startedAt: data['startedAt'] != null ? (data['startedAt'] as Timestamp).toDate() : null,
+      completedAt: data['completedAt'] != null ? (data['completedAt'] as Timestamp).toDate() : null,
       passengerCount: data['passengerCount'] ?? 1,
       vehicleType: VehicleType.values.firstWhere(
         (e) => e.toString().split('.').last == data['vehicleType'],
@@ -101,6 +118,11 @@ class RideModel {
       'destinationAddress': destinationAddress,
       'status': status.toString().split('.').last,
       'createdAt': Timestamp.fromDate(createdAt),
+      if (scheduledTime != null) 'scheduledTime': Timestamp.fromDate(scheduledTime!),
+      'acceptedAt': acceptedAt != null ? Timestamp.fromDate(acceptedAt!) : null,
+      'arrivedAt': arrivedAt != null ? Timestamp.fromDate(arrivedAt!) : null,
+      'startedAt': startedAt != null ? Timestamp.fromDate(startedAt!) : null,
+      'completedAt': completedAt != null ? Timestamp.fromDate(completedAt!) : null,
       'passengerCount': passengerCount,
       'vehicleType': vehicleType.toString().split('.').last,
       'acceptPets': acceptPets,

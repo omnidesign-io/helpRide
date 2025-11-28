@@ -8,6 +8,7 @@ import 'package:helpride/features/rides/domain/vehicle_type.dart';
 import 'package:intl/intl.dart';
 
 import 'package:url_launcher/url_launcher.dart';
+import 'package:helpride/features/rides/presentation/widgets/ride_route_widget.dart';
 import 'package:helpride/core/providers/session_provider.dart';
 
 class RideDetailsScreen extends ConsumerWidget {
@@ -28,7 +29,7 @@ class RideDetailsScreen extends ConsumerWidget {
       ),
       body: rideAsync.when(
         data: (ride) {
-          final isActive = ride.isActive;
+
           final canCancel = ride.status == RideStatus.pending ||
               ride.status == RideStatus.accepted ||
               ride.status == RideStatus.arrived;
@@ -38,29 +39,9 @@ class RideDetailsScreen extends ConsumerWidget {
           final isDriver = ride.driverId == currentUserId;
           
           // Determine other party info
-          String? otherPartyName;
-          String? otherPartyPhone;
-          String? otherPartyTelegram;
-          String otherPartyLabel = '';
 
-          if (isRider) {
-            otherPartyLabel = 'Driver';
-            otherPartyName = ride.driverName;
-            otherPartyPhone = ride.driverPhone;
-            otherPartyTelegram = ride.driverTelegram;
-          } else if (isDriver) {
-            otherPartyLabel = 'Rider';
-            otherPartyName = ride.riderName;
-            otherPartyPhone = ride.riderPhone;
-            otherPartyTelegram = ride.riderTelegram;
-          }
 
-          final showInteractiveContact = isActive && 
-              (ride.status == RideStatus.accepted || 
-               ride.status == RideStatus.arrived || 
-               ride.status == RideStatus.riding) &&
-              (isRider || isDriver) &&
-              otherPartyPhone != null;
+
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -96,6 +77,8 @@ class RideDetailsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
+
+
 
               // Party Info (Context Aware)
               if ((ride.status == RideStatus.accepted || 
@@ -240,34 +223,21 @@ class RideDetailsScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Origin -> Destination
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(l10n.originLabel, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
-                                Text(ride.pickupAddress, style: const TextStyle(fontWeight: FontWeight.bold)),
-                              ],
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Icon(Icons.arrow_forward, color: Colors.grey),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(l10n.destinationLabel, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
-                                Text(ride.destinationAddress, style: const TextStyle(fontWeight: FontWeight.bold)),
-                              ],
-                            ),
-                          ),
-                        ],
+                      RideRouteWidget(
+                        pickupAddress: ride.pickupAddress,
+                        destinationAddress: ride.destinationAddress,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       const Divider(color: Color.fromRGBO(0, 0, 0, 0.12)),
-                      _buildDetailRow(context, Icons.calendar_today, l10n.dateLabel, DateFormat('yyyy-MM-dd HH:mm').format(ride.createdAt)),
+                      // Replaced Date Row with Time Row
+                      _buildDetailRow(
+                        context, 
+                        Icons.access_time, 
+                        l10n.timeLabel, 
+                        ride.scheduledTime != null
+                          ? '${ride.scheduledTime!.year}-${ride.scheduledTime!.month.toString().padLeft(2, '0')}-${ride.scheduledTime!.day.toString().padLeft(2, '0')} ${ride.scheduledTime!.hour.toString().padLeft(2, '0')}:${ride.scheduledTime!.minute.toString().padLeft(2, '0')}'
+                          : l10n.nowLabel
+                      ),
                       const Divider(color: Color.fromRGBO(0, 0, 0, 0.12)),
                       _buildDetailRow(context, Icons.directions_car, l10n.vehicleTypeLabel, ride.vehicleType.localized(context)),
                       const Divider(color: Color.fromRGBO(0, 0, 0, 0.12)),
@@ -302,61 +272,7 @@ class RideDetailsScreen extends ConsumerWidget {
                       children: [
                         Text(l10n.activityHeader, style: Theme.of(context).textTheme.titleMedium),
                         const SizedBox(height: 8),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: ride.auditTrail.length,
-                          itemBuilder: (context, index) {
-                            final log = ride.auditTrail[index];
-                            final timestamp = (log['timestamp'] as dynamic)?.toDate() ?? DateTime.now();
-                            final action = log['action'].toString();
-                            final actorId = log['actorId'] as String?;
-                            
-                            String actorName = 'System';
-                            if (actorId != null) {
-                              if (actorId == ride.riderId) {
-                                actorName = ride.riderName;
-                              } else if (actorId == ride.driverId) {
-                                actorName = ride.driverName ?? 'Driver';
-                              }
-                            }
-                            
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    DateFormat('HH:mm').format(timestamp),
-                                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        RichText(
-                                          text: TextSpan(
-                                            style: DefaultTextStyle.of(context).style.copyWith(fontSize: 13),
-                                            children: [
-                                              TextSpan(
-                                                text: '$actorName ',
-                                                style: const TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                              TextSpan(
-                                                text: _localizeAction(context, action),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+                        _buildGroupedAuditTrail(context, ride),
                       ],
                     ),
                   ),
@@ -390,64 +306,9 @@ class RideDetailsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInteractiveContact(BuildContext context, String? name, String phone, String? telegram) {
-    return Column(
-      children: [
-        if (name != null) 
-          Text(name, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildContactButton(
-              context,
-              icon: Icons.call,
-              color: Theme.of(context).primaryColor,
-              onPressed: () => _launchUrl('tel:$phone'),
-            ),
-            _buildContactButton(
-              context,
-              icon: Icons.message, // WhatsApp placeholder
-              color: const Color(0xFF25D366), // WhatsApp Green
-              onPressed: () => _launchUrl('https://wa.me/${phone.replaceAll('+', '')}'),
-            ),
-            if (telegram != null && telegram.isNotEmpty)
-              _buildContactButton(
-                context,
-                icon: Icons.send, // Telegram placeholder
-                color: const Color(0xFF0088cc), // Telegram Blue
-                onPressed: () => _launchUrl('https://t.me/$telegram'),
-              ),
-          ],
-        ),
-      ],
-    );
-  }
 
-  Widget _buildContactButton(BuildContext context, {required IconData icon, required Color color, required VoidCallback onPressed}) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(30),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, color: color, size: 28),
-      ),
-    );
-  }
 
-  Widget _buildStaticContact(BuildContext context, String? name, String? phone, String? telegram) {
-    return Column(
-      children: [
-        _buildDetailRow(context, Icons.person, 'Name', name ?? 'N/A'),
-        if (phone != null) _buildDetailRow(context, Icons.phone, 'Phone', phone),
-        if (telegram != null) _buildDetailRow(context, Icons.telegram, 'Telegram', telegram),
-      ],
-    );
-  }
+
 
   String _localizeAction(BuildContext context, String action) {
     final l10n = AppLocalizations.of(context)!;
@@ -529,6 +390,89 @@ class RideDetailsScreen extends ConsumerWidget {
         Navigator.pop(context); // Go back to list
       }
     }
+  }
+
+  Widget _buildGroupedAuditTrail(BuildContext context, RideModel ride) {
+    // Group logs by date
+    final Map<String, List<Map<String, dynamic>>> groupedLogs = {};
+    for (var log in ride.auditTrail) {
+      final timestamp = (log['timestamp'] as dynamic)?.toDate() ?? DateTime.now();
+      final dateKey = DateFormat('yyyy-MM-dd').format(timestamp);
+      if (!groupedLogs.containsKey(dateKey)) {
+        groupedLogs[dateKey] = [];
+      }
+      groupedLogs[dateKey]!.add(log);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: groupedLogs.entries.map((entry) {
+        final dateKey = entry.key;
+        final logs = entry.value;
+        final date = DateTime.parse(dateKey); // Assuming yyyy-MM-dd format parses correctly
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                DateFormat('EEE, MMM d, yyyy').format(date),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ),
+            ...logs.map((log) {
+              final timestamp = (log['timestamp'] as dynamic)?.toDate() ?? DateTime.now();
+              final action = log['action'].toString();
+              final actorId = log['actorId'] as String?;
+              
+              String actorName = 'System';
+              if (actorId != null) {
+                if (actorId == ride.riderId) {
+                  actorName = ride.riderName;
+                } else if (actorId == ride.driverId) {
+                  actorName = ride.driverName ?? 'Driver';
+                }
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(left: 16, bottom: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      DateFormat('HH:mm').format(timestamp),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: RichText(
+                        text: TextSpan(
+                          style: DefaultTextStyle.of(context).style.copyWith(fontSize: 13),
+                          children: [
+                            TextSpan(
+                              text: '$actorName ',
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            TextSpan(
+                              text: _localizeAction(context, action),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: 8),
+          ],
+        );
+      }).toList(),
+    );
   }
 }
 

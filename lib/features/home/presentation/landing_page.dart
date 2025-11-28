@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:helpride/core/providers/role_provider.dart';
 import 'package:helpride/features/rides/repository/ride_repository.dart';
 import 'package:helpride/features/rides/domain/ride_model.dart';
+import 'package:helpride/core/presentation/constants.dart';
+import 'package:helpride/features/rides/presentation/widgets/ride_route_widget.dart';
 import 'package:helpride/features/rides/domain/vehicle_type.dart';
 import 'package:helpride/features/rides/domain/ride_options.dart';
 import 'package:helpride/core/providers/session_provider.dart';
@@ -37,6 +39,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
   String? _riderName;
   String? _riderPhone;
   String? _riderTelegram;
+  DateTime? _scheduledTime; // Null means "Now"
 
   @override
   void initState() {
@@ -57,11 +60,51 @@ class _LandingPageState extends ConsumerState<LandingPage> {
     }
   }
 
+  Future<void> _selectScheduledTime() async {
+    final now = DateTime.now();
+    final initialDate = _scheduledTime ?? now;
+    
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(now.year, now.month, now.day), // Disable past dates
+      lastDate: now.add(const Duration(days: 30)),
+    );
+
+    if (pickedDate != null) {
+      if (!mounted) return;
+      final pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(initialDate),
+      );
+
+      if (pickedTime != null) {
+        setState(() {
+          _scheduledTime = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+        });
+      }
+    }
+  }
+
   Future<void> _createRideRequest() async {
     if (_fromController.text.isEmpty ||
         _toController.text.isEmpty ||
         _rideOptions == null) {
        // Should be handled by button disable state, but good for safety
+      return;
+    }
+
+    // Validate scheduled time
+    if (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.scheduledTimePastError)),
+      );
       return;
     }
 
@@ -88,6 +131,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
             pickupAddress: _fromController.text,
             destinationAddress: _toController.text,
             options: _rideOptions!,
+            scheduledTime: _scheduledTime,
           );
 
       if (mounted) {
@@ -99,6 +143,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
         _toController.clear();
         setState(() {
           _rideOptions = null; // Reset options
+          _scheduledTime = null; // Reset time
         });
       }
     } catch (e) {
@@ -332,8 +377,114 @@ class _LandingPageState extends ConsumerState<LandingPage> {
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
 
+        // Time Selection Section
+        Card(
+          color: (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
+              ? Theme.of(context).colorScheme.errorContainer
+              : null,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: isInputDisabled ? null : () {
+              if (_scheduledTime == null) {
+                // Switch to scheduled -> open picker
+                _selectScheduledTime();
+              } else {
+                // Already scheduled -> show options (Change or Reset to Now)
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) => SafeArea(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.edit),
+                          title: Text(l10n.changeTimeButton),
+                          onTap: () {
+                            Navigator.pop(context);
+                            _selectScheduledTime();
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.restore),
+                          title: Text(l10n.resetToNowButton),
+                          onTap: () {
+                            setState(() => _scheduledTime = null);
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n.timeLabel,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
+                              ? Theme.of(context).colorScheme.onErrorContainer
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_drop_down,
+                        color: (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
+                              ? Theme.of(context).colorScheme.onErrorContainer
+                              : null,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        _scheduledTime == null ? Icons.access_time_filled : Icons.event,
+                        size: 20,
+                        color: (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
+                              ? Theme.of(context).colorScheme.onErrorContainer
+                              : null,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _scheduledTime == null
+                            ? l10n.nowLabel
+                            : '${_scheduledTime!.year}-${_scheduledTime!.month.toString().padLeft(2, '0')}-${_scheduledTime!.day.toString().padLeft(2, '0')} ${_scheduledTime!.hour.toString().padLeft(2, '0')}:${_scheduledTime!.minute.toString().padLeft(2, '0')}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold, 
+                          fontSize: 16,
+                          color: (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
+                              ? Theme.of(context).colorScheme.onErrorContainer
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_scheduledTime != null && _scheduledTime!.isBefore(DateTime.now()))
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Text(
+                        l10n.timeInPastError,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onErrorContainer,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
         const SizedBox(height: 24),
 
         // Request Button
@@ -341,7 +492,9 @@ class _LandingPageState extends ConsumerState<LandingPage> {
           onPressed: (!isInputDisabled && 
                       _fromController.text.isNotEmpty && 
                       _toController.text.isNotEmpty && 
-                      _rideOptions != null && !_isBooking) 
+                      _rideOptions != null && 
+                      !_isBooking &&
+                      (_scheduledTime == null || _scheduledTime!.isAfter(DateTime.now()))) 
               ? _createRideRequest
               : null, // Disable if invalid or active ride exists
           style: ElevatedButton.styleFrom(
@@ -351,7 +504,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
             disabledBackgroundColor: Colors.grey.shade300,
             disabledForegroundColor: Colors.grey.shade600,
           ),
-          child: Text(l10n.requestNowButton),
+          child: Text(_scheduledTime == null ? l10n.requestNowButton : l10n.submitBookingButton),
         ),
       ],
     );
@@ -413,46 +566,71 @@ class _LandingPageState extends ConsumerState<LandingPage> {
               );
             }
 
-            return ListView.builder(
+
+
+// ...
+
+            return ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: rides.length,
+              separatorBuilder: (context, index) => const SizedBox(height: kListItemSpacing),
               itemBuilder: (context, index) {
                 final ride = rides[index];
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    leading: const CircleAvatar(child: Icon(Icons.person)),
-                    title: Text('${l10n.rideIdLabel}${ride.shortId}'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(ride.pickupAddress, maxLines: 1, overflow: TextOverflow.ellipsis),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(ride.vehicleType.icon, size: 14),
-                            const SizedBox(width: 4),
-                            Text(ride.vehicleType.localized(context), style: Theme.of(context).textTheme.bodySmall),
-                          ],
-                        ),
-                      ],
-                    ),
-                    trailing: ElevatedButton(
-                      onPressed: () {
-                        ref.read(rideRepositoryProvider).acceptRide(
-                          rideId: ride.id,
-                          driverId: uid,
-                          driverName: username ?? 'Unknown Driver',
-                          driverPhone: phone,
-                          driverTelegram: null, // TODO: Add telegram to Session/User model
-                        );
-                      },
-                      child: Text(l10n.acceptButton),
-                    ),
+                  child: InkWell(
                     onTap: () {
                       context.push('/ride-details/${ride.id}');
                     },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                ride.scheduledTime != null
+                                    ? '${ride.scheduledTime!.year}-${ride.scheduledTime!.month.toString().padLeft(2, '0')}-${ride.scheduledTime!.day.toString().padLeft(2, '0')} ${ride.scheduledTime!.hour.toString().padLeft(2, '0')}:${ride.scheduledTime!.minute.toString().padLeft(2, '0')}'
+                                    : l10n.nowLabel,
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  ref.read(rideRepositoryProvider).acceptRide(
+                                    rideId: ride.id,
+                                    driverId: uid,
+                                    driverName: username ?? 'Unknown Driver',
+                                    driverPhone: phone,
+                                    driverTelegram: null, // TODO: Add telegram to Session/User model
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  visualDensity: VisualDensity.compact,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                ),
+                                child: Text(l10n.acceptButton),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          RideRouteWidget(
+                            pickupAddress: ride.pickupAddress,
+                            destinationAddress: ride.destinationAddress,
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(ride.vehicleType.icon, size: 14, color: Colors.grey),
+                              const SizedBox(width: 4),
+                              Text(ride.vehicleType.localized(context), style: Theme.of(context).textTheme.bodySmall),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 );
               },

@@ -854,6 +854,66 @@ abstract class AppLocalizations {
   /// **'Ride Details'**
   String get rideDetailsTitle;
 
+  /// No description provided for @timeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get timeLabel;
+
+  /// No description provided for @nowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get nowLabel;
+
+  /// No description provided for @scheduledLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled: '**
+  String get scheduledLabel;
+
+  /// No description provided for @fromLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'From: '**
+  String get fromLabel;
+
+  /// No description provided for @toLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'To: '**
+  String get toLabel;
+
+  /// No description provided for @submitBookingButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Booking'**
+  String get submitBookingButton;
+
+  /// No description provided for @changeTimeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Time'**
+  String get changeTimeButton;
+
+  /// No description provided for @resetToNowButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to Now'**
+  String get resetToNowButton;
+
+  /// No description provided for @timeInPastError.
+  ///
+  /// In en, this message translates to:
+  /// **'Time is in the past. Please change.'**
+  String get timeInPastError;
+
+  /// No description provided for @scheduledTimePastError.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled time cannot be in the past.'**
+  String get scheduledTimePastError;
+
   /// No description provided for @confirmCancelMessage.
   ///
   /// In en, this message translates to:

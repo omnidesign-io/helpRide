@@ -4,9 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:helpride/features/rides/repository/ride_repository.dart';
 import 'package:helpride/features/rides/domain/ride_model.dart';
-import 'package:helpride/features/rides/domain/ride_status_extension.dart';
+
 import 'package:helpride/core/providers/session_provider.dart';
 import 'package:helpride/core/providers/role_provider.dart'; // Added import
+import 'package:helpride/core/presentation/constants.dart';
+import 'package:helpride/features/rides/presentation/widgets/ride_route_widget.dart';
+import 'package:helpride/features/rides/presentation/widgets/status_chip.dart';
 
 class OrdersScreen extends ConsumerWidget {
   const OrdersScreen({super.key});
@@ -61,27 +64,73 @@ class OrdersScreen extends ConsumerWidget {
           final rides = snapshot.data!;
           if (rides.isEmpty) return Center(child: Text(l10n.noHistoryMessage));
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: rides.length,
-            itemBuilder: (context, index) {
-              final ride = rides[index];
-              return Semantics(
-                label: 'Ride ${ride.shortId}, Status: ${ride.status.localized(context)}',
-                child: Card(
-                  child: ListTile(
-                    key: Key('order_tile_${ride.shortId}'),
-                    title: Text('Ride #${ride.shortId}'),
-                    subtitle: Text('${ride.status.localized(context)} - ${ride.createdAt}'),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: rides.length,
+              separatorBuilder: (context, index) => const SizedBox(height: kListItemSpacing),
+              itemBuilder: (context, index) {
+                final ride = rides[index];
+                return Card(
+                  child: InkWell(
                     onTap: () {
                       context.push('/ride-details/${ride.id}');
                     },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                ride.scheduledTime != null
+                                    ? '${ride.scheduledTime!.year}-${ride.scheduledTime!.month.toString().padLeft(2, '0')}-${ride.scheduledTime!.day.toString().padLeft(2, '0')} ${ride.scheduledTime!.hour.toString().padLeft(2, '0')}:${ride.scheduledTime!.minute.toString().padLeft(2, '0')}'
+                                    : l10n.nowLabel,
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              StatusChip(status: ride.status),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          RideRouteWidget(
+                            pickupAddress: ride.pickupAddress,
+                            destinationAddress: ride.destinationAddress,
+                          ),
+                          Builder(
+                            builder: (context) {
+                              final isDriver = ride.driverId == session.uid;
+                              final otherPartyName = isDriver ? ride.riderName : ride.driverName;
+                              final otherPartyLabel = isDriver ? l10n.riderLabel : l10n.driverLabel;
+
+                              if (otherPartyName != null) {
+                                return Column(
+                                  children: [
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.person, size: 16, color: Colors.grey),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '$otherPartyLabel: $otherPartyName',
+                                          style: Theme.of(context).textTheme.bodySmall,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              );
-            },
-          );
+                );
+              },
+            );
         },
       ),
     );

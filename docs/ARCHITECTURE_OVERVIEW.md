@@ -43,6 +43,18 @@ The ride lifecycle in HelpRide follows a strict state machine to ensure consiste
     *   **Description**: The ride was terminated before completion. This is a terminal state.
     *   **Allowed Actions**: None.
 
+### Status Colors
+To ensure consistency across the app, the following colors are used for each ride status:
+
+| Status | Color | Hex Code |
+| :--- | :--- | :--- |
+| **Pending** | Orange | `#FF9800` |
+| **Accepted** | Blue | `#2196F3` |
+| **Arrived** | Purple | `#9C27B0` |
+| **Riding** | Green | `#4CAF50` |
+| **Completed** | Grey | `#9E9E9E` |
+| **Cancelled** | Red | `#F44336` |
+
 ## Critical Action Handling
 For critical actions (e.g., booking a ride, payments), we implement a **"Disable-on-Click"** pattern:
 1.  **Immediate Feedback**: Set a local loading state (e.g., `_isBooking = true`) *immediately* when the button is pressed.

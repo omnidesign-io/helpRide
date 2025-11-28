@@ -405,6 +405,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rideDetailsTitle => 'Ride Details';
 
   @override
+  String get timeLabel => 'Time';
+
+  @override
+  String get nowLabel => 'Now';
+
+  @override
+  String get scheduledLabel => 'Scheduled: ';
+
+  @override
+  String get fromLabel => 'From: ';
+
+  @override
+  String get toLabel => 'To: ';
+
+  @override
+  String get submitBookingButton => 'Submit Booking';
+
+  @override
+  String get changeTimeButton => 'Change Time';
+
+  @override
+  String get resetToNowButton => 'Reset to Now';
+
+  @override
+  String get timeInPastError => 'Time is in the past. Please change.';
+
+  @override
+  String get scheduledTimePastError => 'Scheduled time cannot be in the past.';
+
+  @override
   String get confirmCancelMessage =>
       'Are you sure you want to cancel this ride?';
 

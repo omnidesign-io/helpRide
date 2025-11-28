@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:helpride/l10n/generated/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:helpride/core/providers/session_provider.dart';
-import '../repository/ride_repository.dart';
-import '../domain/ride_model.dart';
+import 'package:helpride/features/rides/domain/ride_model.dart';
+import 'package:helpride/features/rides/repository/ride_repository.dart';
+import 'package:helpride/features/rides/domain/vehicle_type.dart';
+import 'package:helpride/core/presentation/constants.dart';
+import 'package:helpride/features/rides/presentation/widgets/ride_route_widget.dart';
 
 class DriverDashboardScreen extends ConsumerWidget {
   const DriverDashboardScreen({super.key});
@@ -67,37 +71,62 @@ class DriverDashboardScreen extends ConsumerWidget {
             return Center(child: Text(l10n.noRidesAvailableMessage));
           }
 
-          return ListView.builder(
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
             itemCount: rides.length,
+            separatorBuilder: (context, index) => const SizedBox(height: kListItemSpacing),
             itemBuilder: (context, index) {
               final ride = rides[index];
-              final isMyRide = ride.driverId == session.uid;
-
               return Card(
-                margin: const EdgeInsets.all(8.0),
-                color: isMyRide ? Colors.teal.shade50 : null,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('${l10n.pickupLocationLabel}: ${ride.pickupAddress}'),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Text('${l10n.riderLabel}: ${ride.riderPhone}'),
-                          if (isMyRide) ...[
-                            const SizedBox(width: 8),
-                            IconButton(
-                              icon: const Icon(Icons.message, color: Colors.green),
-                              onPressed: () => _launchWhatsApp(ride.riderPhone),
+                child: InkWell(
+                  onTap: () {
+                    context.push('/ride-details/${ride.id}');
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              ride.scheduledTime != null
+                                  ? '${ride.scheduledTime!.year}-${ride.scheduledTime!.month.toString().padLeft(2, '0')}-${ride.scheduledTime!.day.toString().padLeft(2, '0')} ${ride.scheduledTime!.hour.toString().padLeft(2, '0')}:${ride.scheduledTime!.minute.toString().padLeft(2, '0')}'
+                                  : l10n.nowLabel,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            // Driver dashboard usually shows available rides (pending) or active rides.
+                            // If showing active rides, maybe show status? But for now, just time.
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        RideRouteWidget(
+                          pickupAddress: ride.pickupAddress,
+                          destinationAddress: ride.destinationAddress,
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(ride.vehicleType.icon, size: 16, color: Colors.grey),
+                            const SizedBox(width: 4),
+                            Text(ride.vehicleType.localized(context), style: Theme.of(context).textTheme.bodySmall),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(Icons.person, size: 16, color: Colors.grey),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${l10n.riderLabel}: ${ride.riderName}',
+                              style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      _buildActionButtons(context, rideRepo, ride, isMyRide, l10n, ref, session.uid, session.username ?? 'Unknown Driver', session.phoneNumber),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );

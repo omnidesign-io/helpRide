@@ -25,7 +25,13 @@ class RideRepository {
     required String pickupAddress,
     required String destinationAddress,
     required RideOptions options,
+    DateTime? scheduledTime,
   }) async {
+    // Validate scheduled time
+    if (scheduledTime != null && scheduledTime.isBefore(DateTime.now())) {
+      throw Exception('Scheduled time cannot be in the past.');
+    }
+
     // Pre-check for existing active rides (Legacy/Fallback)
     // This catches cases where lastRideId might be missing or out of sync,
     // but isn't race-condition proof on its own.
@@ -56,6 +62,7 @@ class RideRepository {
       destinationAddress: destinationAddress,
       status: RideStatus.pending,
       createdAt: DateTime.now(),
+      scheduledTime: scheduledTime,
       passengerCount: options.passengerCount,
       vehicleType: options.vehicleType,
       acceptPets: options.acceptPets,

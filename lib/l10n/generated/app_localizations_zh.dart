@@ -192,7 +192,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noPendingRidesMessage => '附近暫無待處理預約';
 
   @override
-  String get rideIdLabel => '行程 #';
+  String get rideIdLabel => '行程編號：';
 
   @override
   String get pickupProximityMessage => '上車點：2 分鐘路程';
@@ -387,6 +387,36 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get rideDetailsTitle => '行程詳情';
+
+  @override
+  String get timeLabel => '時間';
+
+  @override
+  String get nowLabel => '即時';
+
+  @override
+  String get scheduledLabel => '預約：';
+
+  @override
+  String get fromLabel => '從：';
+
+  @override
+  String get toLabel => '往：';
+
+  @override
+  String get submitBookingButton => '提交預約';
+
+  @override
+  String get changeTimeButton => '更改時間';
+
+  @override
+  String get resetToNowButton => '重設為即時';
+
+  @override
+  String get timeInPastError => '時間已過，請更改。';
+
+  @override
+  String get scheduledTimePastError => '預約時間不能是過去的時間。';
 
   @override
   String get confirmCancelMessage => '您確定要取消此行程嗎？';
